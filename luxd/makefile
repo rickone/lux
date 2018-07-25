@@ -1,8 +1,8 @@
-Target  = stmd
+Target  = luxd
 Include = ../include/lua ../include/stm
 Source	= main.cpp
 LibDir	= ../lib
-Lib 	= stm lua
+Lib 	= lux
 ObjDir	= ../obj
 OutDir	= ../bin
 Define 	=

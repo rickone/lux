@@ -1,6 +1,6 @@
-.PHONY: all clean stmd stm lua kcp
+.PHONY: all clean luxd lux lua kcp
 
-all: stmd
+all: luxd
 
 clean:
 	rm -rf bin
@@ -8,10 +8,10 @@ clean:
 	rm -rf obj
 	rm -f `find include -name "*.h"`
 
-stmd: stm
-	$(MAKE) -C stmd
+luxd: lux
+	$(MAKE) -C luxd
 
-stm: lua kcp
+lux: lua kcp
 	$(MAKE) -C src
 
 lua:

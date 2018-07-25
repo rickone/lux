@@ -1,4 +1,4 @@
-Target  = libstm.so
+Target  = liblux.so
 Include = ../include/lua ../include/kcp $(shell find . -type d)
 Source  = $(shell find . -name "*.cpp")
 LibDir  = ../lib

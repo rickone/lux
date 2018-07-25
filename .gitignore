@@ -1,0 +1,6 @@
+bin/
+obj/
+lib/
+include/
+*.db
+*.suo
