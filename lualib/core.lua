@@ -1,0 +1,7 @@
+require "class"
+require "hook"
+require "global"
+require "reload"
+require "pretty"
+require "tree"
+require "msg_type"
