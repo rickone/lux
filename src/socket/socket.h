@@ -58,6 +58,7 @@ public:
     int wsa_send(const void *data, size_t len, int flags);
 #endif
 
+    int lua_connect(lua_State *L);
     int lua_send(lua_State *L);
     int lua_sendto(lua_State *L);
 

@@ -3,8 +3,8 @@ require "core"
 local client = {name="client"}
 
 function client:start()
-    local socket = tcp_socket.connect("::", "8866")
-    self:add_component(socket)
+    local socket = socket_core.tcp_connect("::", "8866")
+    self.entity:add_component(socket)
     self.socket = socket
     
     self:subscribe(msg_type.socket_recv, "on_recv")
@@ -23,7 +23,7 @@ function client:update(t)
     self.socket:send(data)
     
     if data == "close" then
-        self:remove_entity()
+        self.entity:remove()
     end
 end
 

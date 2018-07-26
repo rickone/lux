@@ -46,6 +46,7 @@ void Socket::new_class(lua_State *L)
         lua_method(L, close);
         lua_method(L, attach);
         lua_method(L, detach);
+        lua_std_method(L, connect);
         lua_std_method(L, send);
         lua_std_method(L, sendto);
     }
@@ -486,6 +487,15 @@ int Socket::wsa_send(const void *data, size_t len, int flags)
     return (int)send_len;
 }
 #endif
+
+int Socket::lua_connect(lua_State *L)
+{
+    size_t addrlen = 0;
+    struct sockaddr *addr = (struct sockaddr *)luaL_checklstring(L, 1, &addrlen);
+
+    connect(addr, addrlen);
+    return 0;
+}
 
 int Socket::lua_send(lua_State *L)
 {

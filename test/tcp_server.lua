@@ -2,8 +2,8 @@ require "core"
 
 local connection = {name="connection"}
 
-function connection:start()
-    self.socket = self.entity:find_component("socket")
+function connection:start(socket)
+    self.socket = socket
     self:subscribe(msg_type.socket_recv, "on_recv")
 end
 
@@ -12,7 +12,7 @@ function connection:on_recv(buffer)
 
     print("on_recv", data)
     if data == "close" then
-        self:remove_entity()
+        self.entity:remove()
         return
     end
 
@@ -23,9 +23,8 @@ end
 local server = {name="server"}
 
 function server:start()
-    local socket = tcp_socket_listener.create("::", "8866")
+    local socket = socket_core.tcp_listen("::", "8866")
     self.entity:add_component(socket)
-    self.socket = socket
 
     self:subscribe(msg_type.socket_accept, "on_accept")
 end
@@ -33,9 +32,9 @@ end
 function server:on_accept(socket)
     print("on_accept", socket)
 
-    local ent = entity.create()
+    local ent = lux_core.create_entity()
     ent:add_component(socket)
-    ent:add_component(connection)
+    ent:add_component(connection, socket)
 end
 
 return server

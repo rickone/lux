@@ -69,11 +69,16 @@ void Buffer::new_class(lua_State *L)
     lua_push_method(L, tostring);
     lua_setfield(L, -2, "__tostring");
 
-    lua_newtable(L);
+    lua_lib(L, "lux_core");
     {
-        //lua_creater(L, "new");
+        lua_set_method(L, "create_buffer", create);
     }
-    lua_setglobal(L, "buffer");
+    lua_pop(L, 1);
+}
+
+std::shared_ptr<Buffer> Buffer::create()
+{
+    return std::shared_ptr<Buffer>(new Buffer());
 }
 
 void Buffer::clear()
@@ -200,12 +205,12 @@ std::string Buffer::pop_string(size_t len)
     return str;
 }
 
-int Buffer::find(const std::string &str)
+int Buffer::find(size_t pos, const std::string &str)
 {
     // KMP later
     size_t sz = size();
     size_t str_len = str.size();
-    for (size_t pos = 0; pos < sz; ++pos)
+    for (; pos < sz; ++pos)
     {
         if (*data(pos) != str.at(0))
             continue;

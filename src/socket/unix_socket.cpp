@@ -26,14 +26,19 @@ void UnixSocket::new_class(lua_State *L)
     }
     lua_setfield(L, -2, "__method");
 
-    lua_newtable(L);
+    lua_lib(L, "socket_core");
     {
-        lua_method(L, create);
-        lua_method(L, new_service);
-        lua_method(L, connect);
-        lua_std_method(L, fork);
+        lua_set_method(L, "unix_attach", create);
+        lua_set_method(L, "unix_listen", new_service);
+        lua_set_method(L, "unix_connect", connect);
     }
-    lua_setglobal(L, "unix_socket");
+    lua_pop(L, 1);
+
+    lua_lib(L, "lux_core");
+    {
+        lua_set_method(L, "fork", lua_fork);
+    }
+    lua_pop(L, 1);
 }
 
 std::pair<Socket, Socket> UnixSocket::create_pair()

@@ -14,11 +14,13 @@ void RespObject::new_class(lua_State *L)
     }
     lua_setfield(L, -2, "__method");
 
+    /*
     lua_newtable(L);
     {
         lua_method(L, create);
     }
     lua_setglobal(L, "resp");
+    */
 }
 
 std::shared_ptr<RespObject> RespObject::create()

@@ -11,7 +11,7 @@ function Request.new()
 end
 
 function Request:parse_cmd(buffer)
-    local i = buffer:find("\r\n")
+    local i = buffer:find(0, "\r\n")
     if i < 0 then
         return false
     end
@@ -28,7 +28,7 @@ end
 function Request:parse_header(buffer)
     local i, j, empty_line = 1, 1, false
     while true do
-        local i = buffer:find("\r\n")
+        local i = buffer:find(0, "\r\n")
         if i < 0 then
             return false
         end

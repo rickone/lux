@@ -64,7 +64,7 @@ end
 local httpd = {name="httpd"}
 
 function httpd:start()
-    local socket = tcp_socket_listener.create("::", "8866")
+    local socket = socket_core.tcp_listen("::", "8866")
     self.entity:add_component(socket)
     self.socket = socket
 
@@ -78,7 +78,7 @@ function httpd:start()
 end
 
 function httpd:on_accept(socket)
-    local ent = entity.create()
+    local ent = lux_core.create_entity()
     ent:add_component(socket)
     ent:add_component(session)
     ent:add_component(command, self, socket)

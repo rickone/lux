@@ -56,7 +56,9 @@ void on_debug(int sig)
 #else
     snprintf(cmd, sizeof(cmd), "sudo gdb attach %d", getpid());
 #endif
-    system(cmd);
+    int ret = system(cmd);
+    log_info("system return: %d", ret);
+    
     signal(sig, nullptr);
 }
 

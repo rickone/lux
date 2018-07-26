@@ -14,11 +14,11 @@ void Entity::new_class(lua_State *L)
     }
     lua_setfield(L, -2, "__method");
 
-    lua_newtable(L);
+    lua_lib(L, "lux_core");
     {
-        lua_method(L, create);
+        lua_set_method(L, "create_entity", create);
     }
-    lua_setglobal(L, "entity");
+    lua_pop(L, 1);
 }
 
 std::shared_ptr<Entity> Entity::create()

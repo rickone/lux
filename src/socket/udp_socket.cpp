@@ -10,13 +10,13 @@ void UdpSocket::new_class(lua_State *L)
 {
     lua_new_class(L, UdpSocket);
 
-    lua_newtable(L);
+    lua_lib(L, "socket_core");
     {
-        lua_method(L, create);
-        lua_method(L, bind);
-        lua_method(L, connect);
+        lua_set_method(L, "udp_attach", create);
+        lua_set_method(L, "udp_bind", bind);
+        lua_set_method(L, "udp_connect", connect);
     }
-    lua_setglobal(L, "udp_socket");
+    lua_pop(L, 1);
 }
 
 std::shared_ptr<UdpSocket> UdpSocket::create(socket_t fd)

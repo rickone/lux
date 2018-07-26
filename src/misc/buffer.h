@@ -12,6 +12,7 @@ public:
     virtual ~Buffer();
 
     static void new_class(lua_State *L);
+    static std::shared_ptr<Buffer> create();
 
     void clear();
     const char * data(size_t pos = 0) const;
@@ -30,7 +31,7 @@ public:
     size_t var(size_t len);
     void push_string(const std::string &str);
     std::string pop_string(size_t len);
-    int find(const std::string &str);
+    int find(size_t pos, const std::string &str);
 
     std::pair<char *, size_t> front();
     std::pair<char *, size_t> back();

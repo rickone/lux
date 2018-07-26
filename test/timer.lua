@@ -17,7 +17,7 @@ function body:update(t)
     print(t, type(t), t.counter)
 
     if t.counter == 0 then
-        self:remove_all()
+        self.entity:remove()
     end
 end
 

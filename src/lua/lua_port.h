@@ -540,6 +540,20 @@ inline T overload_func(T t)
     } \
     lua_setfield(L, -2, #property)
 
+#define lua_lib(L, name) \
+    do \
+    { \
+        int ret = lua_getglobal(L, name); \
+        if (ret != LUA_TTABLE) \
+        { \
+            lua_pop(L, 1); \
+            lua_newtable(L); \
+            lua_pushvalue(L, -1); \
+            lua_setglobal(L, name); \
+        } \
+    } while (false)
+
+
 #define lua_property(L, property) \
     lua_newtable(L); \
     { \

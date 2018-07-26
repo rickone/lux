@@ -1,4 +1,4 @@
-local b = buffer.new()
+local b = lux_core.create_buffer()
 b.min_alloc_size = 8
 
 b:push_string("Hello")

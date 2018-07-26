@@ -12,12 +12,12 @@ void TcpSocket::new_class(lua_State *L)
 {
     lua_new_class(L, TcpSocket);
 
-    lua_newtable(L);
+    lua_lib(L, "socket_core");
     {
-        lua_method(L, create);
-        lua_method(L, connect); 
+        lua_set_method(L, "tcp_attach", create);
+        lua_set_method(L, "tcp_connect", connect);
     }
-    lua_setglobal(L, "tcp_socket");
+    lua_pop(L, 1);
 }
 
 std::shared_ptr<TcpSocket> TcpSocket::create(socket_t fd)

@@ -37,11 +37,11 @@ void SocketKcp::new_class(lua_State *L)
     }
     lua_setfield(L, -2, "__method");
 
-    lua_newtable(L);
+    lua_lib(L, "lux_core");
     {
-        lua_method(L, create);
+        lua_set_method(L, "create_kcp", create);
     }
-    lua_setglobal(L, "socket_kcp");
+    lua_pop(L, 1);
 }
 
 std::shared_ptr<SocketKcp> SocketKcp::create()

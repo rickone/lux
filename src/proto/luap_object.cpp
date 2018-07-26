@@ -32,11 +32,13 @@ void LuapObject::new_class(lua_State *L)
     }
     lua_setfield(L, -2, "__method");
 
+    /*
     lua_newtable(L);
     {
         lua_method(L, create);
     }
     lua_setglobal(L, "luap");
+    */
 }
 
 std::shared_ptr<LuapObject> LuapObject::create()

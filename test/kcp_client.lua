@@ -3,12 +3,12 @@ require "core"
 local client = {name="client"}
 
 function client:start()
-    local socket = udp_socket.connect("::", "8866")
-    self:add_component(socket)
+    local socket = socket_core.udp_connect("::", "8866")
+    self.entity:add_component(socket)
     
-    local kcp = socket_kcp.create()
-    self:add_component(kcp)
-    self.socket = kcp
+    local kcp = lux_core.create_kcp()
+    self.entity:add_component(kcp)
+    self.kcp = kcp
 
     self:subscribe(msg_type.kcp_output, "on_recv")
     self:set_timer("update", 100, 10)
@@ -23,7 +23,7 @@ function client:update(t)
     local data = (t.counter == 0) and "close" or ("hello "..t.counter)
     print("send", data)
 
-    self.socket:send(data)
+    self.kcp:send(data)
 end
 
 return client

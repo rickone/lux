@@ -14,11 +14,11 @@ void UdpSocketListener::new_class(lua_State *L)
 {
     lua_new_class(L, UdpSocketListener);
 
-    lua_newtable(L);
+    lua_lib(L, "socket_core");
     {
-        lua_method(L, create);
+        lua_set_method(L, "udp_listen", create);
     }
-    lua_setglobal(L, "udp_socket_listener");
+    lua_pop(L, 1);
 }
 
 std::shared_ptr<UdpSocketListener> UdpSocketListener::create(const char *node, const char *service)
