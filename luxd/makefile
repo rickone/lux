@@ -1,5 +1,5 @@
 Target  = luxd
-Include = ../include/lua ../include/stm
+Include = ../include/lua ../include/lux
 Source	= main.cpp
 LibDir	= ../lib
 Lib 	= lux

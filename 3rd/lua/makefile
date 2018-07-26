@@ -9,6 +9,8 @@ Define 	= LUA_USE_POSIX
 CFLAGS	=
 CXXFLAGS =
 LDFLAGS =
-AfterBuild = mkdir -p ../../include/lua & cp src/lua.h src/lualib.h src/lauxlib.h src/luaconf.h src/lua.hpp ../../include/lua
+AfterBuild = cp src/lua.h src/lualib.h src/lauxlib.h src/luaconf.h src/lua.hpp ../../include/lua
+
+$(shell mkdir -p ../../include/lua)
 
 include ../../utils/makefile

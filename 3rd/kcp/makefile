@@ -9,6 +9,8 @@ Define 	=
 CFLAGS	=
 CXXFLAGS =
 LDFLAGS =
-AfterBuild = mkdir -p ../../include/kcp & cp ikcp.h ../../include/kcp
+AfterBuild = cp ikcp.h ../../include/kcp
+
+$(shell mkdir -p ../../include/kcp)
 
 include ../../utils/makefile

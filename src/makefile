@@ -9,6 +9,8 @@ Define  =
 CFLAGS  =
 CXXFLAGS =
 LDFLAGS =
-AfterBuild = mkdir -p ../include/stm & cp $(shell find . -name "*.h") ../include/stm
+AfterBuild = cp $(shell find . -name "*.h") ../include/lux
+
+$(shell mkdir -p ../include/lux)
 
 include ../utils/makefile

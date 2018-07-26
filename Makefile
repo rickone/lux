@@ -6,7 +6,7 @@ clean:
 	rm -rf bin
 	rm -rf lib
 	rm -rf obj
-	rm -f `find include -name "*.h"`
+	rm -rf include
 
 luxd: lux
 	$(MAKE) -C luxd
