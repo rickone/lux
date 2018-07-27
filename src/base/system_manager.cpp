@@ -11,6 +11,7 @@
 #include "udp_socket.h"
 #include "udp_socket_listener.h"
 #include "unix_socket.h"
+#include "unix_socket_stream.h"
 #include "unix_socket_listener.h"
 #include "socket_kcp.h"
 #include "proto_base.h"
@@ -296,6 +297,7 @@ void SystemManager::lua_core_openlibs(lua_State *L)
 #if !defined(_WIN32)
     lua_class_define<UdpSocketListener, Socket>(L);
     lua_class_define<UnixSocket, Socket>(L);
+    lua_class_define<UnixSocketStream, UnixSocket>(L);
     lua_class_define<UnixSocketListener, Socket>(L);
 #endif
     lua_class_define<SocketKcp, Component>(L);

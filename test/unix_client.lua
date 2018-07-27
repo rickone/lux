@@ -3,7 +3,13 @@ require "core"
 local client = {name="client"}
 
 function client:start()
-    local socket = socket_core.unix_connect("luxd.sock")
+    local socket
+    if config.extra == "ex" then
+        socket = socket_core.unix_connect_stream("luxd.sock")
+    else
+        socket = socket_core.unix_bind("luxd-client.sock")
+        socket:connect("luxd-server.sock")
+    end
     self.entity:add_component(socket)
     self.socket = socket
     

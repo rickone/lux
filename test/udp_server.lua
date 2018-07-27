@@ -49,7 +49,6 @@ function server:on_recv(buffer, addr)
     
     print("on_recv", data)
     self.socket:sendto("rsp "..data, addr)
-    buffer:clear()
     
     if data == "close" then
         self.entity:remove()

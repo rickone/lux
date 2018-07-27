@@ -1,6 +1,6 @@
 #if !defined(_WIN32)
 #include "unix_socket_listener.h"
-#include "unix_socket.h"
+#include "unix_socket_stream.h"
 #include "socket_addr.h"
 #include "config.h"
 #include "log.h"
@@ -61,7 +61,7 @@ void UnixSocketListener::on_read(size_t len)
         if (!socket)
             break;
 
-        auto unix_socket = UnixSocket::create(socket.detach(), true);
+        auto unix_socket = UnixSocketStream::create(socket.detach());
 
         publish(kMsg_SocketAccept, (Socket *)unix_socket.get());
     }

@@ -18,7 +18,7 @@ void UnixSocketStream::new_class(lua_State *L)
 
     lua_lib(L, "socket_core");
     {
-        lua_set_method(L, "unix_attach", create);
+        lua_set_method(L, "unix_attach_stream", create);
         lua_set_method(L, "unix_connect", connect);
     }
     lua_pop(L, 1);
@@ -76,7 +76,7 @@ std::shared_ptr<UnixSocketStream> UnixSocketStream::fork(const char *proc_title,
     {
         log_info("socket fork fd(%d)", pair.first.fd());
 
-        return create(pair.first.detach(), true);
+        return create(pair.first.detach());
     }
 
     system_manager->set_proc_title(proc_title);
@@ -88,7 +88,7 @@ std::shared_ptr<UnixSocketStream> UnixSocketStream::fork(const char *proc_title,
 
     pair.first.close();
 
-    auto socket = create(pair.second.detach(), true);
+    auto socket = create(pair.second.detach());
 
     worker_proc(socket);
 
@@ -117,10 +117,7 @@ void UnixSocketStream::init_connect(const char *socket_path)
 {
     logic_assert(_fd < 0, "_fd = %d", _fd);
 
-    if (stream_mode)
-        init(AF_UNIX, SOCK_STREAM, 0);
-    else
-        init(AF_UNIX, SOCK_DGRAM, 0);
+    init(AF_UNIX, SOCK_STREAM, 0);
 
     struct sockaddr_un addr;
     addr.sun_family = AF_UNIX;
@@ -206,59 +203,6 @@ void UnixSocketStream::flush()
             break;
 
         _send_buffer.pop(nullptr, ret);
-    }
-}
-
-void UnixSocketStream::on_recvfrom(size_t len)
-{
-    while (_fd >= 0)
-    {
-        sockaddr_storage remote_sockaddr;
-        socklen_t remote_sockaddr_len;
-
-        auto back = _recv_buffer.back();
-        int ret = recvfrom(back.first, back.second, 0, (struct sockaddr *)&remote_sockaddr, &remote_sockaddr_len);
-        if (ret == 0)
-        {
-            publish(kMsg_SocketClose, (Socket *)this);
-
-            close();
-            return;
-        }
-
-        if (ret < 0)
-            break;
-
-        _recv_buffer.push(nullptr, ret);
-
-        LuaSockAddr lua_sockaddr;
-        lua_sockaddr.addr = (struct sockaddr *)&remote_sockaddr;
-        lua_sockaddr.addrlen = remote_sockaddr_len;
-
-        publish(kMsg_SocketRecv, &_recv_buffer, &lua_sockaddr);
-    }
-}
-
-void UnixSocketStream::on_recv(size_t len)
-{
-    while (_fd >= 0)
-    {
-        auto back = _recv_buffer.back();
-        int ret = recvfrom(back.first, back.second, 0, nullptr, nullptr);
-        if (ret == 0)
-        {
-            publish(kMsg_SocketClose, (Socket *)this);
-
-            close();
-            return;
-        }
-
-        if (ret < 0)
-            break;
-
-        _recv_buffer.push(nullptr, ret);
-
-        publish(kMsg_SocketRecv, &_recv_buffer);
     }
 }
 

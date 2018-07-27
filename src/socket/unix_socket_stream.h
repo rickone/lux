@@ -7,7 +7,7 @@ class UnixSocketStream : public UnixSocket
 {
 public:
     UnixSocketStream() = default;
-    virtual ~UnixSocketStream();
+    virtual ~UnixSocketStream() = default;
 
     static void new_class(lua_State *L);
     static std::pair<Socket, Socket> create_pair();
@@ -24,15 +24,9 @@ public:
 
 protected:
     void flush();
-    void on_recvfrom(size_t len);
-    void on_recv(size_t len);
 
     Buffer _recv_buffer;
     Buffer _send_buffer;
-    std::list<int> _recv_fd_list;
-    std::list<int> _send_fd_list;
-    void (UnixSocketStream::*_on_read)(size_t len);
-    std::string _socket_path;
 };
 
 #endif // !_WIN32
