@@ -61,7 +61,7 @@ void SocketKcp::send(const std::string &str)
 
 int SocketKcp::on_kcp_send(const char *data, size_t len)
 {
-    _socket->send_data(data, len);
+    _socket->send(data, len, 0);
     return 0;
 }
 

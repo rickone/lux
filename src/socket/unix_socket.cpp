@@ -1,6 +1,5 @@
 #if !defined(_WIN32)
 #include "unix_socket.h"
-#include "socket_manager.h"
 #include "socket_addr.h"
 #include "config.h"
 #include "error.h"
@@ -29,7 +28,6 @@ void UnixSocket::new_class(lua_State *L)
     lua_lib(L, "socket_core");
     {
         lua_set_method(L, "unix_attach", create);
-        lua_set_method(L, "unix_listen", new_service);
         lua_set_method(L, "unix_connect", connect);
     }
     lua_pop(L, 1);
@@ -60,28 +58,30 @@ std::pair<Socket, Socket> UnixSocket::create_pair()
     return pair;
 }
 
-std::shared_ptr<UnixSocket> UnixSocket::create(int fd)
+std::shared_ptr<UnixSocket> UnixSocket::create(int fd, bool stream_mode)
 {
     std::shared_ptr<UnixSocket> socket(new UnixSocket());
     socket->attach(fd);
     socket->add_event(kSocketEvent_Read);
-    socket->_on_read = &UnixSocket::on_recv;
-    socket->_on_write = &UnixSocket::on_send;
+    if (stream_mode)
+        socket->_on_read = &UnixSocket::on_recv;
+    else
+        socket->_on_read = &UnixSocket::on_recvfrom;
 
     return socket;
 }
 
-std::shared_ptr<UnixSocket> UnixSocket::new_service(const char *socket_path)
+std::shared_ptr<UnixSocket> UnixSocket::bind(const char *socket_path)
 {
     std::shared_ptr<UnixSocket> socket(new UnixSocket());
-    socket->init_service(socket_path);
+    socket->init_bind(socket_path);
     return socket;
 }
 
-std::shared_ptr<UnixSocket> UnixSocket::connect(const char *socket_path)
+std::shared_ptr<UnixSocket> UnixSocket::connect(const char *socket_path, bool stream_mode)
 {
     std::shared_ptr<UnixSocket> socket(new UnixSocket());
-    socket->init_connect(socket_path);
+    socket->init_connect(socket_path, stream_mode);
     return socket;
 }
 
@@ -97,7 +97,7 @@ std::shared_ptr<UnixSocket> UnixSocket::fork(const char *proc_title, std::functi
     {
         log_info("socket fork fd(%d)", pair.first.fd());
 
-        return create(pair.first.detach());
+        return create(pair.first.detach(), true);
     }
 
     system_manager->set_proc_title(proc_title);
@@ -109,7 +109,7 @@ std::shared_ptr<UnixSocket> UnixSocket::fork(const char *proc_title, std::functi
 
     pair.first.close();
 
-    auto socket = create(pair.second.detach());
+    auto socket = create(pair.second.detach(), true);
 
     worker_proc(socket);
 
@@ -134,11 +134,11 @@ int UnixSocket::lua_fork(lua_State *L)
     return 1;
 }
 
-void UnixSocket::init_service(const char *socket_path)
+void UnixSocket::init_bind(const char *socket_path)
 {
     logic_assert(_fd < 0, "_fd = %d", _fd);
 
-    init(AF_UNIX, SOCK_STREAM, 0);
+    init(AF_UNIX, SOCK_DGRAM, 0);
 
     struct sockaddr_un addr;
     addr.sun_family = AF_UNIX;
@@ -149,22 +149,21 @@ void UnixSocket::init_service(const char *socket_path)
 
     unlink(addr.sun_path);
 
-    bind((const struct sockaddr *)&addr, sizeof(addr));
+    Socket::bind((const struct sockaddr *)&addr, sizeof(addr));
     listen(config->env()->listen_backlog);
     add_event(kSocketEvent_Read);
-    _on_read = &UnixSocket::on_accept;
     _socket_path = addr.sun_path;
-
-    struct stat st;
-    fstat(_fd, &st);
-    log_info("listen_local fd(%d) inode(%d)", _fd, st.st_ino);
+    _on_read = &UnixSocket::on_recvfrom;
 }
 
-void UnixSocket::init_connect(const char *socket_path)
+void UnixSocket::init_connect(const char *socket_path, bool stream_mode)
 {
     logic_assert(_fd < 0, "_fd = %d", _fd);
 
-    init(AF_UNIX, SOCK_STREAM, 0);
+    if (stream_mode)
+        init(AF_UNIX, SOCK_STREAM, 0);
+    else
+        init(AF_UNIX, SOCK_DGRAM, 0);
 
     struct sockaddr_un addr;
     addr.sun_family = AF_UNIX;
@@ -175,15 +174,29 @@ void UnixSocket::init_connect(const char *socket_path)
 
     Socket::connect((const struct sockaddr *)&addr, sizeof(addr));
     add_event(kSocketEvent_Read);
-    _on_read = &UnixSocket::on_recv;
-    _on_write = &UnixSocket::on_send;
 
-    struct stat st;
-    fstat(_fd, &st);
-    log_info("connect_local fd(%d) inode(%d)", _fd, st.st_ino);
+    if (stream_mode)
+        _on_read = &UnixSocket::on_recv;
+    else
+        _on_read = &UnixSocket::on_recvfrom;
 }
 
-int UnixSocket::recv(void *data, size_t len, int flags)
+void UnixSocket::push_fd(int fd)
+{
+    _send_fd_list.push_back(fd);
+}
+
+int UnixSocket::pop_fd()
+{
+    if (_recv_fd_list.empty())
+        return -1;
+
+    int fd = _recv_fd_list.front();
+    _recv_fd_list.pop_front();
+    return fd;
+}
+
+int UnixSocket::recvfrom(char *data, size_t len, int flags, struct sockaddr *src_addr, socklen_t *addrlen)
 {
     struct msghdr msg;
     struct iovec iov;
@@ -195,8 +208,8 @@ int UnixSocket::recv(void *data, size_t len, int flags)
     iov.iov_base = data;
     iov.iov_len = len;
 
-    msg.msg_name = nullptr;
-    msg.msg_namelen = 0;
+    msg.msg_name = src_addr;
+    msg.msg_namelen = addrlen ? *addrlen : 0;
     msg.msg_iov = &iov;
     msg.msg_iovlen = 1;
     msg.msg_control = cmsgu.control;
@@ -210,6 +223,9 @@ int UnixSocket::recv(void *data, size_t len, int flags)
 
         throw_socket_error();
     }
+
+    if (addrlen)
+        *addrlen = msg.msg_namelen;
 
     struct cmsghdr *cmsg = CMSG_FIRSTHDR(&msg);
     if (cmsg && cmsg->cmsg_level == SOL_SOCKET && cmsg->cmsg_type == SCM_RIGHTS)
@@ -229,16 +245,16 @@ int UnixSocket::recv(void *data, size_t len, int flags)
     return ret;
 }
 
-int UnixSocket::send(const void *data, size_t len, int flags)
+int UnixSocket::sendto(const char *data, size_t len, int flags, const struct sockaddr *dest_addr, socklen_t addrlen)
 {
     struct msghdr msg;
     struct iovec iov;
 
-    iov.iov_base = const_cast<void *>(data);
+    iov.iov_base = const_cast<char *>(data);
     iov.iov_len = len;
 
-    msg.msg_name = nullptr;
-    msg.msg_namelen = 0;
+    msg.msg_name = const_cast<struct sockaddr *>(dest_addr);
+    msg.msg_namelen = addrlen;
     msg.msg_iov = &iov;
     msg.msg_iovlen = 1;
     msg.msg_control = nullptr;
@@ -290,42 +306,17 @@ int UnixSocket::send(const void *data, size_t len, int flags)
     return ret;
 }
 
-void UnixSocket::push_fd(int fd)
-{
-    _send_fd_list.push_back(fd);
-}
-
-int UnixSocket::pop_fd()
-{
-    if (_recv_fd_list.empty())
-        return -1;
-
-    int fd = _recv_fd_list.front();
-    _recv_fd_list.pop_front();
-    return fd;
-}
-
-void UnixSocket::on_read(size_t len)
-{
-    (this->*_on_read)();
-}
-
-void UnixSocket::on_write(size_t len)
-{
-    (this->*_on_write)();
-}
-
-void UnixSocket::send_data(const char *data, size_t len)
+int UnixSocket::send(const char *data, size_t len, int flags)
 {
     if (!_send_buffer.empty())
     {
         _send_buffer.push(data, len);
-        return;
+        return 0;
     }
 
     while (len > 0)
     {
-        int ret = send(data, len, 0);
+        int ret = sendto(data, len, 0, nullptr, 0);
         if (ret < 0)
             break;
 
@@ -340,37 +331,10 @@ void UnixSocket::send_data(const char *data, size_t len)
 
         log_info("fd(%d) write pending", _fd);
     }
+    return 0;
 }
 
-void UnixSocket::flush()
-{
-    while (!_send_buffer.empty())
-    {
-        auto front = _send_buffer.front();
-        int ret = send(front.first, front.second, 0);
-        if (ret < 0)
-            break;
-
-        _send_buffer.pop(nullptr, ret);
-    }
-}
-
-void UnixSocket::on_accept()
-{
-    for (;;)
-    {
-        auto socket = accept();
-        if (!socket)
-            break;
-
-        auto unix_socket = create(socket.detach());
-        //auto shared_socket = std::static_pointer_cast<Socket>(unix_socket);
-
-        publish(kMsg_SocketAccept, (Socket *)unix_socket.get());
-    }
-}
-
-void UnixSocket::on_recv()
+void UnixSocket::on_read(size_t len)
 {
     while (_fd >= 0)
     {
@@ -393,7 +357,7 @@ void UnixSocket::on_recv()
     }
 }
 
-void UnixSocket::on_send()
+void UnixSocket::on_write(size_t len)
 {
     flush();
 
@@ -402,6 +366,72 @@ void UnixSocket::on_send()
         set_event(kSocketEvent_Read);
 
         log_info("fd(%d) write reset", _fd);
+    }
+}
+
+void UnixSocket::flush()
+{
+    while (!_send_buffer.empty())
+    {
+        auto front = _send_buffer.front();
+        int ret = sendto(front.first, front.second, 0, nullptr, 0);
+        if (ret < 0)
+            break;
+
+        _send_buffer.pop(nullptr, ret);
+    }
+}
+
+void UnixSocket::on_recvfrom(size_t len)
+{
+    while (_fd >= 0)
+    {
+        sockaddr_storage remote_sockaddr;
+        socklen_t remote_sockaddr_len;
+
+        auto back = _recv_buffer.back();
+        int ret = recvfrom(back.first, back.second, 0, (struct sockaddr *)&remote_sockaddr, &remote_sockaddr_len);
+        if (ret == 0)
+        {
+            publish(kMsg_SocketClose, (Socket *)this);
+
+            close();
+            return;
+        }
+
+        if (ret < 0)
+            break;
+
+        _recv_buffer.push(nullptr, ret);
+
+        LuaSockAddr lua_sockaddr;
+        lua_sockaddr.addr = (struct sockaddr *)&remote_sockaddr;
+        lua_sockaddr.addrlen = remote_sockaddr_len;
+
+        publish(kMsg_SocketRecv, &_recv_buffer, &lua_sockaddr);
+    }
+}
+
+void UnixSocket::on_recv(size_t len)
+{
+    while (_fd >= 0)
+    {
+        auto back = _recv_buffer.back();
+        int ret = recvfrom(back.first, back.second, 0, nullptr, nullptr);
+        if (ret == 0)
+        {
+            publish(kMsg_SocketClose, (Socket *)this);
+
+            close();
+            return;
+        }
+
+        if (ret < 0)
+            break;
+
+        _recv_buffer.push(nullptr, ret);
+
+        publish(kMsg_SocketRecv, &_recv_buffer);
     }
 }
 

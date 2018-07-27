@@ -33,15 +33,3 @@ private:
     sockaddr_storage _remote_sockaddr;
     socklen_t _remote_sockaddr_len;
 };
-
-struct LuaSockAddr : public LuaObject
-{
-    sockaddr *addr;
-    socklen_t addrlen;
-
-    virtual int lua_push_self(lua_State *L) override
-    {
-        lua_pushlstring(L, (const char *)addr, addrlen);
-        return 1;
-    }
-};

@@ -17,9 +17,9 @@ public:
 
     void init_connection(const char *node, const char *service);
 
+    virtual int send(const char *data, size_t len, int flags) override;
     virtual void on_read(size_t len) override;
     virtual void on_write(size_t len) override;
-    virtual void send_data(const char *data, size_t len) override;
 
 #ifdef _WIN32
     static std::shared_ptr<TcpSocket> get_accept_ex_socket(LPWSAOVERLAPPED ovl);

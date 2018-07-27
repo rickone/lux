@@ -3,7 +3,7 @@ require "core"
 local client = {name="client"}
 
 function client:start()
-    local socket = socket_core.tcp_connect("::", "8866")
+    local socket = socket_core.unix_connect("luxd.sock")
     self.entity:add_component(socket)
     self.socket = socket
     

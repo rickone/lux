@@ -54,6 +54,12 @@ void Component::on_msg(int msg_type, LuaObject *msg_object)
 
 void Component::publish_msg(int msg_type, LuaObject *msg_object)
 {
+    if (!_entity)
+    {
+        log_error("Component('%s') can't publish: entity is null", typeid(*this).name());
+        return;
+    }
+
     _entity->publish_msg(msg_type, msg_object);
 }
 

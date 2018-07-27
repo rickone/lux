@@ -60,6 +60,43 @@ void TcpSocket::init_connection(const char *node, const char *service)
     });
 }
 
+int TcpSocket::send(const char *data, size_t len, int flags)
+{
+    if (!_connected || !_send_buffer.empty())
+    {
+        _send_buffer.push(data, len);
+        return 0;
+    }
+
+    while (len > 0)
+    {
+#ifdef _WIN32
+        int ret = Socket::send(data, len, flags);
+#else
+        int ret = write(data, len);
+#endif
+        if (ret < 0)
+        {
+#ifdef _WIN32
+            wsa_send(nullptr, 0, 0);
+#endif
+            break;
+        }
+
+        data += ret;
+        len -= ret;
+    }
+
+    if (len > 0)
+    {
+        set_event(kSocketEvent_ReadWrite);
+        _send_buffer.push(data, len);
+
+        log_info("fd(%d) write pending", _fd);
+    }
+    return 0;
+}
+
 void TcpSocket::on_read(size_t len)
 {
     while (_fd != INVALID_SOCKET)
@@ -103,7 +140,6 @@ void TcpSocket::on_write(size_t len)
         if (connect_time == -1)
         {
             on_error();
-            close();
             throw_error(std::runtime_error, "ConnectEx error: SO_CONNECT_TIME = %d", connect_time);
         }
 #endif
@@ -123,42 +159,6 @@ void TcpSocket::on_write(size_t len)
         set_event(kSocketEvent_Read);
 
         log_info("fd(%d) write reset", _fd);
-    }
-}
-
-void TcpSocket::send_data(const char *data, size_t len)
-{
-    if (!_connected || !_send_buffer.empty())
-    {
-        _send_buffer.push(data, len);
-        return;
-    }
-
-    while (len > 0)
-    {
-#ifdef _WIN32
-        int ret = send(data, len, 0);
-#else
-        int ret = write(data, len);
-#endif
-        if (ret < 0)
-        {
-#ifdef _WIN32
-            wsa_send(nullptr, 0, 0);
-#endif
-            break;
-        }
-
-        data += ret;
-        len -= ret;
-    }
-
-    if (len > 0)
-    {
-        set_event(kSocketEvent_ReadWrite);
-        _send_buffer.push(data, len);
-
-        log_info("fd(%d) write pending", _fd);
     }
 }
 
@@ -242,7 +242,7 @@ void TcpSocket::flush()
     {
         auto front = _send_buffer.front();
 #ifdef _WIN32
-        int ret = send(front.first, front.second, 0);
+        int ret = Socket::send(front.first, front.second, 0);
 #else
         int ret = write(front.first, front.second);
 #endif

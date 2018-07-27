@@ -64,7 +64,7 @@ end
 local httpd = {name="httpd"}
 
 function httpd:start()
-    local socket = socket_core.tcp_listen("::", "8866")
+    local socket = socket_core.tcp_listen("0.0.0.0", "8866")
     self.entity:add_component(socket)
     self.socket = socket
 

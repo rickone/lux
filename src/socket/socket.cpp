@@ -260,9 +260,9 @@ Socket Socket::accept()
     return socket;
 }
 
-int Socket::recvfrom(void *data, size_t len, int flags, struct sockaddr *src_addr, socklen_t *addrlen)
+int Socket::recvfrom(char *data, size_t len, int flags, struct sockaddr *src_addr, socklen_t *addrlen)
 {
-    int ret = ::recvfrom(_fd, (char *)data, len, flags, src_addr, addrlen);
+    int ret = ::recvfrom(_fd, data, len, flags, src_addr, addrlen);
     if (ret == SOCKET_ERROR)
     {
         int err = get_socket_error();
@@ -287,9 +287,9 @@ int Socket::recvfrom(void *data, size_t len, int flags, struct sockaddr *src_add
     return ret;
 }
 
-int Socket::sendto(const void *data, size_t len, int flags, const struct sockaddr *dest_addr, socklen_t addrlen)
+int Socket::sendto(const char *data, size_t len, int flags, const struct sockaddr *dest_addr, socklen_t addrlen)
 {
-    int ret = ::sendto(_fd, (const char *)data, len, flags, dest_addr, addrlen);
+    int ret = ::sendto(_fd, data, len, flags, dest_addr, addrlen);
     if (ret == SOCKET_ERROR)
     {
         int err = get_socket_error();
@@ -314,9 +314,9 @@ int Socket::sendto(const void *data, size_t len, int flags, const struct sockadd
     return ret;
 }
 
-int Socket::recv(void *data, size_t len, int flags)
+int Socket::recv(char *data, size_t len, int flags)
 {
-    int ret = ::recv(_fd, (char *)data, len, flags);
+    int ret = ::recv(_fd, data, len, flags);
     if (ret == SOCKET_ERROR)
     {
         int err = get_socket_error();
@@ -330,9 +330,9 @@ int Socket::recv(void *data, size_t len, int flags)
     return ret;
 }
 
-int Socket::send(const void *data, size_t len, int flags)
+int Socket::send(const char *data, size_t len, int flags)
 {
-    int ret = ::send(_fd, (const char *)data, len, flags);
+    int ret = ::send(_fd, data, len, flags);
     if (ret < 0)
     {
         int err = get_socket_error();
@@ -346,7 +346,7 @@ int Socket::send(const void *data, size_t len, int flags)
     return ret;
 }
 
-int Socket::read(void *data, size_t len)
+int Socket::read(char *data, size_t len)
 {
     int ret = ::read(_fd, data, len);
     if (ret < 0)
@@ -361,7 +361,7 @@ int Socket::read(void *data, size_t len)
     return ret;
 }
 
-int Socket::write(const void *data, size_t len)
+int Socket::write(const char *data, size_t len)
 {
     int ret = ::write(_fd, data, len);
     if (ret < 0)
@@ -502,7 +502,7 @@ int Socket::lua_send(lua_State *L)
     size_t len = 0;
     const char *data = luaL_checklstring(L, 1, &len);
 
-    send_data(data, len);
+    send(data, len, 0);
     return 0;
 }
 
@@ -525,9 +525,10 @@ void Socket::on_write(size_t len)
 {
 }
 
-void Socket::on_error()
+void Socket::on_error() noexcept
 {
     publish(kMsg_SocketError, this);
+    close();
 }
 
 #ifdef _WIN32
@@ -543,11 +544,6 @@ void Socket::on_complete(LPWSAOVERLAPPED ovl, size_t len)
         on_write(len);
 }
 #endif
-
-void Socket::send_data(const char *data, size_t len)
-{
-    send(data, len, 0);
-}
 
 void Socket::stop() noexcept
 {

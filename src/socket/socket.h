@@ -45,12 +45,13 @@ public:
     void getsockopt(int level, int optname, int *out_value);
 
     Socket accept();
-    int recvfrom(void *data, size_t len, int flags, struct sockaddr *src_addr, socklen_t *addrlen);
-    int sendto(const void *data, size_t len, int flags, const struct sockaddr *dest_addr, socklen_t addrlen);
-    int recv(void *data, size_t len, int flags);
-    int send(const void *data, size_t len, int flags);
-    int read(void *data, size_t len);
-    int write(const void *data, size_t len);
+
+    virtual int recvfrom(char *data, size_t len, int flags, struct sockaddr *src_addr, socklen_t *addrlen);
+    virtual int sendto(const char *data, size_t len, int flags, const struct sockaddr *dest_addr, socklen_t addrlen);
+    virtual int recv(char *data, size_t len, int flags);
+    virtual int send(const char *data, size_t len, int flags);
+    virtual int read(char *data, size_t len);
+    virtual int write(const char *data, size_t len);
 #ifdef _WIN32
     int wsa_recvfrom(void *data, size_t len, int flags, struct sockaddr *src_addr, socklen_t *addrlen);
     int wsa_sendto(const void *data, size_t len, int flags, const struct sockaddr *dest_addr, socklen_t addrlen);
@@ -64,11 +65,10 @@ public:
 
     virtual void on_read(size_t len);
     virtual void on_write(size_t len);
-    virtual void on_error();
+    virtual void on_error() noexcept;
 #ifdef _WIN32
     virtual void on_complete(LPWSAOVERLAPPED ovl, size_t len);
 #endif
-    virtual void send_data(const char *data, size_t len);
     virtual void stop() noexcept override;
 
     socket_t fd() { return _fd; }
@@ -93,6 +93,17 @@ protected:
         socket_t fd = _fd;   \
         int __sock_err = get_socket_error(); \
         on_error();     \
-        close();        \
         throw_system_error(__sock_err, "fd(%d)", (int)fd); \
     } while (false)
+
+struct LuaSockAddr : public LuaObject
+{
+    sockaddr *addr;
+    socklen_t addrlen;
+
+    virtual int lua_push_self(lua_State *L) override
+    {
+        lua_pushlstring(L, (const char *)addr, addrlen);
+        return 1;
+    }
+};

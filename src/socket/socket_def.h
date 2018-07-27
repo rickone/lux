@@ -20,7 +20,6 @@ typedef SOCKET socket_t;
 #include <fcntl.h> // O_CLOEXEC
 #include <sys/socket.h> // socklen_t
 #include <sys/un.h> // AF_UNIX
-#include <sys/stat.h> // fstat
 #include <netdb.h> // getnameinfo
 #include <netinet/tcp.h> // TCP_NODELAY
 
