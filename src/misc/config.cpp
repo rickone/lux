@@ -17,6 +17,7 @@ Config::Config(int argc, char *argv[])
     static struct option long_options[] = {
        {"config", required_argument, 0, 0},
        {"start", required_argument, 0, 0},
+       {"daemon", required_argument, 0, 0},
        {"sys_log", required_argument, 0, 0},
        {"local_log", required_argument, 0, 0},
        {"error_log", required_argument, 0, 0},
@@ -129,6 +130,7 @@ void Config::load_conf(const char *conf_path)
 
 void Config::load_env()
 {
+    _env.daemon = get_boolean("daemon", false);
     _env.log_level = get_int("log_level", -1);
     _env.listen_backlog = get_int("listen_backlog", 1024);
     _env.socket_recv_buffer_init = get_size("socket_recv_buffer_init", 2048);

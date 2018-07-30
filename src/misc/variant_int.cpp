@@ -1,6 +1,7 @@
 #include "variant_int.h"
 #include <algorithm>
 #include "buffer.h"
+#include "error.h"
 
 inline unsigned long zigzag_encode(long value)
 {
@@ -50,11 +51,10 @@ size_t variant_int_write(Buffer *buffer, long value)
     return write_len;
 }
 
-size_t variant_int_read(Buffer *buffer, long *result)
+size_t variant_int_read(Buffer *buffer, long *value)
 {
     size_t sz = buffer->size();
-    if (sz == 0)
-        return 0;
+    runtime_assert(sz > 0, "buffer empty");
 
     size_t parse_len = std::min((size_t)10ul, sz);
     size_t var_len = 0;
@@ -69,14 +69,9 @@ size_t variant_int_read(Buffer *buffer, long *result)
 
     if (var_len == 0)
     {
-        if (parse_len > 10)
-        {
-            std::string str = buffer->dump();
-            buffer->clear();
-            throw_error(VariantIntError, "buffer dump: %s", str.c_str());
-        }
+        buffer->clear();
 
-        return 0;
+        throw_error(std::runtime_error, "buffer illegal");
     }
 
     unsigned long var_int = 0;
@@ -91,6 +86,6 @@ size_t variant_int_read(Buffer *buffer, long *result)
         var_int = var_int << 6 | (*(uint8_t *)buffer->data(0) & 0x3f);
     }
 
-    *result = zigzag_decode(var_int);
+    *value = zigzag_decode(var_int);
     return var_len;
 }

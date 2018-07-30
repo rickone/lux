@@ -7,6 +7,7 @@ struct lua_State;
 
 struct ConfigEnv
 {
+    bool    daemon;
     int     log_level;
     int     listen_backlog;
     size_t  socket_recv_buffer_init;

@@ -365,8 +365,6 @@ bool LuapObject::parse_phase0(Buffer *buffer)
     {
         long value = 0;
         size_t var_len = variant_int_read(buffer, &value);
-        if (var_len == 0)
-            return false;
 
         set_integer(value);
         buffer->pop(nullptr, var_len);
@@ -451,8 +449,6 @@ bool LuapObject::parse_phase1(Buffer *buffer)
         {
             long value = 0;
             size_t var_len = variant_int_read(buffer, &value);
-            if (var_len == 0)
-                return false;
 
             buffer->pop(nullptr, var_len);
 
@@ -473,8 +469,6 @@ bool LuapObject::parse_phase1(Buffer *buffer)
         {
             long value = 0;
             size_t var_len = variant_int_read(buffer, &value);
-            if (var_len == 0)
-                return false;
 
             buffer->pop(nullptr, var_len);
 

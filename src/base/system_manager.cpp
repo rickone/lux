@@ -89,6 +89,41 @@ void on_child_exit(int sig)
 }
 #endif
 
+#ifdef __APPLE__
+int daemon(int nochdir, int noclose)
+{
+    switch (fork())
+    {
+        case -1:
+            return -1;
+        case 0:
+            break;
+        default:
+            _exit(0);
+    }
+
+    if (setsid() == -1)
+        return -1;
+
+    if (!nochdir)
+        chdir("/");
+
+    if (!noclose)
+    {
+        int fd = open("/dev/null", O_RDWR);
+        if (fd == -1)
+            return -1;
+
+        dup2(fd, STDIN_FILENO);
+        dup2(fd, STDOUT_FILENO);
+        dup2(fd, STDERR_FILENO);
+        close(fd);
+    }
+
+    return 0;
+}
+#endif
+
 SystemManager::SystemManager(int argc, char *argv[]) : _config(argc, argv), _running_flag(true), _argc(argc), _argv(argv), _argv_max_len()
 {
     system_manager = this;
@@ -120,7 +155,16 @@ SystemManager::SystemManager(int argc, char *argv[]) : _config(argc, argv), _run
     signal(SIGSEGV, on_debug);
 #endif
 
-    log_info("SystemManager(v%s) start running, pid=%d", CORE_VERSION, getpid());
+    if (_config.env()->daemon)
+    {
+        log_info("enter daemon mode");
+
+        int ret = daemon(1, 0);
+        if (ret == -1)
+            throw_system_error(errno, "daemon");
+    }
+
+    log_info("SystemManager(v%s) start running, pid=%d, daemon=%s", CORE_VERSION, getpid());
 }
 
 SystemManager::~SystemManager()
