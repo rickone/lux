@@ -44,8 +44,6 @@ void Socket::new_class(lua_State *L)
     lua_newtable(L);
     {
         lua_method(L, close);
-        lua_method(L, attach);
-        lua_method(L, detach);
         lua_std_method(L, connect);
         lua_std_method(L, send);
         lua_std_method(L, sendto);

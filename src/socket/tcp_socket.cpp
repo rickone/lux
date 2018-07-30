@@ -14,7 +14,6 @@ void TcpSocket::new_class(lua_State *L)
 
     lua_lib(L, "socket_core");
     {
-        lua_set_method(L, "tcp_attach", create);
         lua_set_method(L, "tcp_connect", connect);
     }
     lua_pop(L, 1);

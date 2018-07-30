@@ -12,7 +12,7 @@ inline long zigzag_decode(unsigned long value)
     return (value >> 1) ^ -(value & 1);
 }
 
-void variant_int_write(long value, Buffer *buffer)
+size_t variant_int_write(Buffer *buffer, long value)
 {
     unsigned long var_int = zigzag_encode(value);
 
@@ -20,13 +20,15 @@ void variant_int_write(long value, Buffer *buffer)
     {
         uint8_t byte = (uint8_t)var_int;
         buffer->push((const char *)&byte, sizeof(byte));
-        return;
+        return sizeof(byte);
     }
 
+    size_t write_len = 0;
     uint8_t header = (uint8_t)(var_int & 0x3f) | 0x80;
     var_int >>= 6;
 
     buffer->push((const char *)&header, sizeof(header));
+    write_len += sizeof(header);
 
     while (true)
     {
@@ -36,12 +38,16 @@ void variant_int_write(long value, Buffer *buffer)
         if (!var_int)
         {
             buffer->push((const char *)&byte, sizeof(byte));
+            write_len += sizeof(byte);
             break;
         }
 
         byte |= 0x80;
         buffer->push((const char *)&byte, sizeof(byte));
+        write_len += sizeof(byte);
     }
+
+    return write_len;
 }
 
 size_t variant_int_read(Buffer *buffer, long *result)

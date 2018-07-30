@@ -5,8 +5,8 @@
 
 class Buffer;
 
-void variant_int_write(long value, Buffer *buffer);
-size_t variant_int_read(Buffer *buffer, long *result);
+size_t variant_int_write(Buffer *buffer, long value);
+bool variant_int_read(Buffer *buffer, long *result, size_t *used_len);
 
 class VariantIntError : public std::runtime_error
 {

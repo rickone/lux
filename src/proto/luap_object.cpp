@@ -134,7 +134,7 @@ void LuapObject::serialize(Buffer *buffer)
 
         case kLuapType_Integer:
         {
-            variant_int_write(_value.integer, buffer);
+            variant_int_write(buffer, _value.integer);
             break;
         }
 
@@ -148,7 +148,7 @@ void LuapObject::serialize(Buffer *buffer)
         case kLuapType_String:
         {
             buffer->push("\xC4", 1);
-            variant_int_write((long)_str_value.size(), buffer);
+            variant_int_write(buffer, (long)_str_value.size());
             buffer->push(_str_value.data(), _str_value.size());
             break;
         }
@@ -156,7 +156,7 @@ void LuapObject::serialize(Buffer *buffer)
         case kLuapType_Table:
         {
             buffer->push("\xC5", 1);
-            variant_int_write((long)_table.size(), buffer);
+            variant_int_write(buffer, (long)_table.size());
 
             for (LuapObject &obj : _table)
                 obj.serialize(buffer);
@@ -166,7 +166,7 @@ void LuapObject::serialize(Buffer *buffer)
         case kLuapType_Args:
         {
             buffer->push("\xC6", 1);
-            variant_int_write((long)_table.size(), buffer);
+            variant_int_write(buffer, (long)_table.size());
 
             for (LuapObject &obj : _table)
                 obj.serialize(buffer);

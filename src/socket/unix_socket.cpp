@@ -21,27 +21,17 @@ void UnixSocket::new_class(lua_State *L)
     lua_newtable(L);
     {
         lua_method(L, connect);
-        lua_method(L, push_fd);
-        lua_method(L, pop_fd);
+        lua_method(L, push_socket);
+        lua_method(L, pop_tcp_socket);
+        lua_method(L, pop_udp_socket);
     }
     lua_setfield(L, -2, "__method");
 
     lua_lib(L, "socket_core");
     {
-        lua_set_method(L, "unix_attach", create);
         lua_set_method(L, "unix_bind", bind);
     }
     lua_pop(L, 1);
-}
-
-std::shared_ptr<UnixSocket> UnixSocket::create(int fd)
-{
-    std::shared_ptr<UnixSocket> socket(new UnixSocket());
-    socket->attach(fd);
-    socket->add_event(kSocketEvent_Read);
-    socket->_on_read = &UnixSocket::on_recvfrom;
-
-    return socket;
 }
 
 std::shared_ptr<UnixSocket> UnixSocket::bind(const char *socket_path)
@@ -84,9 +74,9 @@ void UnixSocket::connect(const char *socket_path)
     Socket::connect((const struct sockaddr *)&addr, sizeof(addr));
 }
 
-void UnixSocket::push_fd(int fd)
+void UnixSocket::push_socket(Socket *socket)
 {
-    _send_fd_list.push_back(fd);
+    _send_fd_list.push_back(socket->detach());
 }
 
 int UnixSocket::pop_fd()
@@ -97,6 +87,24 @@ int UnixSocket::pop_fd()
     int fd = _recv_fd_list.front();
     _recv_fd_list.pop_front();
     return fd;
+}
+
+std::shared_ptr<TcpSocket> UnixSocket::pop_tcp_socket()
+{
+    int fd = pop_fd();
+    if (fd < 0)
+        return nullptr;
+
+    return TcpSocket::create(fd);
+}
+
+std::shared_ptr<UdpSocket> UnixSocket::pop_udp_socket()
+{
+    int fd = pop_fd();
+    if (fd < 0)
+        return nullptr;
+
+    return UdpSocket::create(fd);
 }
 
 int UnixSocket::recvfrom(char *data, size_t len, int flags, struct sockaddr *src_addr, socklen_t *addrlen)

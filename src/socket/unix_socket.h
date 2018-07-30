@@ -5,6 +5,8 @@
 #include <list>
 #include "socket.h"
 #include "buffer.h"
+#include "tcp_socket.h"
+#include "udp_socket.h"
 
 class UnixSocket : public Socket
 {
@@ -13,14 +15,15 @@ public:
     virtual ~UnixSocket();
 
     static void new_class(lua_State *L);
-    static std::shared_ptr<UnixSocket> create(int fd);
     static std::shared_ptr<UnixSocket> bind(const char *socket_path);
 
     void init_bind(const char *socket_path);
     void connect(const char *socket_path);
 
-    void push_fd(int fd);
+    void push_socket(Socket *socket);
     int pop_fd();
+    std::shared_ptr<TcpSocket> pop_tcp_socket();
+    std::shared_ptr<UdpSocket> pop_udp_socket();
 
     virtual int recvfrom(char *data, size_t len, int flags, struct sockaddr *src_addr, socklen_t *addrlen) override;
     virtual int sendto(const char *data, size_t len, int flags, const struct sockaddr *dest_addr, socklen_t addrlen) override;

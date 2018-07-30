@@ -12,7 +12,6 @@ void UdpSocket::new_class(lua_State *L)
 
     lua_lib(L, "socket_core");
     {
-        lua_set_method(L, "udp_attach", create);
         lua_set_method(L, "udp_bind", bind);
         lua_set_method(L, "udp_connect", connect);
     }
