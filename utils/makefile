@@ -21,7 +21,7 @@ Config ?= Debug
 UnixName = $(shell uname)
 
 ifeq ($(Config),Debug)
-CFLAGS += -g -DDEBUG -Wall
+CFLAGS += -g -D_DEBUG -Wall
 	ifeq ($(UnixName),Linux)
 	CFLAGS += -rdynamic
 	endif

@@ -133,8 +133,9 @@ void Config::load_env()
     _env.daemon = get_boolean("daemon", false);
     _env.log_level = get_int("log_level", -1);
     _env.listen_backlog = get_int("listen_backlog", 1024);
-    _env.socket_recv_buffer_init = get_size("socket_recv_buffer_init", 2048);
-    _env.socket_send_buffer_init = get_size("socket_send_buffer_init", 2048);
+    _env.socket_recv_buffer_init = get_size("socket_recv_buffer_init", 2 * 1024);
+    _env.socket_send_buffer_init = get_size("socket_send_buffer_init", 2 * 1024);
+    _env.socket_send_buffer_max = get_size("socket_send_buffer_max", 128 * 1024);
 }
 
 void Config::set_field(const std::string &field, const std::string &value)

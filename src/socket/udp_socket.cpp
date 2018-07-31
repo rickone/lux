@@ -1,8 +1,6 @@
 #include "udp_socket.h"
-#include "socket_addr.h"
-#include "error.h"
 
-UdpSocket::UdpSocket(socket_t fd) : Socket(fd), _recv_buffer(), _send_buffer(), _on_read()
+UdpSocket::UdpSocket(socket_t fd) : Socket(fd), _recv_buffer(), _on_read()
 {
 }
 

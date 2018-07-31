@@ -149,7 +149,7 @@ SystemManager::SystemManager(int argc, char *argv[]) : _config(argc, argv), _run
     signal(SIGQUIT, on_quit); // ctrl + '\'
     signal(SIGCHLD, SIG_IGN);
 #endif
-#ifdef DEBUG
+#ifdef _DEBUG
     signal(SIGABRT, on_debug);
     signal(SIGFPE, on_debug);
     signal(SIGSEGV, on_debug);

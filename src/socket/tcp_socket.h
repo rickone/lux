@@ -3,7 +3,6 @@
 #include <memory>
 #include "socket.h"
 #include "buffer.h"
-#include "socket_addr.h"
 
 class TcpSocket : public Socket
 {
@@ -16,6 +15,7 @@ public:
     static std::shared_ptr<TcpSocket> connect(const char *node, const char *service);
 
     void init_connection(const char *node, const char *service);
+    void send_pending(const char *data, size_t len);
 
     virtual int send(const char *data, size_t len, int flags) override;
     virtual void on_read(size_t len) override;

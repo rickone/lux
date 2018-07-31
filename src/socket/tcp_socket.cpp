@@ -1,6 +1,5 @@
 #include "tcp_socket.h"
 #include "socket_manager.h"
-#include "socket_addr.h"
 #include "config.h"
 #include "log.h"
 
@@ -47,7 +46,7 @@ void TcpSocket::init_connection(const char *node, const char *service)
     any_addrinfo(node, service, SOCK_STREAM, 0, [this](const addrinfo *ai){
         init(ai->ai_family, ai->ai_socktype, ai->ai_protocol);
         setsockopt(IPPROTO_TCP, TCP_NODELAY, true);
-        add_event(_connected ? kSocketEvent_Read : kSocketEvent_ReadWrite);
+        add_event(kSocketEvent_ReadWrite);
 #ifdef _WIN32
         _connected = connect_ex(ai->ai_addr, (socklen_t)ai->ai_addrlen);
 
@@ -59,11 +58,25 @@ void TcpSocket::init_connection(const char *node, const char *service)
     });
 }
 
+void TcpSocket::send_pending(const char *data, size_t len)
+{
+    _send_buffer.push(data, len);
+    if (_send_buffer.size() > config->env()->socket_send_buffer_max)
+    {
+        on_error();
+        throw_error(std::runtime_error, "fd(%d) send_pending buffer(%u Byte) overflow", _fd, _send_buffer.size());
+    }
+
+    log_info("fd(%d) write pending", _fd);
+}
+
 int TcpSocket::send(const char *data, size_t len, int flags)
 {
-    if (!_connected || !_send_buffer.empty())
+    runtime_assert(_connected, "send error: fd(%d) not connected", _fd);
+
+    if (!_send_buffer.empty())
     {
-        _send_buffer.push(data, len);
+        send_pending(data, len);
         return 0;
     }
 
@@ -89,9 +102,7 @@ int TcpSocket::send(const char *data, size_t len, int flags)
     if (len > 0)
     {
         set_event(kSocketEvent_ReadWrite);
-        _send_buffer.push(data, len);
-
-        log_info("fd(%d) write pending", _fd);
+        send_pending(data, len);
     }
     return 0;
 }
@@ -199,11 +210,8 @@ void TcpSocket::accept_ex_complete()
     socket_manager->get_accept_ex_sockaddrs(_accept_ex_buffer, ACCEPT_EX_ADDRESS_LEN, ACCEPT_EX_ADDRESS_LEN,
         &local_sockaddr, &local_sockaddr_len, &remote_sockaddr, &remote_sockaddr_len);
 
-    char host[NI_MAXHOST];
-    char serv[NI_MAXSERV];
-    getnameinfo(remote_sockaddr, remote_sockaddr_len, host, sizeof(host), serv, sizeof(serv), NI_NUMERICHOST | NI_NUMERICSERV);
-
-    log_info("fd(%d) is complete from %s:%s", _fd, host, serv);
+    auto name = get_addrname(remote_sockaddr, remote_sockaddr_len);
+    log_info("fd(%d) is complete from %s", _fd, name.c_str());
 
     setsockopt(IPPROTO_TCP, TCP_NODELAY, true);
     add_event(kSocketEvent_Read);
@@ -226,11 +234,8 @@ BOOL TcpSocket::connect_ex(const struct sockaddr *addr, socklen_t addrlen)
         ++_ovl_ref;
     }
 
-    char host[NI_MAXHOST];
-    char serv[NI_MAXSERV];
-    getnameinfo(addr, addrlen, host, sizeof(host), serv, sizeof(serv), NI_NUMERICHOST | NI_NUMERICSERV);
-
-    log_info("fd(%d) connect_ex %s:%s ... %s", _fd, host, serv, (connected ? "OK" : "pending"));
+    auto name = get_addrname(addr, addrlen);
+    log_info("fd(%d) connect_ex %s ... %s", _fd, name.c_str(), (connected ? "OK" : "pending"));
     return connected;
 }
 #endif // _WIN32

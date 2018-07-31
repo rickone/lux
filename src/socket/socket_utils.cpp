@@ -1,4 +1,4 @@
-#include "socket_addr.h"
+#include "socket_utils.h"
 #include <cstring> // memset
 #include "error.h"
 #include "log.h"
@@ -55,4 +55,18 @@ void any_addrinfo(const char *node, const char *service, int ai_socktype, int ai
     }
 
     throw_error(std::runtime_error, "any_addrinfo('%s', '%s') all failed", node, service);
+}
+
+std::string get_addrname(const struct sockaddr *addr, socklen_t addrlen)
+{
+    char host[NI_MAXHOST];
+    char serv[NI_MAXSERV];
+    getnameinfo(addr, addrlen, host, sizeof(host), serv, sizeof(serv), NI_NUMERICHOST | NI_NUMERICSERV);
+
+    std::string name;
+    name.append(host);
+    name.append(":");
+    name.append(serv);
+
+    return name;
 }

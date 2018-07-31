@@ -12,6 +12,7 @@ struct ConfigEnv
     int     listen_backlog;
     size_t  socket_recv_buffer_init;
     size_t  socket_send_buffer_init;
+    size_t  socket_send_buffer_max;
 };
 
 class Config final

@@ -87,7 +87,7 @@ void Socket::close() noexcept
 {
     if (_fd != INVALID_SOCKET)
     {
-        log_debug("close fd(%d)", _fd);
+        log_info("close fd(%d)", _fd);
 #ifdef _WIN32
         closesocket(_fd);
 #else
@@ -142,11 +142,8 @@ void Socket::bind(const struct sockaddr *addr, socklen_t addrlen)
     if (ret != 0)
         throw_socket_error();
 
-    char host[NI_MAXHOST];
-    char serv[NI_MAXSERV];
-    getnameinfo(addr, addrlen, host, sizeof(host), serv, sizeof(serv), NI_NUMERICHOST | NI_NUMERICSERV);
-
-    log_info("fd(%d) bind to %s:%s", _fd, host, serv);
+    auto name = get_addrname(addr, addrlen);
+    log_info("fd(%d) bind to %s", _fd, name.c_str());
 }
 
 void Socket::bind_any(int family)
@@ -188,12 +185,9 @@ bool Socket::connect(const struct sockaddr *addr, socklen_t addrlen)
             throw_socket_error();
     }
 
-    char host[NI_MAXHOST];
-    char serv[NI_MAXSERV];
-    getnameinfo(addr, addrlen, host, sizeof(host), serv, sizeof(serv), NI_NUMERICHOST | NI_NUMERICSERV);
-
+    auto name = get_addrname(addr, addrlen);
     bool connected = (ret == 0);
-    log_info("fd(%d) connect %s:%s ... %s", _fd, host, serv, (connected ? "ok." : "io-pending"));
+    log_info("fd(%d) connect %s ... %s", _fd, name.c_str(), (connected ? "ok." : "io-pending"));
     return connected;
 }
 
@@ -250,11 +244,8 @@ Socket Socket::accept()
     socket.set_nonblock();
 #endif
 
-    char host[NI_MAXHOST];
-    char serv[NI_MAXSERV];
-    getnameinfo((const struct sockaddr *)&addr, addrlen, host, sizeof(host), serv, sizeof(serv), NI_NUMERICHOST | NI_NUMERICSERV);
-
-    log_info("fd(%d) accept fd(%d) from %s:%s", _fd, fd, host, serv);
+    auto name = get_addrname((const struct sockaddr *)&addr, addrlen);
+    log_info("fd(%d) accept fd(%d) from %s", _fd, fd, name.c_str());
     return socket;
 }
 
@@ -270,18 +261,17 @@ int Socket::recvfrom(char *data, size_t len, int flags, struct sockaddr *src_add
         return -1;
     }
 
+#ifdef _DEBUG
     if (src_addr)
     {
-        char host[NI_MAXHOST];
-        char serv[NI_MAXSERV];
-        getnameinfo(src_addr, *addrlen, host, sizeof(host), serv, sizeof(serv), NI_NUMERICHOST | NI_NUMERICSERV);
-
-        log_debug("fd(%d) recv %d bytes from %s:%s", _fd, ret, host, serv);
+        auto name = get_addrname(src_addr, *addrlen);
+        log_debug("fd(%d) recv %d bytes from %s", _fd, ret, name.c_str());
     }
     else
     {
         log_debug("fd(%d) recv %d bytes", _fd, ret);
     }
+#endif
     return ret;
 }
 
@@ -297,18 +287,17 @@ int Socket::sendto(const char *data, size_t len, int flags, const struct sockadd
         return -1;
     }
 
+#ifdef _DEBUG
     if (dest_addr)
     {
-        char host[NI_MAXHOST];
-        char serv[NI_MAXSERV];
-        getnameinfo(dest_addr, addrlen, host, sizeof(host), serv, sizeof(serv), NI_NUMERICHOST | NI_NUMERICSERV);
-
-        log_debug("fd(%d) send %d bytes to %s:%s", _fd, ret, host, serv);
+        auto name = get_addrname(dest_addr, addrlen);
+        log_debug("fd(%d) send %d bytes to %s", _fd, ret, name.c_str());
     }
     else
     {
         log_debug("fd(%d) send %d bytes", _fd, ret);
     }
+#endif
     return ret;
 }
 
@@ -393,18 +382,17 @@ int Socket::wsa_recvfrom(void *data, size_t len, int flags, struct sockaddr *src
         return -1;
     }
 
+#ifdef _DEBUG
     if (src_addr)
     {
-        char host[NI_MAXHOST];
-        char serv[NI_MAXSERV];
-        getnameinfo(src_addr, *addrlen, host, sizeof(host), serv, sizeof(serv), NI_NUMERICHOST | NI_NUMERICSERV);
-
-        log_debug("fd(%d) recv %d bytes from %s:%s", _fd, ret, host, serv);
+        auto name = get_addrname(src_addr, *addrlen);
+        log_debug("fd(%d) recv %d bytes from %s", _fd, ret, name.c_str());
     }
     else
     {
         log_debug("fd(%d) recv %d bytes", _fd, ret);
     }
+#endif
     return (int)recv_len;
 }
 
@@ -426,18 +414,17 @@ int Socket::wsa_sendto(const void *data, size_t len, int flags, const struct soc
         return -1;
     }
 
+#ifdef _DEBUG
     if (dest_addr)
     {
-        char host[NI_MAXHOST];
-        char serv[NI_MAXSERV];
-        getnameinfo(dest_addr, addrlen, host, sizeof(host), serv, sizeof(serv), NI_NUMERICHOST | NI_NUMERICSERV);
-
-        log_debug("fd(%d) send %d bytes to %s:%s", _fd, ret, host, serv);
+        auto name = get_addrname(dest_addr, addrlen);
+        log_debug("fd(%d) send %d bytes to %s", _fd, ret, name.c_str());
     }
     else
     {
         log_debug("fd(%d) send %d bytes", _fd, ret);
     }
+#endif
     return (int)send_len;
 }
 

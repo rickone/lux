@@ -1,6 +1,7 @@
 #pragma once
 
 #include "socket_def.h"
+#include "socket_utils.h"
 #include "component.h"
 #include "error.h"
 

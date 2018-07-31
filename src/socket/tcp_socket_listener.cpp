@@ -1,9 +1,7 @@
 #include "tcp_socket_listener.h"
-#include "socket_addr.h"
-#include "config.h"
 #include "tcp_socket.h"
+#include "config.h"
 #include "log.h"
-#include "socket_manager.h"
 
 void TcpSocketListener::new_class(lua_State *L)
 {

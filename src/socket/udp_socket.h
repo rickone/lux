@@ -27,7 +27,6 @@ private:
     void on_recv(size_t len);
 
     Buffer _recv_buffer;
-    Buffer _send_buffer;
     void (UdpSocket::*_on_read)(size_t len);
 
     sockaddr_storage _remote_sockaddr;

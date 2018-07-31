@@ -1,9 +1,7 @@
 #if !defined(_WIN32)
 #include "unix_socket.h"
-#include "socket_addr.h"
 #include "config.h"
-#include "error.h"
-#include "system_manager.h"
+#include "log.h"
 
 UnixSocket::~UnixSocket()
 {

@@ -1,8 +1,6 @@
 #if !defined(_WIN32)
 #include "unix_socket_stream.h"
-#include "socket_addr.h"
 #include "config.h"
-#include "error.h"
 #include "system_manager.h"
 
 void UnixSocketStream::new_class(lua_State *L)
