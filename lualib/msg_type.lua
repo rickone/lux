@@ -5,6 +5,7 @@ local msg_type =
     socket_accept = 2,
     socket_recv = 3,
     kcp_output = 4,
+    remote_call = 5,
 }
 
 rawset(_G, "msg_type", msg_type)

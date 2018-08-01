@@ -13,6 +13,7 @@ enum MessageType
     kMsg_SocketAccept,
     kMsg_SocketRecv,
     kMsg_KcpOutput,
+    kMsg_RemoteCall,
 };
 
 typedef std::function<void (LuaObject *)> MessageFunction;

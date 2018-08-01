@@ -5,26 +5,24 @@ local client = {name="client"}
 function client:start()
     local socket = socket_core.tcp_connect("::", "8866")
     self.entity:add_component(socket)
-    self.socket = socket
     
-    self:subscribe(msg_type.socket_recv, "on_recv")
+    local msgr = lux_core.create_msgr(msg_type.socket_recv, true)
+    self.entity:add_component(msgr)
+    self.msgr = msgr
+
+    self:subscribe(msg_type.remote_call, "on_recv")
     self:set_timer("update", 100, 10)
 end
 
-function client:on_recv(buffer)
-    print("on_recv", buffer)
-    buffer:clear()
+function client:on_recv(...)
+    print("on_recv", ...)
 end
 
 function client:update(t)
-    local data = (t.counter == 0) and "close" or ("hello "..t.counter)
-    print("send", data)
-
-    self.socket:send(data)
-    
-    --if data == "close" then
-        --self.entity:remove()
-    --end
+    self.msgr:send("ping", t.counter)
+    if (t.counter == 0) then
+        self.msgr:send("close")
+    end
 end
 
 return client

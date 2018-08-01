@@ -3,21 +3,16 @@ require "core"
 local connection = {name="connection"}
 
 function connection:start(socket)
-    self.socket = socket
-    self:subscribe(msg_type.socket_recv, "on_recv")
+    local msgr = lux_core.create_msgr(msg_type.socket_recv, true)
+    self.entity:add_component(msgr)
+    self.msgr = msgr
+
+    self:subscribe(msg_type.remote_call, "on_recv")
 end
 
-function connection:on_recv(buffer)
-    local data = tostring(buffer)
-
-    print("on_recv", data)
-    if data == "close" then
-        self.entity:remove()
-        return
-    end
-
-    self.socket:send("rsp "..data)
-    buffer:clear()
+function connection:on_recv(...)
+    print("on_recv", ...)
+    self.msgr:send("rsp", ...)
 end
 
 local server = {name="server"}

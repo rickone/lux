@@ -134,7 +134,7 @@ void LuapObject::serialize(Buffer *buffer)
 
         case kLuapType_Integer:
         {
-            variant_int_write(buffer, _value.integer);
+            //variant_int_write(buffer, _value.integer);
             break;
         }
 
@@ -148,7 +148,7 @@ void LuapObject::serialize(Buffer *buffer)
         case kLuapType_String:
         {
             buffer->push("\xC4", 1);
-            variant_int_write(buffer, (long)_str_value.size());
+            //variant_int_write(buffer, (long)_str_value.size());
             buffer->push(_str_value.data(), _str_value.size());
             break;
         }
@@ -156,7 +156,7 @@ void LuapObject::serialize(Buffer *buffer)
         case kLuapType_Table:
         {
             buffer->push("\xC5", 1);
-            variant_int_write(buffer, (long)_table.size());
+            //variant_int_write(buffer, (long)_table.size());
 
             for (LuapObject &obj : _table)
                 obj.serialize(buffer);
@@ -166,7 +166,7 @@ void LuapObject::serialize(Buffer *buffer)
         case kLuapType_Args:
         {
             buffer->push("\xC6", 1);
-            variant_int_write(buffer, (long)_table.size());
+            //variant_int_write(buffer, (long)_table.size());
 
             for (LuapObject &obj : _table)
                 obj.serialize(buffer);
@@ -364,7 +364,7 @@ bool LuapObject::parse_phase0(Buffer *buffer)
     if (tag != 0xC0)
     {
         long value = 0;
-        size_t var_len = variant_int_read(buffer, &value);
+        size_t var_len = 0;//variant_int_read(buffer, &value);
 
         set_integer(value);
         buffer->pop(nullptr, var_len);
@@ -448,7 +448,7 @@ bool LuapObject::parse_phase1(Buffer *buffer)
         case kLuapType_String:
         {
             long value = 0;
-            size_t var_len = variant_int_read(buffer, &value);
+            size_t var_len = 0;//variant_int_read(buffer, &value);
 
             buffer->pop(nullptr, var_len);
 
@@ -468,7 +468,7 @@ bool LuapObject::parse_phase1(Buffer *buffer)
         case kLuapType_Args:
         {
             long value = 0;
-            size_t var_len = variant_int_read(buffer, &value);
+            size_t var_len = 0;//variant_int_read(buffer, &value);
 
             buffer->pop(nullptr, var_len);
 

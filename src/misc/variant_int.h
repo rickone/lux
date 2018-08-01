@@ -1,8 +1,7 @@
 #pragma once
 
 #include <cstddef> // size_t
+#include <string>
 
-class Buffer;
-
-size_t variant_int_write(Buffer *buffer, long value);
-size_t variant_int_read(Buffer *buffer, long *value);
+void variant_int_write(std::string &str, long value);
+long variant_int_read(const std::string &str, size_t pos, size_t *read_len);

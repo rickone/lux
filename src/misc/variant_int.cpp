@@ -1,6 +1,5 @@
 #include "variant_int.h"
 #include <algorithm>
-#include "buffer.h"
 #include "error.h"
 
 inline unsigned long zigzag_encode(long value)
@@ -13,23 +12,21 @@ inline long zigzag_decode(unsigned long value)
     return (value >> 1) ^ -(value & 1);
 }
 
-size_t variant_int_write(Buffer *buffer, long value)
+void variant_int_write(std::string &str, long value)
 {
     unsigned long var_int = zigzag_encode(value);
 
     if (var_int <= 0x7f)
     {
         uint8_t byte = (uint8_t)var_int;
-        buffer->push((const char *)&byte, sizeof(byte));
-        return sizeof(byte);
+        str.append((const char *)&byte, sizeof(byte));
+        return;
     }
 
-    size_t write_len = 0;
     uint8_t header = (uint8_t)(var_int & 0x3f) | 0x80;
     var_int >>= 6;
 
-    buffer->push((const char *)&header, sizeof(header));
-    write_len += sizeof(header);
+    str.append((const char *)&header, sizeof(header));
 
     while (true)
     {
@@ -38,54 +35,44 @@ size_t variant_int_write(Buffer *buffer, long value)
 
         if (!var_int)
         {
-            buffer->push((const char *)&byte, sizeof(byte));
-            write_len += sizeof(byte);
+            str.append((const char *)&byte, sizeof(byte));
             break;
         }
 
         byte |= 0x80;
-        buffer->push((const char *)&byte, sizeof(byte));
-        write_len += sizeof(byte);
+        str.append((const char *)&byte, sizeof(byte));
     }
-
-    return write_len;
 }
 
-size_t variant_int_read(Buffer *buffer, long *value)
+long variant_int_read(const std::string &str, size_t pos, size_t *read_len)
 {
-    size_t sz = buffer->size();
-    runtime_assert(sz > 0, "buffer empty");
+    size_t sz = str.size();
+    runtime_assert(pos < sz, "string pos overflow");
 
-    size_t parse_len = std::min((size_t)10ul, sz);
+    size_t parse_len = std::min((size_t)10ul, sz - pos);
     size_t var_len = 0;
     for (size_t i = 0; i < parse_len; ++i)
     {
-        if (!(*(uint8_t *)buffer->data(i) & 0x80))
+        if (!(*(uint8_t *)str.at(pos + i) & 0x80))
         {
             var_len = i + 1;
             break;
         }
     }
-
-    if (var_len == 0)
-    {
-        buffer->clear();
-
-        throw_error(std::runtime_error, "buffer illegal");
-    }
+    runtime_assert(var_len > 0, "string is illegal variant-int");
 
     unsigned long var_int = 0;
     if (var_len == 1)
     {
-        var_int = (unsigned long)*(uint8_t *)buffer->data(0);
+        var_int = (unsigned long)*(uint8_t *)str.at(pos);
     }
     else
     {
         for (size_t i = var_len - 1; i > 0; --i)
-            var_int = var_int << 7 | (*(uint8_t *)buffer->data(i) & 0x7f);
-        var_int = var_int << 6 | (*(uint8_t *)buffer->data(0) & 0x3f);
+            var_int = var_int << 7 | (*(uint8_t *)str.at(pos + i) & 0x7f);
+        var_int = var_int << 6 | (*(uint8_t *)str.at(pos) & 0x3f);
     }
 
-    *value = zigzag_decode(var_int);
-    return var_len;
+    *read_len = var_len;
+    return zigzag_decode(var_int);
 }
