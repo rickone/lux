@@ -1,17 +1,22 @@
 #include "timer_manager.h"
 #include <cassert>
-#include <thread>
 
 TimerManager *timer_manager = nullptr;
 
-using namespace std::chrono;
+inline int64_t lux_gettime()
+{
+    struct timespec ts;
+    int ret = clock_gettime(CLOCK_THREAD_CPUTIME_ID, &ts);
+    if (ret == -1)
+        throw_system_error(errno, "clock_gettime");
 
-TimerManager::TimerManager() : _skip_list(2), _sleep([](int timeout){ std::this_thread::sleep_for(std::chrono::milliseconds(timeout)); }), _time_now()
+    return (int64_t)ts.tv_sec * 1000 + (int64_t)ts.tv_nsec / 1'000'000;
+}
+
+TimerManager::TimerManager() : _skip_list(2), _time_now()
 {
     assert(timer_manager == nullptr);
     timer_manager = this;
-
-    _start_time = steady_clock::now();
 }
 
 std::shared_ptr<Timer> TimerManager::create(int interval, int counter)
@@ -30,16 +35,11 @@ int64_t TimerManager::time_now()
     return _time_now;
 }
 
-void TimerManager::set_sleep(const Sleep &sleep)
+int TimerManager::tick()
 {
-    _sleep = sleep;
-}
-
-void TimerManager::update()
-{
-    auto now = steady_clock::now();
-    auto dur = duration_cast<milliseconds>(now - _start_time);
-    _time_now = dur.count();
+    _time_now = lux_gettime();
+    if (_time_now < _next_tick_time)
+        return (int)(_next_tick_time - _time_now);
 
     unsigned int n = _skip_list.upper_rank(_time_now);
     auto node = _skip_list.remove(0, n);
@@ -76,8 +76,12 @@ void TimerManager::update()
     }
 
     auto first_node = _skip_list.first_node();
-    if (first_node)
-        _sleep((int)(first_node->get_key() - _time_now));
-    else
-        _sleep(100);
+    if (!first_node)
+    {
+        _next_tick_time = _time_now + 100;
+        return 100;
+    }
+
+    _next_tick_time = first_node->get_key();
+    return (int)(_next_tick_time - _time_now);
 }

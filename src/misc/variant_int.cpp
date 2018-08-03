@@ -53,7 +53,7 @@ long variant_int_read(const std::string &str, size_t pos, size_t *read_len)
     size_t var_len = 0;
     for (size_t i = 0; i < parse_len; ++i)
     {
-        if (!(*(uint8_t *)str.at(pos + i) & 0x80))
+        if (!((uint8_t)str.at(pos + i) & 0x80))
         {
             var_len = i + 1;
             break;
@@ -64,13 +64,13 @@ long variant_int_read(const std::string &str, size_t pos, size_t *read_len)
     unsigned long var_int = 0;
     if (var_len == 1)
     {
-        var_int = (unsigned long)*(uint8_t *)str.at(pos);
+        var_int = (unsigned long)(uint8_t)str.at(pos);
     }
     else
     {
         for (size_t i = var_len - 1; i > 0; --i)
-            var_int = var_int << 7 | (*(uint8_t *)str.at(pos + i) & 0x7f);
-        var_int = var_int << 6 | (*(uint8_t *)str.at(pos) & 0x3f);
+            var_int = var_int << 7 | ((uint8_t)str.at(pos + i) & 0x7f);
+        var_int = var_int << 6 | ((uint8_t)str.at(pos) & 0x3f);
     }
 
     *read_len = var_len;

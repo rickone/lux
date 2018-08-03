@@ -9,6 +9,7 @@
 #include "error.h"
 #include "lua_object.h"
 #include "lua_bridge.h"
+#include "lua_proto.h"
 
 extern struct lua_State *lua_state;
 

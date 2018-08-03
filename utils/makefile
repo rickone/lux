@@ -26,7 +26,7 @@ CFLAGS += -g -D_DEBUG -Wall
 	CFLAGS += -rdynamic
 	endif
 else
-CFLAGS += -O2 -march=native
+CFLAGS += -O3 -march=native
 endif
 
 ifeq ($(Rpath),)

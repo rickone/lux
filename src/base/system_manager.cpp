@@ -179,10 +179,10 @@ void SystemManager::run()
 {
     profile_start();
 
-    _timer_mgr.set_sleep(std::bind(&SocketManager::wait_event, std::ref(_socket_mgr), std::placeholders::_1));
     while (_running_flag)
     {
-        _timer_mgr.update();
+        int notick_time = _timer_mgr.tick();
+        _socket_mgr.wait_event(notick_time);
     }
 
     profile_stop();
@@ -351,4 +351,11 @@ void SystemManager::lua_core_openlibs(lua_State *L)
     lua_class_define<ProtoBase>(L);
     lua_class_define<LuapObject, ProtoBase>(L);
     lua_class_define<RespObject, ProtoBase>(L);
+
+    lua_lib(L, "lux_core");
+    {
+        lua_set_function(L, "pack", luap_pack);
+        lua_set_function(L, "unpack", luap_unpack);
+    }
+    lua_pop(L, 1);
 }

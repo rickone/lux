@@ -1,6 +1,4 @@
-require "core"
-
-local p = luap.new()
+require "lux"
 
 --[[
  * 0xC0 - nil
@@ -9,19 +7,27 @@ local p = luap.new()
  * 0xC3 - number
  * 0xC4 - string
  * 0xC5 - table
- * 0xC6 - args
-]]
+ ]]
 
 local case = {1, 123, 10234, false, true, 3.14, "Hello", {10, 20, 30, 40}, {Name = "Rick"}}
 
+local hex = function(s)
+    return s:gsub(".", function(c) return string.format("%02X", string.byte(c)) end)
+end
+
 for i, v in ipairs(case) do
     print("----------", v)
-    p:pack(v)
-    print(p:dump())
-    print(p:unpack())
+    local s = lux_core.pack(v)
+    print(hex(s))
+    print(lux_core.unpack(s))
 end
 
 print("-----args-----")
-p:pack_args(1, true, false, 3.14, "Hello", {Name = "Rick"})
-print(p:dump())
-print(p:unpack())
+local s = lux_core.pack(1, true, false, nil, 3.14, "Hello", {Name = "Rick"})
+print(hex(s))
+print(lux_core.unpack(s))
+
+print("-----table-----")
+local s = lux_core.pack({1, 100, 10000, -1, -100, -10000, true, false, 3.14, "Hello", {Name = "Rick"}})
+print(hex(s))
+print(tree(lux_core.unpack(s)))

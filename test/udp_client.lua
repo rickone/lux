@@ -1,4 +1,4 @@
-require "core"
+require "lux"
 
 local client = {name="client"}
 

@@ -5,8 +5,6 @@
 #include "component.h"
 #include "error.h"
 
-class ProtoBase;
-
 enum SocketEventFlag
 {
     kSocketEvent_None       = 0,
@@ -54,10 +52,10 @@ public:
     virtual int read(char *data, size_t len);
     virtual int write(const char *data, size_t len);
 #ifdef _WIN32
-    int wsa_recvfrom(void *data, size_t len, int flags, struct sockaddr *src_addr, socklen_t *addrlen);
-    int wsa_sendto(const void *data, size_t len, int flags, const struct sockaddr *dest_addr, socklen_t addrlen);
-    int wsa_recv(void *data, size_t len, int flags);
-    int wsa_send(const void *data, size_t len, int flags);
+    int wsa_recvfrom(char *data, size_t len, int flags, struct sockaddr *src_addr, socklen_t *addrlen);
+    int wsa_sendto(const char *data, size_t len, int flags, const struct sockaddr *dest_addr, socklen_t addrlen);
+    int wsa_recv(char *data, size_t len, int flags);
+    int wsa_send(const char *data, size_t len, int flags);
 #endif
 
     int lua_connect(lua_State *L);

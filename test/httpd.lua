@@ -1,4 +1,4 @@
-require "core"
+require "lux"
 local http = require "http"
 
 local command = {name="command"}

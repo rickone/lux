@@ -1,12 +1,13 @@
-#include "lux_proto.h"
+#include "lua_proto.h"
 #include "variant_int.h"
+#include "error.h"
 
-inline void lux_proto_pack_nil(std::string &str)
+inline void lua_proto_pack_nil(std::string &str)
 {
     str.append("\xC0", 1);
 }
 
-inline void lux_proto_pack_bool(std::string &str, bool value)
+inline void lua_proto_pack_bool(std::string &str, bool value)
 {
     if (value)
         str.append("\xC2", 1);
@@ -14,30 +15,30 @@ inline void lux_proto_pack_bool(std::string &str, bool value)
         str.append("\xC1", 1);
 }
 
-inline void lux_proto_pack_int(std::string &str, long value)
+inline void lua_proto_pack_int(std::string &str, long value)
 {
     variant_int_write(str, value);
 }
 
-inline void lux_proto_pack_number(std::string &str, double value)
+inline void lua_proto_pack_number(std::string &str, double value)
 {
     str.append("\xC3", 1);
     str.append((const char *)&value, sizeof(value));
 }
 
-inline void lux_proto_pack_string(std::string &str, const char *data, size_t len)
+inline void lua_proto_pack_string(std::string &str, const char *data, size_t len)
 {
     str.append("\xC4", 1);
     variant_int_write(str, (long)len);
     str.append(data, len);
 }
 
-inline void lux_proto_pack_new_table(std::string &str)
+inline void lua_proto_pack_new_table(std::string &str)
 {
     str.append("\xC5", 1);
 }
 
-void lux_proto_pack(std::string &str, lua_State *L, int index)
+void lua_proto_pack(std::string &str, lua_State *L, int index)
 {
     int type = lua_type(L, index);
     if (index < 0)
@@ -47,7 +48,7 @@ void lux_proto_pack(std::string &str, lua_State *L, int index)
     {
         case LUA_TNIL:
         {
-            lux_proto_pack_nil(str);
+            lua_proto_pack_nil(str);
             break;
         }
 
@@ -56,12 +57,12 @@ void lux_proto_pack(std::string &str, lua_State *L, int index)
             if (lua_isinteger(L, index))
             {
                 long value = (long)lua_tointeger(L, index);
-                lux_proto_pack_int(str, value);
+                lua_proto_pack_int(str, value);
             }
             else
             {
                 double value = lua_tonumber(L, index);
-                lux_proto_pack_number(str, value);
+                lua_proto_pack_number(str, value);
             }
             break;
         }
@@ -69,7 +70,7 @@ void lux_proto_pack(std::string &str, lua_State *L, int index)
         case LUA_TBOOLEAN:
         {
             bool value = (bool)lua_toboolean(L, index);
-            lux_proto_pack_bool(str, value);
+            lua_proto_pack_bool(str, value);
             break;
         }
 
@@ -77,20 +78,22 @@ void lux_proto_pack(std::string &str, lua_State *L, int index)
         {
             size_t len = 0;
             const char *data = lua_tolstring(L, index, &len);
-            lux_proto_pack_string(str, data, len);
+            lua_proto_pack_string(str, data, len);
             break;
         }
 
         case LUA_TTABLE:
         {
-            lux_proto_pack_new_table(str);
+            lua_proto_pack_new_table(str);
             lua_pushnil(L);
             while (lua_next(L, index))
             {
-                lux_proto_pack(str, L, -2);
-                lux_proto_pack(str, L, -1);
+                lua_proto_pack(str, L, -2);
+                lua_proto_pack(str, L, -1);
+
+                lua_pop(L, 1);
             }
-            lux_proto_pack_nil(str);
+            lua_proto_pack_nil(str);
             break;
         }
 
@@ -99,7 +102,7 @@ void lux_proto_pack(std::string &str, lua_State *L, int index)
     }
 }
 
-void lux_proto_pack_args(std::string &str, lua_State *L, int n)
+void lua_proto_pack_args(std::string &str, lua_State *L, int n)
 {
     runtime_assert(n > 0, "n(%d)", n);
 
@@ -108,11 +111,11 @@ void lux_proto_pack_args(std::string &str, lua_State *L, int n)
     
     for (int i = top - n + 1; i <= top; ++i)
     {
-        lux_proto_pack(str, L, i);
+        lua_proto_pack(str, L, i);
     }
 }
 
-inline size_t lux_proto_unpack_int(lua_State *L, const std::string &str, size_t pos)
+inline size_t lua_proto_unpack_int(lua_State *L, const std::string &str, size_t pos)
 {
     size_t var_len = 0;
     long value = variant_int_read(str, pos, &var_len);
@@ -121,7 +124,7 @@ inline size_t lux_proto_unpack_int(lua_State *L, const std::string &str, size_t 
     return var_len;
 }
 
-inline size_t lux_proto_unpack_number(lua_State *L, const std::string &str, size_t pos)
+inline size_t lua_proto_unpack_number(lua_State *L, const std::string &str, size_t pos)
 {
     double value = 0;
     str.copy((char *)&value, sizeof(value), pos);
@@ -130,7 +133,7 @@ inline size_t lux_proto_unpack_number(lua_State *L, const std::string &str, size
     return sizeof(value);
 }
 
-inline size_t lux_proto_unpack_string(lua_State *L, const std::string &str, size_t pos)
+inline size_t lua_proto_unpack_string(lua_State *L, const std::string &str, size_t pos)
 {
     size_t var_len = 0;
     long value = variant_int_read(str, pos, &var_len);
@@ -141,13 +144,13 @@ inline size_t lux_proto_unpack_string(lua_State *L, const std::string &str, size
     return var_len + str_len;
 }
 
-size_t lux_proto_unpack(lua_State *L, const std::string &str, size_t pos)
+size_t lua_proto_unpack(lua_State *L, const std::string &str, size_t pos)
 {
     uint8_t header = (uint8_t)str.at(pos);
 
     uint8_t tag = (header & 0xC0);
     if (tag != 0xC0)
-        return lux_proto_unpack_int(L, str, pos);
+        return lua_proto_unpack_int(L, str, pos);
 
     size_t unpack_len = 1;
     switch (header)
@@ -172,13 +175,13 @@ size_t lux_proto_unpack(lua_State *L, const std::string &str, size_t pos)
 
         case 0xC3:
         {
-            unpack_len += lux_proto_unpack_number(L, str, pos + 1);
+            unpack_len += lua_proto_unpack_number(L, str, pos + 1);
             break;
         }
 
         case 0xC4:
         {
-            unpack_len += lux_proto_unpack_string(L, str, pos + 1);
+            unpack_len += lua_proto_unpack_string(L, str, pos + 1);
             break;
         }
 
@@ -188,7 +191,7 @@ size_t lux_proto_unpack(lua_State *L, const std::string &str, size_t pos)
 
             while (true)
             {
-                unpack_len += lux_proto_unpack(L, str, pos + unpack_len);
+                unpack_len += lua_proto_unpack(L, str, pos + unpack_len);
 
                 if (lua_isnil(L, -1))
                 {
@@ -196,7 +199,7 @@ size_t lux_proto_unpack(lua_State *L, const std::string &str, size_t pos)
                     break;
                 }
 
-                unpack_len += lux_proto_unpack(L, str, pos + unpack_len);
+                unpack_len += lua_proto_unpack(L, str, pos + unpack_len);
 
                 lua_settable(L, -3);
             }
@@ -210,7 +213,7 @@ size_t lux_proto_unpack(lua_State *L, const std::string &str, size_t pos)
     return unpack_len;
 }
 
-int lux_proto_unpack_args(lua_State *L, const std::string &str)
+int lua_proto_unpack_args(lua_State *L, const std::string &str)
 {
     size_t sz = str.size();
     size_t pos = 0;
@@ -218,9 +221,29 @@ int lux_proto_unpack_args(lua_State *L, const std::string &str)
 
     while (pos < sz)
     {
-        pos += lux_proto_unpack(L, str, pos);
+        pos += lua_proto_unpack(L, str, pos);
         ++n;
     }
 
     return n;
+}
+
+int luap_pack(lua_State *L)
+{
+    std::string str;
+    int n = lua_gettop(L);
+
+    lua_proto_pack_args(str, L, n);
+
+    lua_pushlstring(L, str.data(), str.size());
+    return 1;
+}
+
+int luap_unpack(lua_State *L)
+{
+    size_t len = 0;
+    const char *data = lua_tolstring(L, 1, &len);
+    std::string str(data, len);
+
+    return lua_proto_unpack_args(L, str);
 }

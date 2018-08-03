@@ -2,7 +2,7 @@
 
 #include "socket.h"
 #include "buffer.h"
-#include "lux_proto.h"
+#include "lua_port.h"
 
 class Messenger : public Component
 {
@@ -16,7 +16,7 @@ public:
     void init(int msg_type, bool stream_mode);
     void on_recv_stream(LuaObject *msg_object);
     void on_recv_dgram(LuaObject *msg_object);
-    void on_recv_package(Buffer *buffer, size_t len);
+    void on_recv_package(const std::string &str);
 
     int lua_send(lua_State *L);
     
@@ -24,7 +24,7 @@ public:
     virtual void stop() noexcept override;
 
 private:
-    uint16_t _header_len;
+    bool _stream_mode;
+    uint16_t _package_len;
     std::shared_ptr<Socket> _socket;
-    Buffer _buffer;
 };

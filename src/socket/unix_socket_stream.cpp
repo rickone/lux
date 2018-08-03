@@ -16,7 +16,7 @@ void UnixSocketStream::new_class(lua_State *L)
 
     lua_lib(L, "lux_core");
     {
-        lua_set_method(L, "fork", lua_fork);
+        lua_std_method(L, fork);
     }
     lua_pop(L, 1);
 }

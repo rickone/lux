@@ -1,7 +1,7 @@
 #include "socket.h"
 #include "socket_manager.h"
 #include "log.h"
-#include "luap_object.h"
+//#include "luap_object.h"
 
 Socket::Socket() : Component("socket"), _fd(INVALID_SOCKET)
 #ifdef _WIN32
@@ -364,9 +364,9 @@ int Socket::write(const char *data, size_t len)
 }
 
 #ifdef _WIN32
-int Socket::wsa_recvfrom(void *data, size_t len, int flags, struct sockaddr *src_addr, socklen_t *addrlen)
+int Socket::wsa_recvfrom(char *data, size_t len, int flags, struct sockaddr *src_addr, socklen_t *addrlen)
 {
-    WSABUF wsa_buf = { len, (char *)data };
+    WSABUF wsa_buf = { .buf = data, .len = len };
     DWORD recv_len = 0;
 
     memset(&_read_ovl, 0, sizeof(_read_ovl));
@@ -396,9 +396,9 @@ int Socket::wsa_recvfrom(void *data, size_t len, int flags, struct sockaddr *src
     return (int)recv_len;
 }
 
-int Socket::wsa_sendto(const void *data, size_t len, int flags, const struct sockaddr *dest_addr, socklen_t addrlen)
+int Socket::wsa_sendto(const char *data, size_t len, int flags, const struct sockaddr *dest_addr, socklen_t addrlen)
 {
-    WSABUF wsa_buf = { len, const_cast<char *>((const char *)data) };
+    WSABUF wsa_buf = { .buf = const_cast<char *>(data), .len = len };
     DWORD send_len = 0;
 
     memset(&_write_ovl, 0, sizeof(_write_ovl));
@@ -428,9 +428,9 @@ int Socket::wsa_sendto(const void *data, size_t len, int flags, const struct soc
     return (int)send_len;
 }
 
-int Socket::wsa_recv(void *data, size_t len, int flags)
+int Socket::wsa_recv(char *data, size_t len, int flags)
 {
-    WSABUF wsa_buf = { len, (char *)data };
+    WSABUF wsa_buf = { .buf = data, .len = len };
     DWORD recv_len = 0;
 
     memset(&_read_ovl, 0, sizeof(_read_ovl));
@@ -450,9 +450,9 @@ int Socket::wsa_recv(void *data, size_t len, int flags)
     return (int)recv_len;
 }
 
-int Socket::wsa_send(const void *data, size_t len, int flags)
+int Socket::wsa_send(const char *data, size_t len, int flags)
 {
-    WSABUF wsa_buf = { len, const_cast<char *>((const char *)data) };
+    WSABUF wsa_buf = { .buf = const_cast<char *>(data), .len = len };
     DWORD send_len = 0;
 
     memset(&_write_ovl, 0, sizeof(_write_ovl));
