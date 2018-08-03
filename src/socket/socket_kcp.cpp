@@ -6,7 +6,7 @@
 static int kcp_output(const char *buf, int len, struct IKCPCB *kcp, void *user)
 {
     SocketKcp *sr = (SocketKcp *)user;
-    return sr->on_kcp_send(buf, len);
+    return sr->do_socket_send(buf, len);
 }
 
 static void kcp_writelog(const char *log, struct IKCPCB *kcp, void *user)
@@ -14,7 +14,7 @@ static void kcp_writelog(const char *log, struct IKCPCB *kcp, void *user)
     log_info("[KCP] %s", log);
 }
 
-SocketKcp::SocketKcp() : Component("kcp"), _kcp(), _socket(), _recv_buffer()
+SocketKcp::SocketKcp() : Component("kcp"), _kcp(), _recv_buffer()
 {
 }
 
@@ -33,7 +33,7 @@ void SocketKcp::new_class(lua_State *L)
 
     lua_newtable(L);
     {
-        lua_method(L, send);
+        lua_std_method(L, send);
     }
     lua_setfield(L, -2, "__method");
 
@@ -49,33 +49,22 @@ std::shared_ptr<SocketKcp> SocketKcp::create()
     return std::shared_ptr<SocketKcp>(new SocketKcp());
 }
 
-void SocketKcp::send(const std::string &str)
-{
-    int ret = ikcp_send(_kcp, str.data(), str.size());
-    if (ret < 0)
-    {
-        _entity->remove();
-        throw_error(std::runtime_error, "ikcp_send buffer(%u) retcode(%d)", str.size(), ret);
-    }
-}
-
-int SocketKcp::on_kcp_send(const char *data, size_t len)
-{
-    _socket->send(data, len, 0);
-    return 0;
-}
-
-void SocketKcp::on_recv(LuaObject *msg_object)
+void SocketKcp::on_socket_recv(LuaObject *msg_object)
 {
     Buffer *buffer = (Buffer *)msg_object;
 
-    int ret = ikcp_input(_kcp, buffer->data(), buffer->size());
-    if (ret != 0)
+    while (!buffer->empty())
     {
-        _entity->remove();
-        throw_error(std::runtime_error, "ikcp_input buffer(%u) retcode(%d)", buffer->size(), ret);
+        auto front = buffer->front();
+        int ret = ikcp_input(_kcp, front.first, front.second);
+        if (ret != 0)
+        {
+            _entity->remove();
+            throw_error(std::runtime_error, "ikcp_input buffer(%u) retcode(%d)", buffer->size(), ret);
+        }
+
+        buffer->pop(nullptr, front.second);
     }
-    buffer->clear();
 
     while (_kcp)
     {
@@ -88,8 +77,24 @@ void SocketKcp::on_recv(LuaObject *msg_object)
 
         _recv_buffer.push(nullptr, recv_len);
 
-        publish(kMsg_KcpOutput, &_recv_buffer);
+        publish(kMsg_KcpRecv, &_recv_buffer);
     }
+}
+
+int SocketKcp::do_socket_send(const char *data, size_t len)
+{
+    RawBuffer buffer;
+    buffer.data = data;
+    buffer.len = len;
+    publish(kMsg_SocketSend, &buffer);
+    return 0;
+}
+
+void SocketKcp::on_kcp_send(LuaObject *msg_object)
+{
+    RawBuffer *buffer = (RawBuffer *)msg_object;
+
+    send(buffer->data, buffer->len);
 }
 
 void SocketKcp::on_timer(Timer *timer)
@@ -106,6 +111,25 @@ void SocketKcp::on_timer(Timer *timer)
         ikcp_update(_kcp, time);
 }
 
+void SocketKcp::send(const char *data, size_t len)
+{
+    int ret = ikcp_send(_kcp, data, len);
+    if (ret < 0)
+    {
+        _entity->remove();
+        throw_error(std::runtime_error, "ikcp_send buffer(%u) retcode(%d)", len, ret);
+    }
+}
+
+int SocketKcp::lua_send(lua_State *L)
+{
+    size_t len = 0;
+    const char *data = luaL_checklstring(L, 1, &len);
+
+    send(data, len);
+    return 0;
+}
+
 void SocketKcp::start(LuaObject *init_object)
 {
     _kcp = ikcp_create(0x1985, this);
@@ -116,12 +140,10 @@ void SocketKcp::start(LuaObject *init_object)
     ikcp_nodelay(_kcp, 1, 10, 2, 1);
     //ikcp_setmtu(_kcp, 512);
 
-    _socket = std::dynamic_pointer_cast<Socket>(_entity->find_component("socket"));
-    runtime_assert(_socket, "SocketKcp require 'Socket'");
-
     set_timer(this, &SocketKcp::on_timer, 20);
 
-    subscribe(kMsg_SocketRecv, &SocketKcp::on_recv);
+    subscribe(kMsg_SocketRecv, &SocketKcp::on_socket_recv);
+    subscribe(kMsg_KcpSend, &SocketKcp::on_kcp_send);
 }
 
 void SocketKcp::stop() noexcept

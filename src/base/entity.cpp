@@ -60,7 +60,7 @@ std::shared_ptr<Component> Entity::find_component(const char *name)
     return nullptr;
 }
 
-void Entity::publish_msg(int msg_type, LuaObject *msg_object)
+void Entity::publish(int msg_type, LuaObject *msg_object)
 {
     for (auto &component : _components)
     {

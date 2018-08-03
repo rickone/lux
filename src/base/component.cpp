@@ -52,7 +52,7 @@ void Component::on_msg(int msg_type, LuaObject *msg_object)
     it->second(msg_object);
 }
 
-void Component::publish_msg(int msg_type, LuaObject *msg_object)
+void Component::publish(int msg_type, LuaObject *msg_object)
 {
     if (!_entity)
     {
@@ -60,7 +60,7 @@ void Component::publish_msg(int msg_type, LuaObject *msg_object)
         return;
     }
 
-    _entity->publish_msg(msg_type, msg_object);
+    _entity->publish(msg_type, msg_object);
 }
 
 void Component::remove()

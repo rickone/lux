@@ -96,10 +96,11 @@ void UdpSocket::on_recvfrom(size_t len)
     {
         _recv_buffer.push(nullptr, len);
 
-        LuaSockAddr lua_sockaddr;
-        lua_sockaddr.addr = (struct sockaddr *)&_remote_sockaddr;
-        lua_sockaddr.addrlen = _remote_sockaddr_len;
-        publish(kMsg_SocketRecv, &_recv_buffer, &lua_sockaddr);
+        LuaDatagram dgram;
+        dgram.buffer = &_recv_buffer;
+        dgram.addr = (struct sockaddr *)&_remote_sockaddr;
+        dgram.addrlen = _remote_sockaddr_len;
+        publish(kMsg_SocketRecv, &dgram);
     }
 #endif
 
@@ -119,10 +120,11 @@ void UdpSocket::on_recvfrom(size_t len)
 
         _recv_buffer.push(nullptr, ret);
 
-        LuaSockAddr lua_sockaddr;
-        lua_sockaddr.addr = (struct sockaddr *)&_remote_sockaddr;
-        lua_sockaddr.addrlen = _remote_sockaddr_len;
-        publish(kMsg_SocketRecv, &_recv_buffer, &lua_sockaddr);
+        LuaDatagram dgram;
+        dgram.buffer = &_recv_buffer;
+        dgram.addr = (struct sockaddr *)&_remote_sockaddr;
+        dgram.addrlen = _remote_sockaddr_len;
+        publish(kMsg_SocketRecv, &dgram);
     }
 }
 

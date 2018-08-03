@@ -17,7 +17,7 @@
 #include "proto_base.h"
 #include "luap_object.h"
 #include "resp_object.h"
-#include "lux_msgr.h"
+#include "socket_msg.h"
 #include "config.h"
 #include "error.h"
 
@@ -346,7 +346,7 @@ void SystemManager::lua_core_openlibs(lua_State *L)
     lua_class_define<UnixSocketListener, Socket>(L);
 #endif
     lua_class_define<SocketKcp, Component>(L);
-    lua_class_define<Messenger, Component>(L);
+    lua_class_define<SocketMsg, Component>(L);
 
     lua_class_define<ProtoBase>(L);
     lua_class_define<LuapObject, ProtoBase>(L);

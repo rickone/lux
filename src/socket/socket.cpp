@@ -1,7 +1,6 @@
 #include "socket.h"
 #include "socket_manager.h"
 #include "log.h"
-//#include "luap_object.h"
 
 Socket::Socket() : Component("socket"), _fd(INVALID_SOCKET)
 #ifdef _WIN32
@@ -502,6 +501,13 @@ int Socket::lua_sendto(lua_State *L)
     return 0;
 }
 
+void Socket::on_send(LuaObject *msg_object)
+{
+    RawBuffer *buffer = (RawBuffer *)msg_object;
+
+    send(buffer->data, buffer->len, 0);
+}
+
 void Socket::on_read(size_t len)
 {
 }
@@ -529,6 +535,11 @@ void Socket::on_complete(LPWSAOVERLAPPED ovl, size_t len)
         on_write(len);
 }
 #endif
+
+void Socket::start() noexcept
+{
+    subscribe(kMsg_SocketSend, &Socket::on_send);
+}
 
 void Socket::stop() noexcept
 {

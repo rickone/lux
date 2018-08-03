@@ -363,19 +363,6 @@ struct LuaBridge< std::shared_ptr<T> >
     }
 };
 
-struct LuaObjectList : public LuaObject
-{
-    std::list<LuaObject *> list;
-
-    virtual int lua_push_self(lua_State *L) override
-    {
-        int ret = 0;
-        for (LuaObject *object : list)
-            ret += lua_push(L, object);
-        return ret;
-    }
-};
-
 // functions
 typedef std::function<int (lua_State *)> LuaFunction;
 

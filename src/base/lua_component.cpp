@@ -109,7 +109,7 @@ int LuaComponent::lua_publish(lua_State *L)
     msg_object.arg_begin = 2;
     msg_object.arg_end = lua_gettop(L);
 
-    publish_msg(msg_type, &msg_object);
+    publish(msg_type, &msg_object);
     return 0;
 }
 

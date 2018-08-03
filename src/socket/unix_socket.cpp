@@ -271,11 +271,12 @@ void UnixSocket::on_recvfrom(size_t len)
 
         _recv_buffer.push(nullptr, ret);
 
-        LuaSockAddr lua_sockaddr;
-        lua_sockaddr.addr = (struct sockaddr *)&remote_sockaddr;
-        lua_sockaddr.addrlen = remote_sockaddr_len;
+        LuaDatagram dgram;
+        dgram.buffer = &_recv_buffer;
+        dgram.addr = (struct sockaddr *)&remote_sockaddr;
+        dgram.addrlen = remote_sockaddr_len;
 
-        publish(kMsg_SocketRecv, &_recv_buffer, &lua_sockaddr);
+        publish(kMsg_SocketRecv, &dgram);
     }
 }
 

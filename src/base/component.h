@@ -12,8 +12,11 @@ enum MessageType
     kMsg_SocketClose,
     kMsg_SocketAccept,
     kMsg_SocketRecv,
-    kMsg_KcpOutput,
-    kMsg_RemoteCall,
+    kMsg_SocketSend,
+    kMsg_KcpRecv,
+    kMsg_KcpSend,
+    kMsg_PackageRecv,
+    kMsg_PackageSend,
 };
 
 typedef std::function<void (LuaObject *)> MessageFunction;
@@ -33,7 +36,7 @@ public:
     void subscribe(int msg_type, const MessageFunction &func);
     void unsubscribe(int msg_type);
     void on_msg(int msg_type, LuaObject *msg_object);
-    void publish_msg(int msg_type, LuaObject *msg_object);
+    void publish(int msg_type, LuaObject *msg_object);
     void remove();
     void remove_entity();
 
@@ -53,12 +56,6 @@ public:
 
     template<typename T>
     void subscribe(int msg_type, void (T::*func)(LuaObject *));
-
-    template<typename T, typename...A>
-    void publish(int msg_type, T t, A...args);
-
-    template<typename T>
-    void publish(int msg_type, T t);
 
 protected:
     std::string _name;
@@ -89,40 +86,6 @@ void Component::subscribe(int msg_type, void (T::*func)(LuaObject *))
     static_assert(std::is_base_of<Component, T>::value, "Component::subscribe failed, need a Component-based mem-func");
 
     _msg_map[msg_type] = std::bind(func, (T *)this, std::placeholders::_1);
-}
-
-template<typename T, typename...A>
-inline void lua_obj_list_push(std::list<LuaObject *> &list, T t, A...args)
-{
-    static_assert(std::is_pointer<T>::value, "lua_obj_list_push failed, need a pointer");
-    static_assert(std::is_base_of<LuaObject, typename std::remove_pointer<T>::type>::value, "lua_obj_list_push failed, need a LuaObject-based object");
-
-    list.push_back(t);
-    lua_obj_list_push(list, args...);
-}
-
-template<typename T>
-inline void lua_obj_list_push(std::list<LuaObject *> &list, T t)
-{
-    list.push_back(t);
-}
-
-template<typename T, typename...A>
-void Component::publish(int msg_type, T t, A...args)
-{
-    LuaObjectList object_list;
-
-    lua_obj_list_push(object_list.list, t, args...);
-    publish_msg(msg_type, &object_list);
-}
-
-template<typename T>
-void Component::publish(int msg_type, T t)
-{
-    static_assert(std::is_pointer<T>::value, "lua_obj_list_push failed, need a pointer");
-    static_assert(std::is_base_of<LuaObject, typename std::remove_pointer<T>::type>::value, "lua_obj_list_push failed, need a LuaObject-based object");
-
-    publish_msg(msg_type, t);
 }
 
 struct LuaMessageObject : public LuaObject

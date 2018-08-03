@@ -4,7 +4,6 @@
 #include <memory>
 #include <list>
 #include "socket.h"
-#include "buffer.h"
 #include "tcp_socket.h"
 #include "udp_socket.h"
 
