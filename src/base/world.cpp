@@ -32,8 +32,6 @@ void World::gc()
     {
         auto &object = *it;
 
-        object->gc();
-
         if (!object->is_removed())
         {
             ++it;
@@ -51,9 +49,9 @@ std::shared_ptr<Entity> World::create_object()
     return object;
 }
 
-std::shared_ptr<Entity> World::create_object_with_component(const std::shared_ptr<Component> &component, LuaObject *init_object)
+std::shared_ptr<Entity> World::create_object_with_component(const std::shared_ptr<Component> &component)
 {
     auto object = create_object();
-    object->add_component(component, init_object);
+    object->add_component(component);
     return object;
 }

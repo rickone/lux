@@ -81,7 +81,7 @@ void UdpSocket::init_connect(const char *node, const char *service)
 
 void UdpSocket::on_recv_buffer(Buffer *buffer)
 {
-    publish(kMsg_SocketRecv, buffer);
+    invoke_delegate(on_socket_recv, this, buffer);
 }
 
 void UdpSocket::on_read(size_t len)
@@ -96,11 +96,10 @@ void UdpSocket::on_recvfrom(size_t len)
     {
         _recv_buffer.push(nullptr, len);
 
-        LuaDatagram dgram;
-        dgram.buffer = &_recv_buffer;
-        dgram.addr = (struct sockaddr *)&_remote_sockaddr;
-        dgram.addrlen = _remote_sockaddr_len;
-        publish(kMsg_SocketRecv, &dgram);
+        LuaSockAddr sa;
+        sa.addr = (const struct sockaddr *)&_remote_sockaddr;
+        sa.addrlen = _remote_sockaddr_len;
+        invoke_delegate(on_socket_recvfrom, this, &_recv_buffer, &sa);
     }
 #endif
 
@@ -120,11 +119,10 @@ void UdpSocket::on_recvfrom(size_t len)
 
         _recv_buffer.push(nullptr, ret);
 
-        LuaDatagram dgram;
-        dgram.buffer = &_recv_buffer;
-        dgram.addr = (struct sockaddr *)&_remote_sockaddr;
-        dgram.addrlen = _remote_sockaddr_len;
-        publish(kMsg_SocketRecv, &dgram);
+        LuaSockAddr sa;
+        sa.addr = (const struct sockaddr *)&_remote_sockaddr;
+        sa.addrlen = _remote_sockaddr_len;
+        invoke_delegate(on_socket_recvfrom, this, &_recv_buffer, &sa);
     }
 }
 
@@ -135,7 +133,7 @@ void UdpSocket::on_recv(size_t len)
     {
         _recv_buffer.push(nullptr, len);
 
-        publish(kMsg_SocketRecv, &_recv_buffer);
+        invoke_delegate(on_socket_recv, this, &_recv_buffer);
     }
 #endif
 
@@ -155,6 +153,6 @@ void UdpSocket::on_recv(size_t len)
 
         _recv_buffer.push(nullptr, ret);
 
-        publish(kMsg_SocketRecv, &_recv_buffer);
+        invoke_delegate(on_socket_recv, this, &_recv_buffer);
     }
 }

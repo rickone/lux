@@ -1,7 +1,7 @@
 #include "system_manager.h"
-#include <cstring>
-#include <cstdlib>
-#include <algorithm> // min
+//#include <cstring>
+//#include <cstdlib>
+#include <algorithm> // std::min
 #include <signal.h>
 #include "world.h"
 #include "lua_port.h"
@@ -14,10 +14,7 @@
 #include "unix_socket_stream.h"
 #include "unix_socket_listener.h"
 #include "socket_kcp.h"
-#include "proto_base.h"
-#include "luap_object.h"
-#include "resp_object.h"
-#include "socket_msg.h"
+#include "socket_package.h"
 #include "config.h"
 #include "error.h"
 
@@ -237,9 +234,9 @@ void SystemManager::profile_stop()
 #endif
 }
 
-void SystemManager::start(LuaObject *init_object)
+void SystemManager::start()
 {
-    set_timer(this, &SystemManager::on_timer, 100);
+    set_timer(this, &SystemManager::on_timer, 50);
 }
 
 void SystemManager::stop() noexcept
@@ -320,7 +317,7 @@ void SystemManager::lua_core_init(lua_State *L)
     if (lua_istable(L, -1))
     {
         std::shared_ptr<LuaComponent> component(new LuaComponent());
-        component->attach(L, -1);
+        component->init(L);
 
         world->create_object_with_component(component);
     }
@@ -346,11 +343,7 @@ void SystemManager::lua_core_openlibs(lua_State *L)
     lua_class_define<UnixSocketListener, Socket>(L);
 #endif
     lua_class_define<SocketKcp, Component>(L);
-    lua_class_define<SocketMsg, Component>(L);
-
-    lua_class_define<ProtoBase>(L);
-    lua_class_define<LuapObject, ProtoBase>(L);
-    lua_class_define<RespObject, ProtoBase>(L);
+    lua_class_define<SocketPackage, Component>(L);
 
     lua_lib(L, "lux_core");
     {

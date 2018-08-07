@@ -5,8 +5,8 @@ local body = {}
 function body:start()
     print("body:start", self, type(self))
 
-    self:set_timer("update", 50, 20)
-    self:set_timer("on_timer", 100, 10)
+    self:set_timer("update", 500, 20)
+    self:set_timer("on_timer", 1000, 10)
 end
 
 function body:stop()

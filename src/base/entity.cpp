@@ -1,4 +1,5 @@
 #include "entity.h"
+#include <cstring> // strcmp
 #include "world.h"
 #include "lua_component.h"
 
@@ -8,9 +9,9 @@ void Entity::new_class(lua_State *L)
 
     lua_newtable(L);
     {
-        lua_method(L, find_component);
         lua_method(L, remove);
         lua_std_method(L, add_component);
+        lua_method_sn(L, get_component, std::shared_ptr<Component> (Entity::*)(size_t code));
     }
     lua_setfield(L, -2, "__method");
 
@@ -26,54 +27,38 @@ std::shared_ptr<Entity> Entity::create()
     return world->create_object();
 }
 
-void Entity::gc()
+void Entity::add_component(const std::shared_ptr<Component> &component)
 {
-    for (auto it = _components.begin(); it != _components.end(); )
-    {
-        auto &component = *it;
-        if (component->is_removed())
-        {
-            _components.erase(it++);
-        }
-        else
-        {
-            ++it;
-        }
-    }
+    size_t code = typeid(*component.get()).hash_code();
+    _components[code] = component;
+    component->set_entity(this);
+    component->start();
 }
 
-void Entity::add_component(const std::shared_ptr<Component> &component, LuaObject *init_object)
+std::shared_ptr<Component> Entity::get_component(size_t code)
 {
-    _components.push_back(component);
-    component->set_entity(this);
-    component->start(init_object);
+    return _components[code];
 }
 
 std::shared_ptr<Component> Entity::find_component(const char *name)
 {
-    for (auto &component : _components)
+    for (auto it = _components.begin(); it != _components.end(); ++it)
     {
-        if (component->name() == name)
-            return component;
+        if (strcmp(it->second->name(), name) == 0)
+            return it->second;
     }
 
     return nullptr;
 }
 
-void Entity::publish(int msg_type, LuaObject *msg_object)
-{
-    for (auto &component : _components)
-    {
-        component->on_msg(msg_type, msg_object);
-    }
-}
-
 void Entity::remove()
 {
-    for (auto &component : _components)
+    for (auto it = _components.begin(); it != _components.end(); ++it)
     {
-        component->remove();
+        it->second->stop();
     }
+    _components.clear();
+
     _removed = true;
 }
 
@@ -84,22 +69,14 @@ int Entity::lua_add_component(lua_State *L)
     {
         lua_pushvalue(L, 1);
 
-        LuaMessageObject object;
-        object.arg_begin = 2;
-        object.arg_end = lua_gettop(L);
-
-        add_component(component, &object);
+        add_component(component);
     }
     else if (lua_istable(L, 1))
     {
         std::shared_ptr<LuaComponent> lua_component(new LuaComponent());
-        lua_component->attach(L, 1);
+        lua_component->init(L);
 
-        LuaMessageObject object;
-        object.arg_begin = 2;
-        object.arg_end = lua_gettop(L);
-
-        add_component(lua_component, &object);
+        add_component(lua_component);
     }
     else
     {

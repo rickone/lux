@@ -65,7 +65,7 @@ void UdpSocketListener::on_accept()
     auto udp_socket = UdpSocket::create(socket.detach());
     //auto shared_socket = std::static_pointer_cast<Socket>(udp_socket);
 
-    publish(kMsg_SocketAccept, (Socket *)udp_socket.get());
+    invoke_delegate(on_socket_accept, this, udp_socket.get());
 
     udp_socket->on_recv_buffer(&_recv_buffer);
 }

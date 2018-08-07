@@ -52,15 +52,3 @@ protected:
     size_t _front_pos;
     size_t _back_pos;
 };
-
-struct RawBuffer : LuaObject
-{
-    const char *data;
-    size_t len;
-
-    virtual int lua_push_self(lua_State *L) override
-    {
-        lua_pushlstring(L, data, len);
-        return 1;
-    }
-};

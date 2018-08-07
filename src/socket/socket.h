@@ -3,6 +3,7 @@
 #include "socket_def.h"
 #include "socket_utils.h"
 #include "component.h"
+#include "lua_component.h"
 #include "error.h"
 #include "buffer.h"
 
@@ -14,7 +15,19 @@ enum SocketEventFlag
     kSocketEvent_ReadWrite  = 3,
 };
 
-class Socket : public Component
+class Socket;
+struct LuaSockAddr;
+
+struct SocketDelegate
+{
+    virtual void on_socket_error(Socket *){}
+    virtual void on_socket_close(Socket *){}
+    virtual void on_socket_accept(Socket *, Socket *){}
+    virtual void on_socket_recv(Socket *, Buffer *){}
+    virtual void on_socket_recvfrom(Socket *, Buffer *, LuaSockAddr *){}
+};
+
+class Socket : public Component, public Delegate<SocketDelegate>
 {
 public:
     Socket();
@@ -63,16 +76,14 @@ public:
     int lua_send(lua_State *L);
     int lua_sendto(lua_State *L);
     
-    void on_send(LuaObject *msg_object);
-
     virtual void on_read(size_t len);
     virtual void on_write(size_t len);
     virtual void on_error() noexcept;
 #ifdef _WIN32
     virtual void on_complete(LPWSAOVERLAPPED ovl, size_t len);
 #endif
-    virtual void start() noexcept override;
     virtual void stop() noexcept override;
+    virtual const char * name() const;
 
     socket_t fd() { return _fd; }
     operator bool() const { return _fd != INVALID_SOCKET; }
@@ -99,16 +110,14 @@ protected:
         throw_system_error(__sock_err, "fd(%d)", (int)fd); \
     } while (false)
 
-struct LuaDatagram : public LuaObject
+struct LuaSockAddr : public LuaObject
 {
-    Buffer *buffer;
-    sockaddr *addr;
+    const struct sockaddr *addr;
     socklen_t addrlen;
 
     virtual int lua_push_self(lua_State *L) override
     {
-        lua_push(L, buffer);
         lua_pushlstring(L, (const char *)addr, addrlen);
-        return 2;
+        return 1;
     }
 };

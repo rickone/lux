@@ -119,7 +119,7 @@ void TcpSocket::on_read(size_t len)
 #endif
         if (ret == 0)
         {
-            publish(kMsg_SocketClose, (Socket *)this);
+            invoke_delegate(on_socket_close, this);
 
             close();
             return;
@@ -135,7 +135,7 @@ void TcpSocket::on_read(size_t len)
 
         _recv_buffer.push(nullptr, ret);
 
-        publish(kMsg_SocketRecv, &_recv_buffer);
+        invoke_delegate(on_socket_recv, this, &_recv_buffer);
     }
 }
 

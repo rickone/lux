@@ -260,7 +260,7 @@ void UnixSocket::on_recvfrom(size_t len)
         int ret = recvfrom(back.first, back.second, 0, (struct sockaddr *)&remote_sockaddr, &remote_sockaddr_len);
         if (ret == 0)
         {
-            publish(kMsg_SocketClose, (Socket *)this);
+            invoke_delegate(on_socket_close, this);
 
             close();
             return;
@@ -271,12 +271,10 @@ void UnixSocket::on_recvfrom(size_t len)
 
         _recv_buffer.push(nullptr, ret);
 
-        LuaDatagram dgram;
-        dgram.buffer = &_recv_buffer;
-        dgram.addr = (struct sockaddr *)&remote_sockaddr;
-        dgram.addrlen = remote_sockaddr_len;
-
-        publish(kMsg_SocketRecv, &dgram);
+        LuaSockAddr sa;
+        sa.addr = (const struct sockaddr *)&remote_sockaddr;
+        sa.addrlen = remote_sockaddr_len;
+        invoke_delegate(on_socket_recvfrom, this, &_recv_buffer, &sa);
     }
 }
 
@@ -288,7 +286,7 @@ void UnixSocket::on_recv(size_t len)
         int ret = recvfrom(back.first, back.second, 0, nullptr, nullptr);
         if (ret == 0)
         {
-            publish(kMsg_SocketClose, (Socket *)this);
+            invoke_delegate(on_socket_close, this);
 
             close();
             return;
@@ -299,7 +297,7 @@ void UnixSocket::on_recv(size_t len)
 
         _recv_buffer.push(nullptr, ret);
 
-        publish(kMsg_SocketRecv, &_recv_buffer);
+        invoke_delegate(on_socket_recv, this, &_recv_buffer);
     }
 }
 

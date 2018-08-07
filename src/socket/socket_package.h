@@ -4,19 +4,30 @@
 #include "buffer.h"
 #include "lua_port.h"
 
-class SocketPackage : public Component
+class SocketPackage;
+struct LuaPackage;
+
+struct SocketPackageDelegate
+{
+    virtual void on_package_recv(SocketPackage *, LuaPackage *){}
+};
+
+class SocketPackage : public Component, public SocketDelegate, public Delegate<SocketPackageDelegate>
 {
 public:
     SocketPackage() = default;
     virtual ~SocketPackage() = default;
 
     static void new_class(lua_State *L);
-    static std::shared_ptr<SocketPackage> create(int msg_type);
+    static std::shared_ptr<SocketPackage> create();
 
-    void init(int msg_type);
-    void on_recv(LuaObject *msg_object);
+    int lua_send(lua_State *L);
+
+    virtual void start() override;
+    virtual void on_socket_recv(Socket *socket, Buffer *buffer) override;
 
 private:
+    std::shared_ptr<Socket> _socket;
     uint16_t _package_len;
 };
 

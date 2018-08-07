@@ -1,4 +1,4 @@
-#include "socket_msg.h"
+#include "socket_package.h"
 #include "entity.h"
 
 void SocketPackage::new_class(lua_State *L)
@@ -13,27 +13,39 @@ void SocketPackage::new_class(lua_State *L)
 
     lua_lib(L, "lux_core");
     {
-        lua_set_method(L, "create_msgr", create);
+        lua_set_method(L, "create_package", create);
     }
     lua_pop(L, 1);
 }
 
-std::shared_ptr<SocketPackage> SocketPackage::create(int msg_type)
+std::shared_ptr<SocketPackage> SocketPackage::create()
 {
-    std::shared_ptr<SocketPackage> msgr(new SocketPackage());
-    msgr->init(msg_type);
-    return msgr;
+    return std::shared_ptr<SocketPackage>(new SocketPackage());
 }
 
-void SocketPackage::init(int msg_type)
+int SocketPackage::lua_send(lua_State *L)
 {
-    subscribe(kMsg_SocketRecv, &SocketPackage::on_recv);
+    size_t len = 0;
+    const char *data = luaL_checklstring(L, 1, &len);
+
+    if (len >= USHRT_MAX)
+        return luaL_argerror(L, 1, "too long to send");
+
+    uint16_t header = (uint16_t)len;
+
+    _socket->send((const char *)&header, sizeof(header), 0);
+    _socket->send(data, len, 0);
+    return 0;
 }
 
-void SocketPackage::on_recv(LuaObject *msg_object)
+void SocketPackage::start()
 {
-    Buffer *buffer = (Buffer *)msg_object;
+    _socket = std::static_pointer_cast<Socket>(_entity->find_component("socket"));
+    _socket->add_delegate(this);
+}
 
+void SocketPackage::on_socket_recv(Socket *socket, Buffer *buffer)
+{
     if (_package_len == 0)
     {
         if (buffer->size() < sizeof(_package_len))
@@ -51,31 +63,7 @@ void SocketPackage::on_recv(LuaObject *msg_object)
 
     LuaPackage package;
     package.str = str;
-    publish(kMsg_PackageRecv, &package);
+    invoke_delegate(on_package_recv, this, &package);
 
     _package_len = 0;
-}
-
-int SocketPackage::lua_pack(lua_State *L)
-{
-    int top = lua_gettop(L);
-
-    std::string str;
-    if (_stream_mode)
-    {
-        str.append("  ", 2);
-        lua_proto_pack_args(str, L, top);
-
-        runtime_assert(str.size() <= USHRT_MAX, "pack_len(%u)", str.size());
-
-        uint16_t package_len = (uint16_t)str.size();
-        str.replace(0, 2, (const char *)&package_len, 2);
-    }
-    else
-    {
-        lua_proto_pack_args(str, L, top);
-    }
-
-    _socket->send(str.data(), str.size(), 0);
-    return 0;
 }

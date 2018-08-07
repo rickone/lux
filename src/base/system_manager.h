@@ -23,7 +23,7 @@ public:
     void profile_start();
     void profile_stop();
 
-    virtual void start(LuaObject *init_object) override;
+    virtual void start() override;
     virtual void stop() noexcept override;
 
     void quit() { _running_flag = false; }

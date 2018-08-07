@@ -2,21 +2,21 @@
 #include "socket_manager.h"
 #include "log.h"
 
-Socket::Socket() : Component("socket"), _fd(INVALID_SOCKET)
+Socket::Socket() : Component(), _fd(INVALID_SOCKET)
 #ifdef _WIN32
     , _read_ovl(), _write_ovl(), _ovl_ref()
 #endif
 {
 }
 
-Socket::Socket(socket_t fd) : Component("socket"), _fd(fd)
+Socket::Socket(socket_t fd) : Component(), _fd(fd)
 #ifdef _WIN32
     , _read_ovl(), _write_ovl(), _ovl_ref()
 #endif
 {
 }
 
-Socket::Socket(int domain, int type, int protocol) : Component("socket"), _fd(INVALID_SOCKET)
+Socket::Socket(int domain, int type, int protocol) : Component(), _fd(INVALID_SOCKET)
 #ifdef _WIN32
     , _read_ovl(), _write_ovl(), _ovl_ref()
 #endif
@@ -24,7 +24,7 @@ Socket::Socket(int domain, int type, int protocol) : Component("socket"), _fd(IN
     init(domain, type, protocol);
 }
 
-Socket::Socket(Socket&& socket) : Component("socket"), _fd(socket.detach())
+Socket::Socket(Socket&& socket) : Component(), _fd(socket.detach())
 #ifdef _WIN32
     , _read_ovl(), _write_ovl(), _ovl_ref()
 #endif
@@ -501,13 +501,6 @@ int Socket::lua_sendto(lua_State *L)
     return 0;
 }
 
-void Socket::on_send(LuaObject *msg_object)
-{
-    RawBuffer *buffer = (RawBuffer *)msg_object;
-
-    send(buffer->data, buffer->len, 0);
-}
-
 void Socket::on_read(size_t len)
 {
 }
@@ -518,7 +511,8 @@ void Socket::on_write(size_t len)
 
 void Socket::on_error() noexcept
 {
-    publish(kMsg_SocketError, this);
+    invoke_delegate(on_socket_error, this);
+
     close();
 }
 
@@ -536,11 +530,6 @@ void Socket::on_complete(LPWSAOVERLAPPED ovl, size_t len)
 }
 #endif
 
-void Socket::start() noexcept
-{
-    subscribe(kMsg_SocketSend, &Socket::on_send);
-}
-
 void Socket::stop() noexcept
 {
     close();
@@ -548,4 +537,9 @@ void Socket::stop() noexcept
     if (_ovl_ref > 0)
         socket_manager->add_lost_socket(std::static_pointer_cast<Socket>(shared_from_this()));
 #endif
+}
+
+const char * Socket::name() const
+{
+    return "socket";
 }

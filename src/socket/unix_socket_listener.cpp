@@ -62,7 +62,7 @@ void UnixSocketListener::on_read(size_t len)
 
         auto unix_socket = UnixSocketStream::create(socket.detach());
 
-        publish(kMsg_SocketAccept, (Socket *)unix_socket.get());
+        invoke_delegate(on_socket_accept, this, unix_socket.get());
     }
 }
 
