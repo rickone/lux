@@ -1,15 +1,5 @@
 #pragma once
 
-/*
- * 主要分2种异常：
- * 1. std::logic_error
- *   代码的问题，不catch，丢给std::terminate，相当于release下的assert
- * 2. std::runtime_error
- *   运行时的异常，socket_error，解包异常等，需要catch，清理异常状态，善后恢复运行
- *
- * 注意：部分常见socket error不能抛异常，比如EAGAIN，这就是一个常态状态，需要用if代码处理
- */
-
 #include <string>
 #include <stdexcept>
 #include <system_error>

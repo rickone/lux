@@ -3,7 +3,7 @@ require "lux"
 local client = {}
 
 function client:start()
-    local socket = socket_core.udp_connect("::", "8866")
+    local socket = socket_core.udp_connect("localhost", "8866")
     self.entity:add_component(socket)
     self.socket = socket
     

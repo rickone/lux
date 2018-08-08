@@ -1,10 +1,13 @@
 #include "timer_manager.h"
 #include <cassert>
-#include <sys/time.h>
-#include <chrono>
 
 TimerManager *timer_manager = nullptr;
 
+#ifdef _WIN32
+#include <windows.h>
+#define lux_gettime GetTickCount64
+#else
+#include <sys/time.h>
 static int64_t lux_gettime()
 {
     struct timespec ts;
@@ -18,6 +21,7 @@ static int64_t lux_gettime()
 
     return (int64_t)ts.tv_sec * 1000 + (int64_t)ts.tv_nsec / 1'000'000;
 }
+#endif
 
 TimerManager::TimerManager() : _skip_list(2), _time_now(), _next_tick_time()
 {
@@ -46,12 +50,8 @@ int64_t TimerManager::time_now()
 int TimerManager::tick()
 {
     _time_now = lux_gettime();
-    //log_info("[0] now(%lld)", _time_now);
     if (_time_now < _next_tick_time)
-    {
-        //log_info("[1] now(%lld) next(%lld)", _time_now, _next_tick_time);
         return (int)(_next_tick_time - _time_now);
-    }
 
     unsigned int n = _skip_list.upper_rank(_time_now);
     auto node = _skip_list.remove(0, n);
@@ -95,6 +95,5 @@ int TimerManager::tick()
     }
 
     _next_tick_time = first_node->get_key();
-    //log_info("[2] now(%lld) next(%lld)", _time_now, _next_tick_time);
-    return _next_tick_time - _time_now;
+    return (int)(_next_tick_time - _time_now);
 }

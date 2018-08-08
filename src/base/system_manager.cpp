@@ -150,6 +150,7 @@ SystemManager::SystemManager(int argc, char *argv[]) : _config(argc, argv), _run
     signal(SIGSEGV, on_debug);
 #endif
 
+#if !defined(_WIN32)
     if (_config.env()->daemon)
     {
         log_info("enter daemon mode");
@@ -158,8 +159,9 @@ SystemManager::SystemManager(int argc, char *argv[]) : _config(argc, argv), _run
         if (ret == -1)
             throw_system_error(errno, "daemon");
     }
+#endif
 
-    log_info("SystemManager(v%s) start running, pid=%d, daemon=%s", CORE_VERSION, getpid());
+    log_info("SystemManager(v%s) start running, pid=%d, daemon=%s", CORE_VERSION, getpid(), _config.env()->daemon ? "On" : "Off");
 }
 
 SystemManager::~SystemManager()

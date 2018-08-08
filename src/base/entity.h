@@ -13,6 +13,7 @@ public:
     static void new_class(lua_State *L);
     static std::shared_ptr<Entity> create();
 
+    void clear();
     void add_component(const std::shared_ptr<Component> &component);
     std::shared_ptr<Component> get_component(size_t code);
     std::shared_ptr<Component> find_component(const char *name);

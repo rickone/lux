@@ -28,24 +28,27 @@ int World::launch(int argc, char *argv[])
 
 void World::gc()
 {
-    for (auto it = _objects.begin(); it != _objects.end(); )
+    auto it = _entities.begin();
+    auto end_it = _entities.end();
+    while (it != end_it)
     {
-        auto &object = *it;
+        auto &entity = *it;
 
-        if (!object->is_removed())
+        if (!entity->is_removed())
         {
             ++it;
             continue;
         }
 
-        _objects.erase(it++);
+        entity->clear();
+        _entities.erase(it++);
     }
 }
 
 std::shared_ptr<Entity> World::create_object()
 {
     std::shared_ptr<Entity> object(new Entity());
-    _objects.push_back(object);
+    _entities.push_back(object);
     return object;
 }
 

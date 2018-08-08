@@ -365,7 +365,7 @@ int Socket::write(const char *data, size_t len)
 #ifdef _WIN32
 int Socket::wsa_recvfrom(char *data, size_t len, int flags, struct sockaddr *src_addr, socklen_t *addrlen)
 {
-    WSABUF wsa_buf = { .buf = data, .len = len };
+    WSABUF wsa_buf = { (ULONG)len, data };
     DWORD recv_len = 0;
 
     memset(&_read_ovl, 0, sizeof(_read_ovl));
@@ -397,7 +397,7 @@ int Socket::wsa_recvfrom(char *data, size_t len, int flags, struct sockaddr *src
 
 int Socket::wsa_sendto(const char *data, size_t len, int flags, const struct sockaddr *dest_addr, socklen_t addrlen)
 {
-    WSABUF wsa_buf = { .buf = const_cast<char *>(data), .len = len };
+    WSABUF wsa_buf = { (ULONG)len, const_cast<char *>(data) };
     DWORD send_len = 0;
 
     memset(&_write_ovl, 0, sizeof(_write_ovl));
@@ -429,7 +429,7 @@ int Socket::wsa_sendto(const char *data, size_t len, int flags, const struct soc
 
 int Socket::wsa_recv(char *data, size_t len, int flags)
 {
-    WSABUF wsa_buf = { .buf = data, .len = len };
+    WSABUF wsa_buf = { (ULONG)len, data };
     DWORD recv_len = 0;
 
     memset(&_read_ovl, 0, sizeof(_read_ovl));
@@ -451,7 +451,7 @@ int Socket::wsa_recv(char *data, size_t len, int flags)
 
 int Socket::wsa_send(const char *data, size_t len, int flags)
 {
-    WSABUF wsa_buf = { .buf = const_cast<char *>(data), .len = len };
+    WSABUF wsa_buf = { (ULONG)len, const_cast<char *>(data) };
     DWORD send_len = 0;
 
     memset(&_write_ovl, 0, sizeof(_write_ovl));
@@ -477,7 +477,7 @@ int Socket::lua_connect(lua_State *L)
     size_t addrlen = 0;
     struct sockaddr *addr = (struct sockaddr *)luaL_checklstring(L, 1, &addrlen);
 
-    connect(addr, addrlen);
+    connect(addr, (socklen_t)addrlen);
     return 0;
 }
 
@@ -497,7 +497,7 @@ int Socket::lua_sendto(lua_State *L)
     size_t addrlen = 0;
     struct sockaddr *addr = (struct sockaddr *)luaL_checklstring(L, 2, &addrlen);
 
-    sendto(data, len, 0, addr, addrlen);
+    sendto(data, len, 0, addr, (socklen_t)addrlen);
     return 0;
 }
 

@@ -72,7 +72,7 @@ void TcpSocketListener::on_complete(LPWSAOVERLAPPED ovl, size_t len)
         invoke_delegate(on_socket_accept, this, tcp_socket.get());
 
         tcp_socket = std::make_shared<TcpSocket>();
-        bool ret = tcp_socket->accept_ex(_fd, _local_sockinfo.family, _local_sockinfo.socktype, _local_sockinfo.protocol);
+        BOOL ret = tcp_socket->accept_ex(_fd, _local_sockinfo.family, _local_sockinfo.socktype, _local_sockinfo.protocol);
         if (!ret)
             break;
     }

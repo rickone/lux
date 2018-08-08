@@ -20,9 +20,9 @@ local server = {}
 function server:start()
     local socket
     if config.extra == "ex" then
-        socket = socket_core.udp_listen("::", "8866")
+        socket = socket_core.udp_listen("localhost", "8866")
     else
-        socket = socket_core.udp_bind("::", "8866")
+        socket = socket_core.udp_bind("localhost", "8866")
     end
 
     self.entity:add_component(socket)

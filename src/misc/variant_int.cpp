@@ -4,12 +4,12 @@
 
 inline unsigned long zigzag_encode(long value)
 {
-    return (value << 1) ^ (value >> (sizeof(value) * 8 - 1));
+    return (unsigned long)((value << 1) ^ (value >> (sizeof(value) * 8 - 1)));
 }
 
 inline long zigzag_decode(unsigned long value)
 {
-    return (value >> 1) ^ -(value & 1);
+    return (long)((value >> 1) ^ -(value & 1));
 }
 
 void variant_int_write(std::string &str, long value)

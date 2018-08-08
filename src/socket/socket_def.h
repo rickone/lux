@@ -13,6 +13,10 @@ typedef SOCKET socket_t;
 #define read _read
 #define write _write
 
+#ifdef EWOULDBLOCK
+#undef EWOULDBLOCK
+#endif
+
 #define EWOULDBLOCK WSAEWOULDBLOCK
 
 #else

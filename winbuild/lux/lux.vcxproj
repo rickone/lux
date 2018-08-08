@@ -73,25 +73,25 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)lib\</OutDir>
-    <IntDir>$(SolutionDir)obj\$(TargetName)\$(Configuration)_$(PlatformTarget)</IntDir>
+    <IntDir>$(SolutionDir)obj\$(TargetName)\$(Configuration)_$(PlatformTarget)\</IntDir>
     <TargetExt>.lib</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)lib\</OutDir>
-    <IntDir>$(SolutionDir)obj\$(TargetName)\$(Configuration)_$(PlatformTarget)</IntDir>
+    <IntDir>$(SolutionDir)obj\$(TargetName)\$(Configuration)_$(PlatformTarget)\</IntDir>
     <TargetExt>.lib</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)lib\</OutDir>
-    <IntDir>$(SolutionDir)obj\$(TargetName)\$(Configuration)_$(PlatformTarget)</IntDir>
+    <IntDir>$(SolutionDir)obj\$(TargetName)\$(Configuration)_$(PlatformTarget)\</IntDir>
     <TargetExt>.lib</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)lib\</OutDir>
-    <IntDir>$(SolutionDir)obj\$(TargetName)\$(Configuration)_$(PlatformTarget)</IntDir>
+    <IntDir>$(SolutionDir)obj\$(TargetName)\$(Configuration)_$(PlatformTarget)\</IntDir>
     <TargetExt>.lib</TargetExt>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -164,25 +164,24 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\base\component.cpp" />
+    <ClCompile Include="..\..\src\base\entity.cpp" />
     <ClCompile Include="..\..\src\base\lua_component.cpp" />
-    <ClCompile Include="..\..\src\base\object.cpp" />
     <ClCompile Include="..\..\src\base\system_manager.cpp" />
     <ClCompile Include="..\..\src\base\world.cpp" />
     <ClCompile Include="..\..\src\lua\lua_object.cpp" />
     <ClCompile Include="..\..\src\lua\lua_port.cpp" />
+    <ClCompile Include="..\..\src\lua\lua_proto.cpp" />
     <ClCompile Include="..\..\src\misc\buffer.cpp" />
     <ClCompile Include="..\..\src\misc\config.cpp" />
     <ClCompile Include="..\..\src\misc\error.cpp" />
     <ClCompile Include="..\..\src\misc\getopt_win32.c" />
     <ClCompile Include="..\..\src\misc\log.cpp" />
     <ClCompile Include="..\..\src\misc\variant_int.cpp" />
-    <ClCompile Include="..\..\src\proto\luap_object.cpp" />
-    <ClCompile Include="..\..\src\proto\proto_base.cpp" />
-    <ClCompile Include="..\..\src\proto\resp_object.cpp" />
     <ClCompile Include="..\..\src\socket\socket.cpp" />
-    <ClCompile Include="..\..\src\socket\socket_addr.cpp" />
     <ClCompile Include="..\..\src\socket\socket_kcp.cpp" />
     <ClCompile Include="..\..\src\socket\socket_manager.cpp" />
+    <ClCompile Include="..\..\src\socket\socket_package.cpp" />
+    <ClCompile Include="..\..\src\socket\socket_utils.cpp" />
     <ClCompile Include="..\..\src\socket\tcp_socket.cpp" />
     <ClCompile Include="..\..\src\socket\tcp_socket_listener.cpp" />
     <ClCompile Include="..\..\src\socket\udp_socket.cpp" />
@@ -202,12 +201,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\base\component.h" />
+    <ClInclude Include="..\..\src\base\entity.h" />
     <ClInclude Include="..\..\src\base\lua_component.h" />
-    <ClInclude Include="..\..\src\base\object.h" />
     <ClInclude Include="..\..\src\base\system_manager.h" />
     <ClInclude Include="..\..\src\base\world.h" />
+    <ClInclude Include="..\..\src\lua\lua_bridge.h" />
     <ClInclude Include="..\..\src\lua\lua_object.h" />
     <ClInclude Include="..\..\src\lua\lua_port.h" />
+    <ClInclude Include="..\..\src\lua\lua_proto.h" />
     <ClInclude Include="..\..\src\misc\buffer.h" />
     <ClInclude Include="..\..\src\misc\config.h" />
     <ClInclude Include="..\..\src\misc\error.h" />
@@ -215,14 +216,12 @@
     <ClInclude Include="..\..\src\misc\log.h" />
     <ClInclude Include="..\..\src\misc\skip_list.h" />
     <ClInclude Include="..\..\src\misc\variant_int.h" />
-    <ClInclude Include="..\..\src\proto\luap_object.h" />
-    <ClInclude Include="..\..\src\proto\proto_base.h" />
-    <ClInclude Include="..\..\src\proto\resp_object.h" />
     <ClInclude Include="..\..\src\socket\socket.h" />
-    <ClInclude Include="..\..\src\socket\socket_addr.h" />
     <ClInclude Include="..\..\src\socket\socket_def.h" />
     <ClInclude Include="..\..\src\socket\socket_kcp.h" />
     <ClInclude Include="..\..\src\socket\socket_manager.h" />
+    <ClInclude Include="..\..\src\socket\socket_package.h" />
+    <ClInclude Include="..\..\src\socket\socket_utils.h" />
     <ClInclude Include="..\..\src\socket\tcp_socket.h" />
     <ClInclude Include="..\..\src\socket\tcp_socket_listener.h" />
     <ClInclude Include="..\..\src\socket\udp_socket.h" />

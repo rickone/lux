@@ -48,7 +48,8 @@ void TcpSocket::init_connection(const char *node, const char *service)
         setsockopt(IPPROTO_TCP, TCP_NODELAY, true);
         add_event(kSocketEvent_ReadWrite);
 #ifdef _WIN32
-        _connected = connect_ex(ai->ai_addr, (socklen_t)ai->ai_addrlen);
+        BOOL succ = connect_ex(ai->ai_addr, (socklen_t)ai->ai_addrlen);
+        _connected = (succ != 0);
 
         if (_connected)
             on_read(0);
@@ -63,7 +64,7 @@ void TcpSocket::send_pending(const char *data, size_t len)
     _send_buffer.push(data, len);
     if (_send_buffer.size() > config->env()->socket_send_buffer_max)
     {
-        int fd = _fd;
+        socket_t fd = _fd;
         on_error();
         throw_error(std::runtime_error, "fd(%d) send_pending buffer(%u Byte) overflow", fd, _send_buffer.size());
     }

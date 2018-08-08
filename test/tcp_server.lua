@@ -12,7 +12,7 @@ end
 local server = {}
 
 function server:start()
-    local socket = socket_core.tcp_listen("::", "8866")
+    local socket = socket_core.tcp_listen("localhost", "8866")
     self.entity:add_component(socket)
 end
 

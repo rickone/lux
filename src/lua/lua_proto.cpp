@@ -69,8 +69,8 @@ void lua_proto_pack(std::string &str, lua_State *L, int index)
 
         case LUA_TBOOLEAN:
         {
-            bool value = (bool)lua_toboolean(L, index);
-            lua_proto_pack_bool(str, value);
+            int value = lua_toboolean(L, index);
+            lua_proto_pack_bool(str, value != 0);
             break;
         }
 

@@ -27,6 +27,15 @@ std::shared_ptr<Entity> Entity::create()
     return world->create_object();
 }
 
+void Entity::clear()
+{
+    for (auto it = _components.begin(); it != _components.end(); ++it)
+    {
+        it->second->stop();
+    }
+    _components.clear();
+}
+
 void Entity::add_component(const std::shared_ptr<Component> &component)
 {
     size_t code = typeid(*component.get()).hash_code();
@@ -37,7 +46,11 @@ void Entity::add_component(const std::shared_ptr<Component> &component)
 
 std::shared_ptr<Component> Entity::get_component(size_t code)
 {
-    return _components[code];
+    auto it = _components.find(code);
+    if (it == _components.end())
+        return nullptr;
+
+    return it->second;
 }
 
 std::shared_ptr<Component> Entity::find_component(const char *name)
@@ -53,12 +66,6 @@ std::shared_ptr<Component> Entity::find_component(const char *name)
 
 void Entity::remove()
 {
-    for (auto it = _components.begin(); it != _components.end(); ++it)
-    {
-        it->second->stop();
-    }
-    _components.clear();
-
     _removed = true;
 }
 

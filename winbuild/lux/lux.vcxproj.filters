@@ -21,9 +21,6 @@
     <ClCompile Include="..\..\src\base\lua_component.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\base\object.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\base\system_manager.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -51,19 +48,7 @@
     <ClCompile Include="..\..\src\misc\variant_int.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\proto\luap_object.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\proto\proto_base.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\proto\resp_object.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\socket\socket.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\socket\socket_addr.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\socket\socket_kcp.cpp">
@@ -96,15 +81,24 @@
     <ClCompile Include="..\..\src\socket\udp_socket_listener.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\base\entity.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\lua\lua_proto.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\socket\socket_package.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\socket\socket_utils.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\base\component.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\base\lua_component.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\base\object.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\base\system_manager.h">
@@ -137,19 +131,7 @@
     <ClInclude Include="..\..\src\misc\variant_int.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\proto\luap_object.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\proto\proto_base.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\proto\resp_object.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\socket\socket.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\socket\socket_addr.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\socket\socket_kcp.h">
@@ -183,6 +165,21 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\socket\udp_socket_listener.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\socket\socket_package.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\socket\socket_utils.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\base\entity.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\lua\lua_bridge.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\lua\lua_proto.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

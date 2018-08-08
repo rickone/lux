@@ -55,7 +55,10 @@ void LuaComponent::invoke(const char *name, A...args)
     { \
         for (auto dlgt : _delegate) \
             dlgt->method(__VA_ARGS__); \
-        auto component = _entity->get_component<LuaComponent>(); \
-        if (component) \
-            component->invoke(#method,## __VA_ARGS__); \
+        if (_entity) \
+        { \
+            auto component = _entity->get_component<LuaComponent>(); \
+            if (component) \
+                component->invoke(#method, ## __VA_ARGS__); \
+        } \
     } while (false)

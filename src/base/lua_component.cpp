@@ -60,8 +60,8 @@ void LuaComponent::stop() noexcept
 int LuaComponent::lua_set_timer(lua_State *L)
 {
     std::string name(luaL_checkstring(L, 1));
-    int interval = luaL_checkinteger(L, 2);
-    int counter = luaL_checkinteger(L, 3);
+    int interval = (int)luaL_checkinteger(L, 2);
+    int counter = (int)luaL_checkinteger(L, 3);
 
     std::function<void (LuaComponent *, Timer *)> func = [name](LuaComponent *object, Timer *timer){
         object->invoke(name.c_str(), timer);
