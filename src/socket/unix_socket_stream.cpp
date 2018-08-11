@@ -9,7 +9,6 @@ void UnixSocketStream::new_class(lua_State *L)
 
     lua_lib(L, "socket_core");
     {
-        lua_set_method(L, "unix_attach_stream", create);
         lua_set_method(L, "unix_connect", connect);
     }
     lua_pop(L, 1);

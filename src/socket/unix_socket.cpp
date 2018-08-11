@@ -70,6 +70,7 @@ void UnixSocket::connect(const char *socket_path)
     addr.sun_path[sizeof(addr.sun_path) - 1] = 0;
 
     Socket::connect((const struct sockaddr *)&addr, sizeof(addr));
+    _on_read = &UnixSocket::on_recv;
 }
 
 void UnixSocket::push_socket(Socket *socket)

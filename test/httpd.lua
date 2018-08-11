@@ -1,27 +1,10 @@
 require "lux"
 local http = require "http"
 
-local command = {name="command"}
+local command = {}
 
-function command:start(httpd, socket)
-    self.httpd = httpd
-    self.socket = socket
-    self:subscribe(100, "invoke")
-end
-
-function command:invoke(request)
-    local respond = http.Respond.new(self.socket, request)
-    local func = self[request.method]
-    if not func then
-        respond:send(405)
-        return
-    end
-
-    func(self, request, respond)
-end
-
-function command:GET(request, respond)
-    local content = self.httpd:load_resource(request.url)
+function command.GET(httpd, request, respond)
+    local content = httpd:load_resource(request.url)
     if not content then
         return respond:send(404)
     end
@@ -29,13 +12,13 @@ function command:GET(request, respond)
     respond:send(200, content)
 end
 
-local session = {name="session"}
+local session = {}
 
-function session:start()
-    self:subscribe(msg_type.socket_recv, "on_recv")
+function session:init(httpd)
+    self.httpd = httpd
 end
 
-function session:on_recv(buffer)
+function session:on_socket_recv(socket, buffer)
     if self.request == nil then
         self.request = http.Request.new()
     end
@@ -48,7 +31,15 @@ function session:on_recv(buffer)
     self.request = nil
 
     print("request", request.method, request.url)
-    self:publish(100, request)
+
+    local respond = http.Respond.new(socket, request)
+    local func = command[request.method]
+    if not func then
+        respond:send(405)
+        return
+    end
+
+    func(self.httpd, request, respond)
 
     if request.header["CONNECTION"] == "keep-alive" then
         self:set_timer("on_timeout", 5000, 1)
@@ -61,14 +52,11 @@ function session:on_timeout()
     self.entity:remove()
 end
 
-local httpd = {name="httpd"}
+local httpd = {}
 
 function httpd:start()
     local socket = socket_core.tcp_listen("0.0.0.0", "8866")
     self.entity:add_component(socket)
-    self.socket = socket
-
-    self:subscribe(msg_type.socket_accept, "on_accept")
 
     self.cache = {}
     self.cache_timeout = config.httpd_cache_timeout or 60
@@ -77,11 +65,10 @@ function httpd:start()
     self:set_timer("update_cache", 2000, -1)
 end
 
-function httpd:on_accept(socket)
+function httpd:on_socket_accept(listen_socket, socket)
     local ent = lux_core.create_entity()
     ent:add_component(socket)
-    ent:add_component(session)
-    ent:add_component(command, self, socket)
+    ent:add_component(session, self)
 end
 
 function httpd:load_resource(url)

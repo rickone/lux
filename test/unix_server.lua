@@ -1,13 +1,8 @@
 require "lux"
 
-local connection = {name="connection"}
+local connection = {}
 
-function connection:start(socket)
-    self.socket = socket
-    self:subscribe(msg_type.socket_recv, "on_recv")
-end
-
-function connection:on_recv(buffer)
+function connection:on_socket_recv(socket, buffer)
     local data = tostring(buffer)
 
     print("on_recv", data)
@@ -16,38 +11,35 @@ function connection:on_recv(buffer)
         return
     end
 
-    self.socket:send("rsp "..data)
+    socket:send("rsp:"..data)
     buffer:clear()
 end
 
-local server = {name="server"}
+local server = {}
 
 function server:start()
     local socket
     if config.extra == "ex" then
         socket = socket_core.unix_listen("luxd.sock")
-        self:subscribe(msg_type.socket_accept, "on_accept")
     else
         socket = socket_core.unix_bind("luxd-server.sock")
-        self.socket = socket
-        self:subscribe(msg_type.socket_recv, "on_recv")
     end
     self.entity:add_component(socket)
 end
 
-function server:on_accept(socket)
+function server:on_socket_accept(listen_socket, socket)
     print("on_accept", socket)
 
     local ent = lux_core.create_entity()
     ent:add_component(socket)
-    ent:add_component(connection, socket)
+    ent:add_component(connection)
 end
 
-function server:on_recv(buffer, addr)
+function server:on_socket_recvfrom(socket, buffer, addr)
     local data = tostring(buffer)
     
     print("on_recv", data)
-    self.socket:sendto("rsp "..data, addr)
+    socket:sendto("rsp:"..data, addr)
     
     if data == "close" then
         self.entity:remove()

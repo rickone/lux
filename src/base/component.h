@@ -48,21 +48,6 @@ void Component::set_timer(T *object, void (T::*func)(Timer *), int interval, int
     set_timer(object, mfn, interval, counter);
 }
 
-struct LuaMessageObject : public LuaObject
-{
-    int arg_begin;
-    int arg_end;
-
-    virtual int lua_push_self(lua_State *L) override
-    {
-        for (int i = arg_begin; i <= arg_end; ++i)
-        {
-            lua_pushvalue(L, i);
-        }
-        return arg_end - arg_begin + 1;
-    }
-};
-
 template<typename T>
 class Delegate
 {

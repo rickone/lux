@@ -1,6 +1,4 @@
 #include "system_manager.h"
-//#include <cstring>
-//#include <cstdlib>
 #include <algorithm> // std::min
 #include <signal.h>
 #include "world.h"
@@ -16,7 +14,6 @@
 #include "socket_kcp.h"
 #include "socket_package.h"
 #include "config.h"
-#include "error.h"
 
 #ifdef _WIN32
 #include <process.h>
@@ -219,7 +216,7 @@ void SystemManager::on_fork(int pid)
 void SystemManager::profile_start()
 {
 #ifdef GPERFTOOLS
-    const char *profile = config->get_string("profile", "./stmd.profile");
+    const char *profile = config->get_string("profile", "./luxd.profile");
 
     ProfilerStart(profile);
     log_info("profile start %s", profile);
@@ -236,7 +233,7 @@ void SystemManager::profile_stop()
 
 void SystemManager::start()
 {
-    set_timer(this, &SystemManager::on_timer, 50);
+    set_timer(this, &SystemManager::on_timer, 200);
 }
 
 void SystemManager::stop() noexcept

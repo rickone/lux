@@ -1,9 +1,8 @@
 #include "lua_component.h"
 #include "timer.h"
-#include "buffer.h"
-#include "tcp_socket.h"
-#include "udp_socket.h"
-#include "unix_socket.h"
+//#include "tcp_socket.h"
+//#include "udp_socket.h"
+//#include "unix_socket.h"
 
 void LuaComponent::new_class(lua_State *L)
 {

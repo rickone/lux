@@ -1,5 +1,5 @@
 #include "variant_int.h"
-#include <algorithm>
+#include <algorithm> // std::min
 #include "error.h"
 
 inline unsigned long zigzag_encode(long value)

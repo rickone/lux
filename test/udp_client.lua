@@ -1,23 +1,22 @@
 require "lux"
 
-local client = {name="client"}
+local client = {}
 
 function client:start()
     local socket = socket_core.udp_connect("::", "8866")
     self.entity:add_component(socket)
     self.socket = socket
     
-    self:subscribe(msg_type.socket_recv, "on_recv")
     self:set_timer("update", 100, 10)
 end
 
-function client:on_recv(buffer)
+function client:on_socket_recv(socket, buffer)
     print("on_recv", buffer)
     buffer:clear()
 end
 
 function client:update(t)
-    local data = (t.counter == 0) and "close" or ("hello "..t.counter)
+    local data = (t.counter == 0) and "close" or ("hello:"..t.counter)
     print("send", data)
 
     self.socket:send(data)

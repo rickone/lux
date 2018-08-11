@@ -63,8 +63,9 @@ void TcpSocket::send_pending(const char *data, size_t len)
     _send_buffer.push(data, len);
     if (_send_buffer.size() > config->env()->socket_send_buffer_max)
     {
+        int fd = _fd;
         on_error();
-        throw_error(std::runtime_error, "fd(%d) send_pending buffer(%u Byte) overflow", _fd, _send_buffer.size());
+        throw_error(std::runtime_error, "fd(%d) send_pending buffer(%u Byte) overflow", fd, _send_buffer.size());
     }
 
     log_info("fd(%d) write pending", _fd);

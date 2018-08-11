@@ -1,35 +1,28 @@
 require "lux"
 
-local connection = {name="connection"}
+local connection = {}
 
 function connection:start()
     local kcp = lux_core.create_kcp()
     self.entity:add_component(kcp)
-    self.kcp = kcp
-    
-    self:subscribe(msg_type.kcp_output, "on_recv")
 end
 
-function connection:on_recv(buffer)
+function connection:on_kcp_recv(kcp, buffer)
     local data = tostring(buffer)
 
     print("on_recv", data)
 
-    self.kcp:send("rsp "..data)
-    buffer:clear()
+    kcp:send("rsp:"..data)
 end
 
-local server = {name="server"}
+local server = {}
 
 function server:start()
     local socket = socket_core.udp_listen("::", "8866")
     self.entity:add_component(socket)
-    self.socket = socket
-
-    self:subscribe(msg_type.socket_accept, "on_accept")
 end
 
-function server:on_accept(socket)
+function server:on_socket_accept(listen_socket, socket)
     print("on_accept", socket)
 
     local ent = lux_core.create_entity()
