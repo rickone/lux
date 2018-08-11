@@ -159,6 +159,8 @@ void TcpSocket::on_write(size_t len)
         log_info("fd(%d) connected", _fd);
         _connected = true;
 
+        invoke_delegate(on_socket_connect, this);
+
 #ifdef _WIN32
         on_read(0);
 #endif

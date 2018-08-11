@@ -20,11 +20,13 @@ struct LuaSockAddr;
 
 struct SocketDelegate
 {
+    virtual void on_socket_connect(Socket *){}
     virtual void on_socket_error(Socket *){}
     virtual void on_socket_close(Socket *){}
     virtual void on_socket_accept(Socket *, Socket *){}
     virtual void on_socket_recv(Socket *, Buffer *){}
     virtual void on_socket_recvfrom(Socket *, Buffer *, LuaSockAddr *){}
+    virtual void on_socket_singnal(Socket *){}
 };
 
 class Socket : public Component, public Delegate<SocketDelegate>

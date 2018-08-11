@@ -6,6 +6,7 @@ local RequestMt = {__index = Request}
 function Request.new()
     local obj = {}
     obj.parse = Request.parse_cmd
+    obj.header = {}
 
     return setmetatable(obj, RequestMt)
 end
@@ -20,7 +21,6 @@ function Request:parse_cmd(buffer)
     self.method, self.url, self.version = s:match("^([^%s]+) ([^%s]+) ([^%s]+)\r\n$")
 
     self.parse = self.parse_header
-    self.header = {}
 
     return self:parse(buffer)
 end
@@ -63,6 +63,45 @@ function Request:parse_content(buffer)
     return true
 end
 
+function Request:set_header(key, value)
+    self.header[key] = value
+end
+
+function Request:set_method(method, url)
+    self.method = method
+    self.url = url
+end
+
+function Request:set_content(content)
+    self.content = content
+end
+
+function Request:send(socket)
+    local result = {}
+    table.insert(result, ("%s %s %s"):format(self.method, self.url, self.version))
+
+    local content = self.content
+    if content and #content > 0 then
+        local ext = self.request.url:match("%.(.-)$")
+        local mime_type = MimeType[ext]
+        if mime_type then
+            self:set_header("Content-Type", mime_type)
+        end
+        self:set_header("Content-Length", #content)
+    end
+    for k,v in pairs(self.header) do
+        table.insert(result, ("%s: %s"):format(k, tostring(v)))
+    end
+    table.insert(result, "")
+
+    if content then
+        table.insert(result, content)
+    end
+
+    socket:send(table.concat(result, "\r\n"))
+    print("request", self.method, self.url)
+end
+
 local Respond = {}
 local RespondMt = {__index = Respond}
 
@@ -82,9 +121,8 @@ local MimeType =
     jpg = "image/jpeg",
 }
 
-function Respond.new(socket, request)
+function Respond.new(request)
     local obj = {}
-    obj.socket = socket
     obj.request = request
     obj.header = {}
 
@@ -95,10 +133,20 @@ function Respond:set_header(key, value)
     self.header[key] = value
 end
 
-function Respond:send(code, content)
-    local result = {}
-    table.insert(result, ("%s %s %s"):format(self.request.version, code, CodeDefine[code] or "Unknown"))
+function Respond:set_code(code, msg)
+    self.code = code
+    self.msg = msg or CodeDefine[code] or "Unknown"
+end
 
+function Respond:set_content(content)
+    self.content = content
+end
+
+function Respond:send(socket)
+    local result = {}
+    table.insert(result, ("%s %s %s"):format(self.request.version, self.code, self.msg))
+
+    local content = self.content
     if content and #content > 0 then
         local ext = self.request.url:match("%.(.-)$")
         local mime_type = MimeType[ext]
@@ -116,8 +164,8 @@ function Respond:send(code, content)
         table.insert(result, content)
     end
 
-    self.socket:send(table.concat(result, "\r\n"))
-    print("respond", code, content and #content)
+    socket:send(table.concat(result, "\r\n"))
+    print("respond", self.code, content and #content)
 end
 
 http.Request = Request

@@ -11,7 +11,8 @@ void Entity::new_class(lua_State *L)
     {
         lua_method(L, remove);
         lua_std_method(L, add_component);
-        lua_method_sn(L, get_component, std::shared_ptr<Component> (Entity::*)(size_t code));
+        lua_std_method(L, get_component);
+        lua_std_method(L, find_component);
     }
     lua_setfield(L, -2, "__method");
 
@@ -84,11 +85,45 @@ int Entity::lua_add_component(lua_State *L)
         lua_component->init(L);
 
         add_component(lua_component);
+
+        lua_push(L, lua_component);
     }
     else
     {
         return luaL_argerror(L, 1, "need a table or an object");
     }
 
+    return 1;
+}
+
+int Entity::lua_get_component(lua_State *L)
+{
+    const char *class_name = luaL_checkstring(L, 1);
+
+    lua_getglobal(L, "class_info");
+    lua_getfield(L, -1, class_name);
+    if (!lua_istable(L, -1))
+        return 0;
+
+    lua_getfield(L, -1, "code");
+    size_t code = (size_t)luaL_checkinteger(L, -1);
+
+    auto component = get_component(code);
+    if (!component)
+        return 0;
+
+    lua_push(L, component.get());
+    return 1;
+}
+
+int Entity::lua_find_component(lua_State *L)
+{
+    const char *name = luaL_checkstring(L, 1);
+
+    auto component = find_component(name);
+    if (!component)
+        return 0;
+
+    lua_push(L, component.get());
     return 1;
 }

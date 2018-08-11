@@ -1,6 +1,10 @@
 require "lux"
 
-for k,v in pairs(_G.class_metas) do
+for k,v in pairs(_G.class_info) do
+    print(k,tree(v))
+end
+
+for k,v in pairs(_G.class_meta) do
     print(k,tree(v))
 end
 

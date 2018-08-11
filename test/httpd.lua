@@ -3,13 +3,13 @@ local http = require "http"
 
 local command = {}
 
-function command.GET(httpd, request, respond)
+function command.GET(httpd, socket, request, respond)
     local content = httpd:load_resource(request.url)
     if not content then
-        return respond:send(404)
+        return respond:send(socket, 404)
     end
 
-    respond:send(200, content)
+    respond:send(socket, 200, content)
 end
 
 local session = {}
@@ -30,16 +30,16 @@ function session:on_socket_recv(socket, buffer)
     local request = self.request
     self.request = nil
 
-    print("request", request.method, request.url)
+    print("request", tree(request))
 
-    local respond = http.Respond.new(socket, request)
+    local respond = http.Respond.new(request)
     local func = command[request.method]
     if not func then
-        respond:send(405)
+        respond:send(socket, 405)
         return
     end
 
-    func(self.httpd, request, respond)
+    func(self.httpd, socket, request, respond)
 
     if request.header["CONNECTION"] == "keep-alive" then
         self:set_timer("on_timeout", 5000, 1)

@@ -139,13 +139,13 @@ void lua_class_inherit_impl(lua_State *L, size_t count, ...)
 
 void lua_class_get_metatable(lua_State *L, const char *type_id_name)
 {
-    int ret = lua_getglobal(L, "class_metas");
+    int ret = lua_getglobal(L, "class_meta");
     if (ret != LUA_TTABLE)
     {
         lua_pop(L, 1);
         lua_newtable(L);
         lua_pushvalue(L, -1);
-        lua_setglobal(L, "class_metas");
+        lua_setglobal(L, "class_meta");
     }
 
     lua_getfield(L, -1, type_id_name);
@@ -157,13 +157,13 @@ void lua_class_get_metatable(lua_State *L, const char *type_id_name)
 
 void lua_class_set_metatable(lua_State *L, const char *type_id_name)
 {
-    int ret = lua_getglobal(L, "class_metas");
+    int ret = lua_getglobal(L, "class_meta");
     if (ret != LUA_TTABLE)
     {
         lua_pop(L, 1);
         lua_newtable(L);
         lua_pushvalue(L, -1);
-        lua_setglobal(L, "class_metas");
+        lua_setglobal(L, "class_meta");
     }
 
     lua_insert(L, -2);

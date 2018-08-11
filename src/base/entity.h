@@ -19,6 +19,8 @@ public:
     std::shared_ptr<Component> find_component(const char *name);
     void remove();
     int lua_add_component(lua_State *L);
+    int lua_get_component(lua_State *L);
+    int lua_find_component(lua_State *L);
 
     bool is_removed() { return _removed; }
 

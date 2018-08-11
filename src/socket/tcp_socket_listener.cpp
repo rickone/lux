@@ -84,8 +84,6 @@ void TcpSocketListener::on_complete(LPWSAOVERLAPPED ovl, size_t len)
 #else // _WIN32
 void TcpSocketListener::on_read(size_t len)
 {
-    log_info("TcpSocketListener::on_read fd(%d)", _fd);
-    
     for (;;)
     {
         auto socket = accept();

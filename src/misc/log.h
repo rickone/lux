@@ -58,3 +58,6 @@ extern LogContext *log_context;
 #define log_debug(Fmt, ...) if (log_context) log_context->log(kLevelDebug, Fmt,## __VA_ARGS__)
 #define log_info(Fmt, ...)  if (log_context) log_context->log(kLevelInfo, Fmt,## __VA_ARGS__)
 #define log_error(Fmt, ...) if (log_context) log_context->log(kLevelError, Fmt,## __VA_ARGS__)
+
+struct lua_State;
+extern int lua_log(lua_State *L);

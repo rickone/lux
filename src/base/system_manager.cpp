@@ -348,6 +348,7 @@ void SystemManager::lua_core_openlibs(lua_State *L)
     {
         lua_set_function(L, "pack", luap_pack);
         lua_set_function(L, "unpack", luap_unpack);
+        lua_std_function(L, log);
     }
     lua_pop(L, 1);
 }

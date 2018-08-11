@@ -8,6 +8,7 @@
 #endif
 #include "config.h"
 #include "error.h"
+#include "lua.hpp"
 
 void LogFile::set_file_path(const char *log_file_path)
 {
@@ -210,4 +211,11 @@ void LogContext::on_fork(int pid)
 {
     _local_log_file.on_fork(pid);
     _error_log_file.on_fork(pid);
+}
+
+int lua_log(lua_State *L)
+{
+    const char *text = luaL_checkstring(L, 1);
+    log_info("[Lua] %s", text);
+    return 0;
 }

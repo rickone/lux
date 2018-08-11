@@ -493,9 +493,33 @@ inline T overload_func(T t)
     return t;
 }
 
+inline void set_class_info(lua_State *L, const char *class_name, const char *id, size_t code)
+{
+    int top = lua_gettop(L);
+
+    lua_getglobal(L, "class_info");
+    if (!lua_istable(L, -1))
+    {
+        lua_newtable(L);
+        lua_pushvalue(L, -1);
+        lua_setglobal(L, "class_info");
+    }
+    {
+        lua_newtable(L);
+        lua_pushstring(L, id);
+        lua_setfield(L, -2, "id");
+        lua_pushinteger(L, (lua_Integer)code);
+        lua_setfield(L, -2, "code");
+    }
+    lua_setfield(L, -2, class_name);
+
+    lua_settop(L, top);
+}
+
 #define lua_new_class(L, Class) \
     typedef Class __Class; \
-    if (0 == luaL_newmetatable(L, #Class)) return
+    if (0 == luaL_newmetatable(L, #Class)) return; \
+    set_class_info(L, #Class, typeid(Class).name(), typeid(Class).hash_code())
 
 #define lua_set_function(L, name, func) \
     lua_push_function(L, func); \
@@ -504,6 +528,8 @@ inline T overload_func(T t)
 
 #define lua_function(L, func) lua_set_function(L, #func, func)
 #define lua_function_sn(L, func, sign) lua_set_function_sn(L, #func, func, sign)
+
+#define lua_std_function(L, func) lua_set_function(L, #func, lua_##func)
 
 #define lua_push_method(L, method) lua_push_function(L, &__Class::method)
 #define lua_push_method_sn(L, method, sign) lua_push_function(L, overload_func<sign>(&__Class::method))
