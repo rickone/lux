@@ -95,9 +95,7 @@ int UnixSocketStream::lua_fork(lua_State *L)
 
     auto socket_out = fork(proc_title, [L](const std::shared_ptr<UnixSocketStream> &socket_in){
         lua_push(L, socket_in);
-        int ret = lua_btcall(L, 1, 0);
-        if (ret != LUA_OK)
-            throw_lua_error(L);
+        lua_call(L, 1, 0);
     });
     lua_push(L, socket_out);
     return 1;

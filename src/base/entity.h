@@ -1,8 +1,9 @@
 #pragma once
 
-#include <unordered_map>
-#include <memory>
+#include <unordered_map> // unordered_multimap
+#include <memory> // shared_ptr
 #include "component.h"
+#include "timer.h"
 
 class Entity final : public LuaObject
 {
@@ -22,6 +23,8 @@ public:
     int lua_add_component(lua_State *L);
     int lua_get_component(lua_State *L);
     int lua_find_component(lua_State *L);
+
+    std::shared_ptr<Timer> add_timer(int interval, int counter = -1);
 
     bool is_removed() { return _removed; }
 

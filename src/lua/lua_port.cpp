@@ -73,6 +73,9 @@ int lua_class_newindex(lua_State *L)
     if (!lua_isnil(L, -1))
         luaL_error(L, "property.set error: field '%s' is a method", lua_tostring(L, 2));
 
+    if (lua_isuserdata(L, 1))
+        luaL_error(L, "property.set error: cant set '%s' to an userdata", lua_tostring(L, 2));
+
     lua_settop(L, 3);
     lua_rawset(L, 1);
     return 0;

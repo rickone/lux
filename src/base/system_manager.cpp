@@ -3,7 +3,6 @@
 #include <signal.h>
 #include "world.h"
 #include "lua_port.h"
-#include "lua_component.h"
 #include "tcp_socket.h"
 #include "tcp_socket_listener.h"
 #include "udp_socket.h"
@@ -235,7 +234,8 @@ void SystemManager::profile_stop()
 
 void SystemManager::start()
 {
-    set_timer(this, &SystemManager::on_timer, 200);
+    auto timer = _entity->add_timer(200);
+    timer->on_timer.set(this, &SystemManager::on_timer);
 }
 
 void SystemManager::stop() noexcept
@@ -315,10 +315,10 @@ void SystemManager::lua_core_init(lua_State *L)
 
     if (lua_istable(L, -1))
     {
-        std::shared_ptr<LuaComponent> component(new LuaComponent());
-        component->init(L);
+        std::shared_ptr<Component> component(new Component());
+        component->lua_init(L);
 
-        world->create_object_with_component(component);
+        world->start_component(component);
     }
     lua_settop(L, top);
 }
@@ -327,7 +327,6 @@ void SystemManager::lua_core_openlibs(lua_State *L)
 {
     lua_class_define<Entity>(L);
     lua_class_define<Component>(L);
-    lua_class_define<LuaComponent, Component>(L);
 
     lua_class_define<Timer>(L);
     lua_class_define<Buffer>(L);

@@ -124,7 +124,8 @@ void SocketKcp::start()
     ikcp_nodelay(_kcp, 1, 10, 2, 1);
     //ikcp_setmtu(_kcp, 512);
 
-    set_timer(this, &SocketKcp::on_timer, 20);
+    auto timer = _entity->add_timer(20);
+    timer->on_timer.set(this, &SocketKcp::on_timer);
 
     _socket = std::static_pointer_cast<Socket>(_entity->find_component("socket"));
     _socket->on_recvfrom.set(this, &SocketKcp::on_socket_recv);

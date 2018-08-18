@@ -2,6 +2,12 @@ require "lux"
 
 local connection = {}
 
+function connection:start(socket)
+    self.entity:add_component(socket)
+
+    socket.on_recv = {self, "on_socket_recv"}
+end
+
 function connection:on_socket_recv(socket, buffer)
     local data = tostring(buffer)
 
@@ -25,14 +31,16 @@ function server:start()
         socket = socket_core.unix_bind("luxd-server.sock")
     end
     self.entity:add_component(socket)
+
+    socket.on_accept = {self, "on_socket_accept"}
+    socket.on_recvfrom = {self, "on_socket_recvfrom"}
 end
 
 function server:on_socket_accept(listen_socket, socket)
     print("on_accept", socket)
 
     local ent = lux_core.create_entity()
-    ent:add_component(socket)
-    ent:add_component(connection)
+    ent:add_component(connection, socket)
 end
 
 function server:on_socket_recvfrom(socket, buffer, addr)

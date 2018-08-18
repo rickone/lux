@@ -2,6 +2,7 @@
 
 #include "ikcp.h"
 #include "socket.h"
+#include "timer.h"
 
 class SocketKcp : public Component
 {

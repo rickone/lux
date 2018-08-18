@@ -18,7 +18,7 @@ int World::launch(int argc, char *argv[])
     World *the_world = new World();
 
     std::shared_ptr<SystemManager> sm(new SystemManager(argc, argv));
-    the_world->create_object_with_component(sm);
+    the_world->start_component(sm);
 
     sm->run();
 
@@ -45,16 +45,15 @@ void World::gc()
     }
 }
 
-std::shared_ptr<Entity> World::create_object()
+std::shared_ptr<Entity> World::create_entity()
 {
-    std::shared_ptr<Entity> object(new Entity());
-    _entities.push_back(object);
-    return object;
+    std::shared_ptr<Entity> entity(new Entity());
+    _entities.push_back(entity);
+    return entity;
 }
 
-std::shared_ptr<Entity> World::create_object_with_component(const std::shared_ptr<Component> &component)
+void World::start_component(const std::shared_ptr<Component> &component)
 {
-    auto object = create_object();
-    object->add_component(component);
-    return object;
+    auto entity = create_entity();
+    entity->add_component(component);
 }

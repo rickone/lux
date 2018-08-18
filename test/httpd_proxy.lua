@@ -75,7 +75,8 @@ function client:on_socket_recv(socket, buffer)
 
 --[[
     if request.header["PROXY-CONNECTION"] == "keep-alive" then
-        self:set_timer("on_timeout", 5000, 1)
+        local t = self.entity:add_timer(5000, 1)
+        t.on_timer = {self, "on_timeout"}
     else
         self.entity:remove()
     end

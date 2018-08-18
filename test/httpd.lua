@@ -6,15 +6,21 @@ local command = {}
 function command.GET(httpd, socket, request, respond)
     local content = httpd:load_resource(request.url)
     if not content then
-        return respond:send(socket, 404)
+        respond:set_code(404)
+        return respond:send(socket)
     end
 
-    respond:send(socket, 200, content)
+    respond:set_code(200)
+    respond:set_content(content)
+    respond:send(socket)
 end
 
 local session = {}
 
-function session:init(httpd)
+function session:start(socket, httpd)
+    self.entity:add_component(socket)
+    socket.on_recv = {self, "on_socket_recv"}
+
     self.httpd = httpd
 end
 
@@ -30,19 +36,22 @@ function session:on_socket_recv(socket, buffer)
     local request = self.request
     self.request = nil
 
-    print("request", tree(request))
+    --print("request", tree(request))
+    print("request", request.url)
 
     local respond = http.Respond.new(request)
     local func = command[request.method]
     if not func then
-        respond:send(socket, 405)
+        respond:set_code(405)
+        respond:send(socket)
         return
     end
 
     func(self.httpd, socket, request, respond)
 
     if request.header["CONNECTION"] == "keep-alive" then
-        self:set_timer("on_timeout", 5000, 1)
+        local t = self.entity:add_timer(5000, 1)
+        t.on_timer = {self, "on_timeout"}
     else
         self.entity:remove()
     end
@@ -58,17 +67,19 @@ function httpd:start()
     local socket = socket_core.tcp_listen("0.0.0.0", "8866")
     self.entity:add_component(socket)
 
+    socket.on_accept = {self, "on_socket_accept"}
+
     self.cache = {}
     self.cache_timeout = config.httpd_cache_timeout or 60
     self.url_root = config.httpd_url_root
 
-    self:set_timer("update_cache", 2000, -1)
+    local t = self.entity:add_timer(2000, -1)
+    t.on_timer = {self, "update_cache"}
 end
 
 function httpd:on_socket_accept(listen_socket, socket)
     local ent = lux_core.create_entity()
-    ent:add_component(socket)
-    ent:add_component(session, self)
+    ent:add_component(session, socket, self)
 end
 
 function httpd:load_resource(url)

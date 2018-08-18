@@ -30,7 +30,6 @@ function server:start()
     else
         socket = socket_core.udp_bind("localhost", "8866")
     end
-
     self.entity:add_component(socket)
 
     socket.on_accept = {self, "on_socket_accept"}

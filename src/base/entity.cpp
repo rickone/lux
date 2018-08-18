@@ -1,7 +1,6 @@
 #include "entity.h"
 #include <cstring> // strcmp
 #include "world.h"
-#include "lua_component.h"
 
 void Entity::new_class(lua_State *L)
 {
@@ -13,6 +12,7 @@ void Entity::new_class(lua_State *L)
         lua_std_method(L, add_component);
         lua_std_method(L, get_component);
         lua_std_method(L, find_component);
+        lua_method(L, add_timer);
     }
     lua_setfield(L, -2, "__method");
 
@@ -25,7 +25,7 @@ void Entity::new_class(lua_State *L)
 
 std::shared_ptr<Entity> Entity::create()
 {
-    return world->create_object();
+    return world->create_entity();
 }
 
 void Entity::clear()
@@ -85,20 +85,19 @@ void Entity::remove()
 
 int Entity::lua_add_component(lua_State *L)
 {
-    auto component = lua_to_shared_ptr_safe<Component>(L, 1);
+    std::shared_ptr<Component> component = lua_to_shared_ptr_safe<Component>(L, 1);
     if (component)
     {
-        lua_pushvalue(L, 1);
-
         add_component(component);
+        lua_pushvalue(L, 1);
     }
     else if (lua_istable(L, 1))
     {
-        std::shared_ptr<LuaComponent> lua_component(new LuaComponent());
-        lua_component->init(L);
+        component.reset(new Component());
+        component->lua_init(L);
 
-        add_component(lua_component);
-        lua_push(L, lua_component);
+        add_component(component);
+        lua_push(L, component);
     }
     else
     {
@@ -135,4 +134,11 @@ int Entity::lua_find_component(lua_State *L)
 
     lua_push(L, component.get());
     return 1;
+}
+
+std::shared_ptr<Timer> Entity::add_timer(int interval, int counter)
+{
+    auto timer = Timer::create(interval, counter);
+    add_component(timer);
+    return timer;
 }

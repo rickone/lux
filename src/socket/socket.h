@@ -3,7 +3,6 @@
 #include "socket_def.h"
 #include "socket_utils.h"
 #include "component.h"
-#include "lua_component.h"
 #include "error.h"
 #include "buffer.h"
 #include "callback.h"
@@ -35,8 +34,6 @@ public:
 
     void init(int family, int socktype, int protocol);
     void close() noexcept;
-    void disconnect(); // passively close
-    void shutdown(); // 
     void attach(socket_t fd);
     socket_t detach();
     void add_event(int event_flag);

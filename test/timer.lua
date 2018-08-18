@@ -5,8 +5,11 @@ local body = {}
 function body:start()
     print("body:start", self, type(self))
 
-    self:set_timer("update", 50, 20)
-    self:set_timer("on_timer", 100, 10)
+    local t1 = self.entity:add_timer(50, 20)
+    t1.on_timer = {self, "update"}
+
+    local t2 = self.entity:add_timer(100, 10)
+    t2.on_timer = {self, "on_timer"}
 end
 
 function body:stop()

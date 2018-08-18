@@ -10,7 +10,8 @@ function client:start()
     self.entity:add_component(kcp)
     self.kcp = kcp
 
-    self:set_timer("update", 100, 10)
+    local t = self.entity:add_timer(100, 10)
+    t.on_timer = {self, "update"}
 end
 
 function client:on_kcp_recv(kcp, buffer)

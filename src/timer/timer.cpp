@@ -2,7 +2,7 @@
 #include "timer_manager.h"
 #include "component.h"
 
-Timer::Timer(int interval, int counter) : _interval(interval), _counter(counter), _callback()
+Timer::Timer(int interval, int counter) : _interval(interval), _counter(counter)
 {
 }
 
@@ -12,7 +12,7 @@ void Timer::new_class(lua_State *L)
 
     lua_newtable(L);
     {
-        lua_method(L, stop);
+        lua_method(L, clear);
     }
     lua_setfield(L, -2, "__method");
 
@@ -20,6 +20,8 @@ void Timer::new_class(lua_State *L)
     {
         lua_property(L, interval);
         lua_property(L, counter);
+
+        lua_callback(L, on_timer);
     }
     lua_setfield(L, -2, "__property");
 }
@@ -27,6 +29,13 @@ void Timer::new_class(lua_State *L)
 std::shared_ptr<Timer> Timer::create(int interval, int counter)
 {
     return timer_manager->create(interval, counter);
+}
+
+void Timer::clear()
+{
+    _interval = 0;
+    _counter = 0;
+    on_timer.clear();
 }
 
 bool Timer::trigger()
@@ -39,18 +48,11 @@ bool Timer::trigger()
 
     try
     {
-        _callback(this);
+        on_timer(this);
     }
     catch (const std::runtime_error &err)
     {
         log_error("%s", err.what());
     }
     return _counter != 0;
-}
-
-void Timer::stop()
-{
-    _interval = 0;
-    _counter = 0;
-    _callback.clear();
 }

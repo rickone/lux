@@ -33,8 +33,6 @@ public:
         set(object, mfn);
     }
 
-    int lua_set(lua_State *L);
-
     void operator()(A... args)
     {
         auto object = _object.lock();
