@@ -57,3 +57,13 @@ void World::start_component(const std::shared_ptr<Component> &component)
     auto entity = create_entity();
     entity->add_component(component);
 }
+
+void World::start_lua_component(lua_State *L)
+{
+    luaL_checktype(L, 1, LUA_TTABLE);
+
+    std::shared_ptr<Component> component(new Component());
+    component->lua_init(L);
+
+    start_component(component);
+}

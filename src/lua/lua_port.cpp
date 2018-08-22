@@ -34,7 +34,7 @@ int lua_class_index(lua_State *L)
         lua_pushstring(L, "get");
         lua_rawget(L, -2);
 
-        luaL_argcheck(L, lua_isfunction(L, -1), 2, "property.get not exists");
+        luaL_checktype(L, -1, LUA_TFUNCTION);
         lua_pushvalue(L, 1);
         if (LUA_OK != lua_pcall(L, 1, 1, 0))
             luaL_error(L, "property.get error: %s", lua_tostring(L, -1));
@@ -59,9 +59,10 @@ int lua_class_newindex(lua_State *L)
         lua_pushstring(L, "set");
         lua_rawget(L, -2);
 
-        luaL_argcheck(L, lua_isfunction(L, -1), 2, "property.set not exists");
+        luaL_checktype(L, -1, LUA_TFUNCTION);
         lua_pushvalue(L, 1);
         lua_pushvalue(L, 3);
+
         if (LUA_OK != lua_pcall(L, 2, 0, 0))
             luaL_error(L, "property.set error: %s", lua_tostring(L, -1));
 

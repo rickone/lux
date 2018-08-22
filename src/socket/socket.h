@@ -3,9 +3,7 @@
 #include "socket_def.h"
 #include "socket_utils.h"
 #include "component.h"
-#include "error.h"
 #include "buffer.h"
-#include "callback.h"
 
 enum SocketEventFlag
 {
@@ -81,7 +79,6 @@ public:
 #endif
 
     def_lua_callback(on_connect, Socket *)
-    def_lua_callback(on_error, Socket *)
     def_lua_callback(on_close, Socket *)
     def_lua_callback(on_accept, Socket *, Socket *)
     def_lua_callback(on_recv, Socket *, Buffer *)
@@ -102,7 +99,7 @@ protected:
     {   \
         socket_t fd = _fd;   \
         int __sock_err = get_socket_error(); \
-        on_error(this);     \
+        on_error(this, __sock_err);     \
         close(); \
         throw_system_error(__sock_err, "fd(%d)", (int)fd); \
     } while (false)

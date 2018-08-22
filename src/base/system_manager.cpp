@@ -53,35 +53,10 @@ void on_debug(int sig)
     snprintf(cmd, sizeof(cmd), "sudo gdb attach %d", getpid());
 #endif
     int ret = system(cmd);
-    log_info("system return: %d", ret);
+    log_info("system() ret: %d", ret);
     
     signal(sig, nullptr);
 }
-
-#if !defined(_WIN32)
-void on_child_exit(int sig)
-{
-    int pid, status;
-
-    for (;;)
-    {
-        pid = waitpid(-1, &status, WNOHANG);
-        if (pid == 0)
-            return;
-
-        if (pid == -1)
-        {
-            if (errno == EINTR)
-                continue;
-
-            log_error("waitpid errno(%d): %s", errno, strerror(errno));
-            return;
-        }
-
-        log_info("child-process pid(%d) exit status(%d)", pid, status);
-    }
-}
-#endif
 
 #ifdef __APPLE__
 int daemon(int nochdir, int noclose)
@@ -126,16 +101,7 @@ SystemManager::SystemManager(int argc, char *argv[]) : _config(argc, argv), _run
     init_set_proc_title();
 #endif
     lua_port_init();
-
-    try
-    {
-        lua_core_init(lua_state);
-    }
-    catch (const std::runtime_error &err)
-    {
-        log_error("%s", err.what());
-        _exit(-1);
-    }
+    lua_core_init(lua_state);
 
     signal(SIGINT, on_quit); // ctrl + c
     signal(SIGTERM, on_quit); // kill
@@ -217,18 +183,24 @@ void SystemManager::on_fork(int pid)
 void SystemManager::profile_start()
 {
 #ifdef GPERFTOOLS
-    const char *profile = config->get_string("profile", "./luxd.profile");
-
-    ProfilerStart(profile);
-    log_info("profile start %s", profile);
+    const char *profile = config->get_string("profile");
+    if (profile)
+    {
+        ProfilerStart(profile);
+        log_info("profile start %s", profile);
+    }
 #endif
 }
 
 void SystemManager::profile_stop()
 {
 #ifdef GPERFTOOLS
-    ProfilerStop();
-    log_info("profile stop");
+    const char *profile = config->get_string("profile");
+    if (profile)
+    {
+        ProfilerStop();
+        log_info("profile stop %s", profile);
+    }
 #endif
 }
 
@@ -306,21 +278,10 @@ void SystemManager::lua_core_init(lua_State *L)
 
     int ret = luaL_loadfile(L, start);
     if (ret != LUA_OK)
-        throw_lua_error(L);
+        luaL_error(L, "loadfile(%s) error: %s", start, lua_tostring(L, -1));
 
-    int top = lua_gettop(L);
-    ret = lua_btcall(L, 0, 1);
-    if (ret != LUA_OK)
-        throw_lua_error(L);
-
-    if (lua_istable(L, -1))
-    {
-        std::shared_ptr<Component> component(new Component());
-        component->lua_init(L);
-
-        world->start_component(component);
-    }
-    lua_settop(L, top);
+    lua_call(L, 0, 1);
+    world->start_lua_component(L);
 }
 
 void SystemManager::lua_core_openlibs(lua_State *L)

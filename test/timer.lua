@@ -1,4 +1,4 @@
---require "lux"
+require "lux"
 
 local body = {}
 
@@ -6,10 +6,10 @@ function body:start()
     print("body:start", self, type(self))
 
     local t1 = self.entity:add_timer(50, 20)
-    t1.on_timer = {self, "update"}
+    t1.on_timer = bind(self.update, self)
 
     local t2 = self.entity:add_timer(100, 10)
-    t2.on_timer = {self, "on_timer"}
+    t2.on_timer = bind(self.on_timer, self)
 end
 
 function body:stop()

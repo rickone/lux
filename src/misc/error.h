@@ -13,7 +13,6 @@
 std::string make_error_info(const char *fmt, ...);
 
 #define throw_error(Class, fmt, ...) throw Class(make_error_info("in %s at %s:%d " fmt, __FUNC__, __FILE__, __LINE__,## __VA_ARGS__))
-#define throw_lua_error(L) throw_error(std::runtime_error, "[Lua] %s", lua_tostring(L, -1))
 
 #define throw_system_error(errcode, fmt, ...) \
     do \

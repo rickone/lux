@@ -65,7 +65,7 @@ void TcpSocket::send_pending(const char *data, size_t len)
     if (_send_buffer.size() > config->env()->socket_send_buffer_max)
     {
         socket_t fd = _fd;
-        on_error(this);
+        on_error(this, -1);
         throw_error(std::runtime_error, "fd(%d) send_pending buffer(%u Byte) overflow", fd, _send_buffer.size());
     }
 
@@ -150,7 +150,7 @@ void TcpSocket::on_write(size_t len)
 
         if (connect_time == -1)
         {
-            on_error(this);
+            on_error(this, -2);
             throw_error(std::runtime_error, "ConnectEx error: SO_CONNECT_TIME = %d", connect_time);
         }
 #endif
@@ -171,7 +171,7 @@ void TcpSocket::on_write(size_t len)
     {
         set_event(kSocketEvent_Read);
 
-        log_info("fd(%d) write reset", _fd);
+        log_debug("fd(%d) write reset", _fd);
     }
 }
 

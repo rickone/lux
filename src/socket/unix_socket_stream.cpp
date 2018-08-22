@@ -2,6 +2,7 @@
 #include "unix_socket_stream.h"
 #include "config.h"
 #include "system_manager.h"
+#include "world.h"
 
 void UnixSocketStream::new_class(lua_State *L)
 {
@@ -24,7 +25,7 @@ std::pair<Socket, Socket> UnixSocketStream::create_pair()
 {
     int fd[2] = { -1, -1 };
 #ifdef __linux__
-    int ret = socketpair(AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC | SOCK_NONBLOCK, 0, fd);
+    int ret = socketpair(AF_UNIX, SOCK_STREAM | SOCK_NONBLOCK, 0, fd);
 #else
     int ret = socketpair(AF_UNIX, SOCK_STREAM, 0, fd);
 #endif
@@ -91,11 +92,23 @@ std::shared_ptr<UnixSocketStream> UnixSocketStream::fork(const char *proc_title,
 int UnixSocketStream::lua_fork(lua_State *L)
 {
     const char *proc_title = luaL_checkstring(L, 1);
-    luaL_argcheck(L, lua_isfunction(L, 2), 2, "need a function");
+
+    if (lua_isstring(L, 2))
+    {
+        const char *file_path = lua_tostring(L, 2);
+
+        int ret = luaL_loadfile(L, file_path);
+        if (ret != LUA_OK)
+            luaL_error(L, "loadfile(%s) error: %s", file_path, lua_tostring(L, -1));
+
+        lua_remove(L, 2);
+    }
+    luaL_checktype(L, 2, LUA_TFUNCTION);
 
     auto socket_out = fork(proc_title, [L](const std::shared_ptr<UnixSocketStream> &socket_in){
-        lua_push(L, socket_in);
-        lua_call(L, 1, 0);
+        lua_remove(L, 1);
+        lua_call(L, 0, 1);
+        world->start_lua_component(L);
     });
     lua_push(L, socket_out);
     return 1;
@@ -176,7 +189,7 @@ void UnixSocketStream::on_write(size_t len)
     {
         set_event(kSocketEvent_Read);
 
-        log_info("fd(%d) write reset", _fd);
+        log_debug("fd(%d) write reset", _fd);
     }
 }
 

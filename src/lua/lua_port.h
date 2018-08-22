@@ -175,9 +175,10 @@ inline T * lua_to_ptr(lua_State *L, int index)
         case LUA_TTABLE:
         {
             lua_getfield(L, index, "__ptr");
-            luaL_argcheck(L, lua_islightuserdata(L, -1), index, "__ptr is empty");
+            luaL_checktype(L, -1, LUA_TLIGHTUSERDATA);
 
             LuaObject *object = (LuaObject *)lua_touserdata(L, -1);
+            lua_pop(L, 1);
             return (T *)object;
         }
     }
@@ -233,7 +234,7 @@ inline std::shared_ptr<T> lua_to_shared_ptr(lua_State *L, int index)
         case LUA_TTABLE:
         {
             lua_getfield(L, index, "__ptr");
-            luaL_argcheck(L, lua_islightuserdata(L, -1), index, "__ptr is empty");
+            luaL_checktype(L, -1, LUA_TLIGHTUSERDATA);
 
             LuaObject *object = (LuaObject *)lua_touserdata(L, -1);
             return std::static_pointer_cast<T>(object->shared_from_this());
@@ -313,33 +314,7 @@ struct LuaBridge< std::shared_ptr<T> >
 {
     static std::shared_ptr<T> to(lua_State* L, int index)
     {
-        if (index < 0)
-            index += lua_gettop(L) + 1;
-
-        int type = lua_type(L, index);
-        switch (type)
-        {
-            case LUA_TNIL:
-                return nullptr;
-
-            case LUA_TUSERDATA:
-            {
-                std::shared_ptr<LuaObject> *object = (std::shared_ptr<LuaObject> *)lua_touserdata(L, index);
-                return std::static_pointer_cast<T>(*object);
-            }
-
-            case LUA_TTABLE:
-            {
-                lua_getfield(L, index, "__ptr");
-                luaL_argcheck(L, lua_islightuserdata(L, -1), index, "__ptr is empty");
-
-                LuaObject *object = (LuaObject *)lua_touserdata(L, -1);
-                return std::static_pointer_cast<T>(object->shared_from_this());
-            }
-        }
-
-        luaL_argerror(L, index, "need an userdata or a table");
-        return nullptr;
+        return lua_to_shared_ptr<T>(L, index);
     }
     static int push(lua_State* L, const std::shared_ptr<T> &object)
     {

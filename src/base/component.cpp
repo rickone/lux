@@ -9,13 +9,15 @@ void Component::new_class(lua_State *L)
     {
         lua_property_readonly(L, entity);
         lua_property_readonly(L, name);
+
+        lua_callback(L, on_error);
     }
     lua_setfield(L, -2, "__property");
 }
 
 void Component::lua_init(lua_State *L)
 {
-    luaL_argcheck(L, lua_istable(L, 1), 1, "need a table");
+    luaL_checktype(L, 1, LUA_TTABLE);
 
     int top = lua_gettop(L);
     int self = top + 1;

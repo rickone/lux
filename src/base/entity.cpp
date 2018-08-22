@@ -30,10 +30,6 @@ std::shared_ptr<Entity> Entity::create()
 
 void Entity::clear()
 {
-    for (auto it = _components.begin(); it != _components.end(); ++it)
-    {
-        it->second->stop();
-    }
     _components.clear();
 }
 
@@ -41,35 +37,44 @@ void Entity::add_component(const std::shared_ptr<Component> &component)
 {
     auto ptr = component.get();
     size_t code = typeid(*ptr).hash_code();
-    _components.emplace(code, component);
+    _components.push_back(std::make_pair(code, component));
     component->set_entity(this);
     component->start();
 }
 
 std::shared_ptr<Component> Entity::get_component(size_t code)
 {
-    auto it = _components.find(code);
-    if (it == _components.end())
-        return nullptr;
-
-    return it->second;
+    auto it = _components.begin();
+    auto it_end = _components.end();
+    for (; it != it_end; ++it)
+    {
+        if (it->first == code)
+            return it->second;
+    }
+    return nullptr;
 }
 
 int Entity::get_components(size_t code, const std::function<void(std::shared_ptr<Component> &)> &func)
 {
     int count = 0;
-    auto range = _components.equal_range(code);
-    for (auto it = range.first; it != range.second; ++it)
+    auto it = _components.begin();
+    auto it_end = _components.end();
+    for (; it != it_end; ++it)
     {
-        ++count;
-        func(it->second);
+        if (it->first == code)
+        {
+            ++count;
+            func(it->second);
+        }
     }
     return count;
 }
 
 std::shared_ptr<Component> Entity::find_component(const char *name)
 {
-    for (auto it = _components.begin(); it != _components.end(); ++it)
+    auto it = _components.begin();
+    auto it_end = _components.end();
+    for (; it != it_end; ++it)
     {
         if (strcmp(it->second->name(), name) == 0)
             return it->second;
@@ -80,6 +85,13 @@ std::shared_ptr<Component> Entity::find_component(const char *name)
 
 void Entity::remove()
 {
+    auto it = _components.begin();
+    auto it_end = _components.end();
+    for (; it != it_end; ++it)
+    {
+        it->second->stop();
+    }
+
     _removed = true;
 }
 

@@ -1,24 +1,32 @@
 #pragma once
 
 #include "lua_port.h"
+#include "log.h"
 
 template<typename... A>
 class Callback
 {
 public:
-    Callback() = default;
-    ~Callback() = default;
+    Callback() : _object(), _func(), _lua_ref(LUA_NOREF)
+    {
+    }
+
+    ~Callback()
+    {
+        unref_lua_func(lua_state);
+    }
 
     void clear()
     {
         _object.reset();
         _func = nullptr;
+        unref_lua_func(lua_state);
     }
 
     template<typename T>
     void set(T *object, const std::function<void (T *, A...)> &func)
     {
-        static_assert(std::is_base_of<LuaObject, T>::value, "Callback<T> failed, T must based on LuaObject");
+        static_assert(std::is_base_of<LuaObject, T>::value, "Callback<T>.set failed, T must based on LuaObject");
 
         _object = object->shared_from_this();
         _func = [func](LuaObject *object, A...args){
@@ -33,16 +41,62 @@ public:
         set(object, mfn);
     }
 
+    void ref_lua_func(lua_State *L)
+    {
+        luaL_checktype(L, -1, LUA_TFUNCTION);
+
+        unref_lua_func(L);
+        _lua_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+    }
+
+    void unref_lua_func(lua_State *L)
+    {
+        if (!L)
+            return;
+
+        if (_lua_ref != LUA_NOREF)
+        {
+            luaL_unref(L, LUA_REGISTRYINDEX, _lua_ref);
+            _lua_ref = LUA_NOREF;
+        }
+    }
+
     void operator()(A... args)
     {
         auto object = _object.lock();
-        if (!object)
+        if (object)
+            _func(object.get(), args...);
+
+        if (_lua_ref == LUA_NOREF)
             return;
 
-        _func(object.get(), args...);
+        lua_State *L = lua_state;
+        int top = lua_gettop(L);
+
+        lua_rawgeti(L, LUA_REGISTRYINDEX, _lua_ref);
+        lua_push_x(L, args...);
+
+        int ret = lua_btcall(L, sizeof...(args), 0);
+        if (ret != LUA_OK)
+        {
+            log_error("[Lua] %s", lua_tostring(L, -1));
+            lua_settop(L, top);
+        }
     }
 
 private:
     std::weak_ptr<LuaObject> _object;
     std::function<void (LuaObject *, A...)> _func;
+    int _lua_ref;
 };
+
+#define def_lua_callback(callback, ...) \
+    Callback<__VA_ARGS__> callback; \
+    int lua_set_##callback(lua_State *L) { callback.ref_lua_func(L); return 0; }
+
+#define lua_callback(L, callback) \
+    lua_newtable(L); \
+    { \
+        lua_set_method(L, "set", lua_set_##callback); \
+    } \
+    lua_setfield(L, -2, #callback)

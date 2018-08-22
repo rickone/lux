@@ -54,7 +54,6 @@ void Socket::new_class(lua_State *L)
         lua_property_readonly(L, fd);
 
         lua_callback(L, on_connect);
-        lua_callback(L, on_error);
         lua_callback(L, on_close);
         lua_callback(L, on_accept);
         lua_callback(L, on_recv);
@@ -75,7 +74,7 @@ void Socket::init(int family, int socktype, int protocol)
     logic_assert(_fd == INVALID_SOCKET, "_fd = %d", _fd);
 
 #ifdef __linux__
-    _fd = ::socket(family, socktype | SOCK_CLOEXEC | SOCK_NONBLOCK, protocol);
+    _fd = ::socket(family, socktype | SOCK_NONBLOCK, protocol);
 #else
     _fd = ::socket(family, socktype, protocol);
 #endif
@@ -136,7 +135,7 @@ void Socket::set_nonblock()
     if (option < 0)
         throw_socket_error();
     
-    int ret = fcntl(_fd, F_SETFL, option | O_CLOEXEC | O_NONBLOCK);
+    int ret = fcntl(_fd, F_SETFL, option | O_NONBLOCK);
     if (ret != 0)
         throw_socket_error();
 #endif
@@ -231,7 +230,7 @@ Socket Socket::accept()
     socklen_t addrlen = (socklen_t)sizeof(addr);
 
 #ifdef __linux__
-    socket_t fd = accept4(_fd, (struct sockaddr *)&addr, &addrlen, O_CLOEXEC | O_NONBLOCK);
+    socket_t fd = accept4(_fd, (struct sockaddr *)&addr, &addrlen, O_NONBLOCK);
 #else
     socket_t fd = ::accept(_fd, (struct sockaddr *)&addr, &addrlen);
 #endif

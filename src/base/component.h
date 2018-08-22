@@ -1,9 +1,7 @@
 #pragma once
 
 #include <functional>
-#include "lua_port.h"
 #include "callback.h"
-#include "log.h"
 
 class Entity;
 
@@ -28,6 +26,8 @@ public:
     template<typename... A>
     void lua_invoke(const char *name, A...args);
 
+    def_lua_callback(on_error, Component *, int)
+
 protected:
     Entity* _entity;
 };
@@ -39,13 +39,14 @@ void Component::lua_invoke(const char *name, A...args)
     if (!L)
         return;
 
+    int top = lua_gettop(L);
     if (!get_luaref(L))
         return;
     
     lua_getfield(L, -1, name);
     if (!lua_isfunction(L, -1))
     {
-        lua_pop(L, 2);
+        lua_settop(L, top);
         return;
     }
 
@@ -53,34 +54,5 @@ void Component::lua_invoke(const char *name, A...args)
 
     int nargs = lua_push_x(L, args...);
 
-    int ret = lua_btcall(L, 1 + nargs, 0);
-    if (ret != LUA_OK)
-        log_error("[Lua] %s", lua_tostring(L, -1));
+    lua_call(L, 1 + nargs, 0);
 }
-
-template<typename... A>
-int lua_set_callback(Callback<A...> &cb, lua_State *L)
-{
-    lua_geti(L, 1, 1);
-    Component *object = lua_to<Component *>(L, -1);
-
-    lua_geti(L, 1, 2);
-    const char *name = luaL_checkstring(L, -1);
-
-    std::function<void (Component *, A...)> func = [name](Component *object, A...args){
-        object->lua_invoke(name, args...);
-    };
-    cb.set(object, func);
-    return 0;
-}
-
-#define def_lua_callback(callback, ...) \
-    Callback<__VA_ARGS__> callback; \
-    int lua_set_##callback(lua_State *L) { return lua_set_callback(callback, L); }
-
-#define lua_callback(L, callback) \
-    lua_newtable(L); \
-    { \
-        lua_set_method(L, "set", lua_set_##callback); \
-    } \
-    lua_setfield(L, -2, #callback)

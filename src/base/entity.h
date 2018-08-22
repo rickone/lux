@@ -1,6 +1,6 @@
 #pragma once
 
-#include <unordered_map> // unordered_multimap
+#include <list>
 #include <memory> // shared_ptr
 #include "component.h"
 #include "timer.h"
@@ -35,7 +35,7 @@ public:
     std::shared_ptr<T> get_component();
 
 private:
-    std::unordered_multimap<size_t, std::shared_ptr<Component> > _components;
+    std::list< std::pair< size_t, std::shared_ptr<Component> > > _components;
     bool _removed;
 };
 

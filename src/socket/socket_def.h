@@ -21,7 +21,7 @@ typedef SOCKET socket_t;
 
 #else
 #include <unistd.h> // close
-#include <fcntl.h> // O_CLOEXEC
+#include <fcntl.h>
 #include <sys/socket.h> // socklen_t
 #include <sys/un.h> // AF_UNIX
 #include <netdb.h> // getnameinfo

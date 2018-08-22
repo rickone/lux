@@ -7,10 +7,10 @@ function client:start()
     self.entity:add_component(socket)
     self.socket = socket
     
-    socket.on_recv = {self, "on_socket_recv"}
+    socket.on_recv = bind(self.on_socket_recv, self)
     
     local t = self.entity:add_timer(100, 10)
-    t.on_timer = {self, "update"}
+    t.on_timer = bind(self.update, self)
 end
 
 function client:on_socket_recv(socket, buffer)

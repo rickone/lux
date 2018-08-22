@@ -5,7 +5,7 @@ local connection = {}
 function connection:start(socket)
     self.entity:add_component(socket)
 
-    socket.on_recv = {self, "on_socket_recv"}
+    socket.on_recv = bind(self.on_socket_recv, self)
 end
 
 function connection:on_socket_recv(socket, buffer)
@@ -32,8 +32,8 @@ function server:start()
     end
     self.entity:add_component(socket)
 
-    socket.on_accept = {self, "on_socket_accept"}
-    socket.on_recvfrom = {self, "on_socket_recvfrom"}
+    socket.on_accept = bind(self.on_socket_accept, self)
+    socket.on_recvfrom = bind(self.on_socket_recvfrom, self)
 end
 
 function server:on_socket_accept(listen_socket, socket)

@@ -19,9 +19,12 @@ local session = {}
 
 function session:start(socket, httpd)
     self.entity:add_component(socket)
-    socket.on_recv = {self, "on_socket_recv"}
+    socket.on_recv = bind(self.on_socket_recv, self)
 
     self.httpd = httpd
+
+    local t = self.entity:add_timer(10000, 1)
+    t.on_timer = bind(self.entity.remove, self.entity)
 end
 
 function session:on_socket_recv(socket, buffer)
@@ -49,16 +52,9 @@ function session:on_socket_recv(socket, buffer)
 
     func(self.httpd, socket, request, respond)
 
-    if request.header["CONNECTION"] == "keep-alive" then
-        local t = self.entity:add_timer(5000, 1)
-        t.on_timer = {self, "on_timeout"}
-    else
+    if request.header["CONNECTION"] ~= "keep-alive" then
         self.entity:remove()
     end
-end
-
-function session:on_timeout()
-    self.entity:remove()
 end
 
 local httpd = {}
@@ -67,14 +63,14 @@ function httpd:start()
     local socket = socket_core.tcp_listen("0.0.0.0", "8866")
     self.entity:add_component(socket)
 
-    socket.on_accept = {self, "on_socket_accept"}
+    socket.on_accept = bind(self.on_socket_accept, self)
 
     self.cache = {}
     self.cache_timeout = config.httpd_cache_timeout or 60
     self.url_root = config.httpd_url_root
 
     local t = self.entity:add_timer(2000, -1)
-    t.on_timer = {self, "update_cache"}
+    t.on_timer = bind(self.update_cache, self)
 end
 
 function httpd:on_socket_accept(listen_socket, socket)
