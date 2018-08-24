@@ -11,6 +11,18 @@
 
 Config *config = nullptr;
 
+void Config::new_class(lua_State *L)
+{
+    lua_new_class(L, Config);
+
+    lua_newtable(L);
+    {
+        lua_property(L, daemon);
+    }
+    lua_setfield(L, -2, "__property");
+}
+
+/*
 Config::Config(int argc, char *argv[])
 {
     static char short_options[] = "";
@@ -226,3 +238,4 @@ bool Config::get_boolean(const char *field, bool def_value) const
     const std::string &str = it->second;
     return str == "true" || str == "on" || str == "ok";
 }
+*/
