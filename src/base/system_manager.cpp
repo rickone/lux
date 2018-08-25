@@ -58,41 +58,6 @@ void on_debug(int sig)
     signal(sig, nullptr);
 }
 
-#ifdef __APPLE__
-int daemon(int nochdir, int noclose)
-{
-    switch (fork())
-    {
-        case -1:
-            return -1;
-        case 0:
-            break;
-        default:
-            _exit(0);
-    }
-
-    if (setsid() == -1)
-        return -1;
-
-    if (!nochdir)
-        chdir("/");
-
-    if (!noclose)
-    {
-        int fd = open("/dev/null", O_RDWR);
-        if (fd == -1)
-            return -1;
-
-        dup2(fd, STDIN_FILENO);
-        dup2(fd, STDOUT_FILENO);
-        dup2(fd, STDERR_FILENO);
-        close(fd);
-    }
-
-    return 0;
-}
-#endif
-
 SystemManager::SystemManager(int argc, char *argv[]) : _config(argc, argv), _running_flag(true), _argc(argc), _argv(argv), _argv_max_len()
 {
     system_manager = this;

@@ -2,7 +2,7 @@ Target  = liblux.so
 Include = ../include/lua ../include/kcp $(shell find . -type d)
 Source  = $(shell find . -name "*.cpp")
 LibDir  = ../lib
-Lib     = rt lua kcp anl
+Lib     = lua kcp
 ObjDir  = ../obj
 OutDir  = ../lib
 Define  =
@@ -11,13 +11,15 @@ CXXFLAGS =
 LDFLAGS =
 AfterBuild = cp $(shell find . -name "*.h") ../include/lux
 
-ifneq ($(Config),Release)
-Lib += profiler
-Define += GPERFTOOLS
-endif
-
-Lib += tcmalloc
-
 $(shell mkdir -p ../include/lux)
 
 include ../utils/makefile
+
+ifeq ($(UnixName),Linux)
+Lib += rt anl
+endif
+
+ifeq ($(Config),Profile)
+Lib += profiler tcmalloc
+Define += GPERFTOOLS
+endif
