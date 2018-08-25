@@ -6,6 +6,17 @@ TimerManager *timer_manager = nullptr;
 #ifdef _WIN32
 #include <windows.h>
 #define lux_gettime GetTickCount64
+#elif __APPLE__
+#include <sys/time.h>
+static int64_t lux_gettime()
+{
+    struct timeval tv;
+    int ret = gettimeofday(&tv, nullptr);
+    if (ret == -1)
+        throw_system_error(errno, "gettimeofday");
+
+    return (int64_t)tv.tv_sec * 1000 + (int64_t)tv.tv_usec / 1000;
+}
 #else
 #include <sys/time.h>
 static int64_t lux_gettime()

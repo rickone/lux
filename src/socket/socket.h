@@ -70,7 +70,7 @@ public:
     virtual void on_complete(LPWSAOVERLAPPED ovl, size_t len);
 #endif
     virtual void stop() noexcept override;
-    virtual const char * name() const;
+    virtual const char * name() const override;
 
     socket_t fd() { return _fd; }
     operator bool() const { return _fd != INVALID_SOCKET; }

@@ -20,13 +20,13 @@ Config ?= Debug
 
 UnixName = $(shell uname)
 
-ifeq ($(Config),Debug)
+ifeq ($(Config),Release)
+CFLAGS += -O3 -march=native
+else
 CFLAGS += -g -D_DEBUG -Wall
 	ifeq ($(UnixName),Linux)
 	CFLAGS += -rdynamic
 	endif
-else
-CFLAGS += -O3 -march=native
 endif
 
 ifeq ($(Rpath),)

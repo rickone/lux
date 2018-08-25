@@ -1,14 +1,21 @@
 #include "socket_addr.h"
-#include <signal.h>
+//#include <signal.h>
+#ifdef __linux__
 #include <sys/signalfd.h>
+#endif
 
 SocketAddr::SocketAddr()
 {
+#ifdef __linux__
     memset(&_gaicb, 0, sizeof(_gaicb));
+#else
+    _ai_result = nullptr;
+#endif
 }
 
 SocketAddr::~SocketAddr()
 {
+#ifdef __linux__
     if (_gaicb.ar_name)
     {
         free(const_cast<char *>(_gaicb.ar_name));
@@ -32,6 +39,13 @@ SocketAddr::~SocketAddr()
         freeaddrinfo(_gaicb.ar_result);
         _gaicb.ar_result = nullptr;
     }
+#else
+    if (_ai_result)
+    {
+        freeaddrinfo(_ai_result);
+        _ai_result = nullptr;
+    }
+#endif
 }
 
 std::shared_ptr<SocketAddr> SocketAddr::create(const char *node, const char *service, int socktype, int flags)
@@ -43,6 +57,7 @@ std::shared_ptr<SocketAddr> SocketAddr::create(const char *node, const char *ser
 
 void SocketAddr::init(const char *node, const char *service, int socktype, int flags)
 {
+#ifdef __linux__
     logic_assert(_fd == INVALID_SOCKET, "_fd = %d", _fd);
 
     if (_gaicb.ar_name)
@@ -77,35 +92,44 @@ void SocketAddr::init(const char *node, const char *service, int socktype, int f
     _fd = signalfd(-1, &mask, 0);
     if (_fd == INVALID_SOCKET)
         throw_system_error(errno, "signalfd");
+#else
+    struct addrinfo hints;
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_socktype = socktype;
+    hints.ai_flags = flags;
+
+    int ret = getaddrinfo(node, service, &hints, &_ai_result);
+    if (ret != 0)
+        throw_error(std::runtime_error, "getaddrinfo(%s, %s, %d, %d) error: %s", node, service, socktype, flags, gai_strerror(ret));
+
+    on_result(this);
+#endif
 }
 
-struct addrinfo * SocketAddr::first_addrinfo()
+struct addrinfo * SocketAddr::result()
 {
-    if (!_gaicb.ar_result)
-        return nullptr;
-
-    _cur_addrinfo = _gaicb.ar_result;
-    return _cur_addrinfo;
-}
-
-struct addrinfo * SocketAddr::next_addrinfo()
-{
-    if (!_cur_addrinfo)
-        return nullptr;
-
-    _cur_addrinfo = _cur_addrinfo->ai_next;
-    return _cur_addrinfo;
+#ifdef __linux__
+    if (_gaicb.ar_result)
+        return _gaicb.ar_result;
+#else
+    if (_ai_result)
+        return _ai_result;
+#endif
+    return nullptr;
 }
 
 void SocketAddr::on_read(size_t len)
 {
+#ifdef __linux__
     struct signalfd_siginfo siginfo;
 
     int ret = read((char *)&siginfo, sizeof(siginfo));
     if (ret < (int)sizeof(siginfo))
         throw_socket_error();
 
-    _callback(this);
+    on_result(this);
 
     close();
+#endif
 }

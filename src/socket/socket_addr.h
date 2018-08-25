@@ -12,16 +12,16 @@ public:
     static std::shared_ptr<SocketAddr> create(const char *node, const char *service, int socktype, int flags);
 
     void init(const char *node, const char *service, int socktype, int flags);
-    struct addrinfo * first_addrinfo();
-    struct addrinfo * next_addrinfo();
+    struct addrinfo * result();
 
     virtual void on_read(size_t len) override;
 
-    template<typename T, typename F>
-    void set_callback(T *object, F func) { _callback.set(object, func); }
+    def_lua_callback(on_result, SocketAddr *)
 
 private:
+#ifdef __linux__
     struct gaicb _gaicb;
-    struct addrinfo *_cur_addrinfo;
-    Callback<SocketAddr *> _callback;
+#else
+    struct addrinfo *_ai_result;
+#endif
 };
