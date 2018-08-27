@@ -61,6 +61,15 @@ public:
         }
     }
 
+    int get_lua_func(lua_State *L)
+    {
+        if (_lua_ref == LUA_NOREF)
+            return 0;
+
+        lua_rawgeti(L, LUA_REGISTRYINDEX, _lua_ref);
+        return 1;
+    }
+
     void operator()(A... args)
     {
         auto object = _object.lock();
@@ -92,11 +101,13 @@ private:
 
 #define def_lua_callback(callback, ...) \
     Callback<__VA_ARGS__> callback; \
+    int lua_get_##callback(lua_State *L) { return callback.get_lua_func(L); } \
     int lua_set_##callback(lua_State *L) { callback.ref_lua_func(L); return 0; }
 
 #define lua_callback(L, callback) \
     lua_newtable(L); \
     { \
+        lua_set_method(L, "get", lua_get_##callback); \
         lua_set_method(L, "set", lua_set_##callback); \
     } \
     lua_setfield(L, -2, #callback)
