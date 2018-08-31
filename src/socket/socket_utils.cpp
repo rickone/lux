@@ -1,7 +1,5 @@
 #include "socket_utils.h"
 #include <cstring> // memset
-#include "error.h"
-#include "log.h"
 
 class GaiCategory : public std::error_category
 {

@@ -1,7 +1,6 @@
 #include "socket_manager.h"
 #include <cassert>
 #include "error.h"
-#include "log.h"
 
 const static int MAX_POLL_EVENT_CNT = 1024;
 

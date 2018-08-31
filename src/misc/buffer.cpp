@@ -2,7 +2,6 @@
 #include <algorithm> // std::min
 #include <cstring> // memcpy strndup
 #include <cstdlib> // free
-#include "error.h"
 
 Buffer::Buffer(size_t min_alloc_size) : _data(), _max_size(), _min_alloc_size(min_alloc_size), _mask(), _front_pos(), _back_pos()
 {

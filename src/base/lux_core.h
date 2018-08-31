@@ -3,11 +3,8 @@
 #define CORE_VERSION "0.1.0"
 
 #include "component.h"
-#include "config.h"
-#include "log.h"
-#include "timer_manager.h"
-#include "socket_manager.h"
 
+class Timer;
 struct lua_State;
 
 class LuxCore final : public Component

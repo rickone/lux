@@ -68,5 +68,4 @@ private:
 #define log_info(Fmt, ...)  log_line(kLevelInfo, Fmt,## __VA_ARGS__)
 #define log_error(Fmt, ...) log_line(kLevelError, Fmt,## __VA_ARGS__)
 
-struct lua_State;
 extern int lua_log(lua_State *L);

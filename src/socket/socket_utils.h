@@ -4,6 +4,8 @@
 #include <system_error>
 #include <functional>
 #include "socket_def.h"
+#include "error.h"
+#include "log.h"
 
 struct AddrInfoDeleter
 {

@@ -4,8 +4,6 @@
 #include <unordered_map>
 #include "component.h"
 
-struct lua_State;
-
 struct ConfigEnv
 {
     bool    daemon;

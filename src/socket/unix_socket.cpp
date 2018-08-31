@@ -1,7 +1,6 @@
 #if !defined(_WIN32)
 #include "unix_socket.h"
 #include "config.h"
-#include "log.h"
 
 UnixSocket::~UnixSocket()
 {

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "lua_port.h"
-#include "error.h"
 
 template<typename... A>
 class Callback

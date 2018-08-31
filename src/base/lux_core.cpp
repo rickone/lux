@@ -1,6 +1,10 @@
 #include "lux_core.h"
 #include <algorithm> // std::min
 #include <signal.h>
+#include "config.h"
+#include "log.h"
+#include "timer_manager.h"
+#include "socket_manager.h"
 #include "world.h"
 #include "lua_port.h"
 #include "tcp_socket.h"
@@ -12,7 +16,6 @@
 #include "unix_socket_listener.h"
 #include "socket_kcp.h"
 #include "socket_package.h"
-#include "config.h"
 
 #ifdef _WIN32
 #include <process.h>

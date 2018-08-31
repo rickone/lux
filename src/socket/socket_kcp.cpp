@@ -1,5 +1,4 @@
 #include "socket_kcp.h"
-#include "log.h"
 #include "entity.h"
 #include "timer_manager.h"
 

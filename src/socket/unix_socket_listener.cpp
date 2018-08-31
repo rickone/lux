@@ -2,7 +2,6 @@
 #include "unix_socket_listener.h"
 #include "unix_socket_stream.h"
 #include "config.h"
-#include "log.h"
 
 UnixSocketListener::~UnixSocketListener()
 {

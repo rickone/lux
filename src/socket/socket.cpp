@@ -1,6 +1,5 @@
 #include "socket.h"
 #include "socket_manager.h"
-#include "log.h"
 
 Socket::Socket() : Component(), _fd(INVALID_SOCKET)
 #ifdef _WIN32
