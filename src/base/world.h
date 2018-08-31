@@ -9,8 +9,10 @@ public:
     World();
     ~World();
 
+    static World * inst();
     static int launch(int argc, char *argv[]);
 
+    void clear();
     void gc();
     std::shared_ptr<Entity> create_entity();
     void start_component(const std::shared_ptr<Component> &component);
@@ -19,5 +21,3 @@ public:
 private:
     std::list< std::shared_ptr<Entity> > _entities;
 };
-
-extern World *world;

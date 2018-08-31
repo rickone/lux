@@ -2,6 +2,7 @@
 
 #include <string>
 #include <fstream>
+#include "component.h"
 
 enum LogLevel
 {
@@ -23,7 +24,6 @@ public:
 
     void set_file_path(const char *log_file_path);
     void write(const struct tm *tm_now, const std::string &log_text);
-
     void on_fork(int pid);
     
 private:
@@ -34,12 +34,15 @@ private:
     std::ofstream _ofs;
 };
 
-class LogContext final
+class LogContext final : public Component
 {
 public:
     LogContext();
     ~LogContext();
 
+    static LogContext * inst();
+
+    void init();
     void log(int level, const char *fmt, ...);
     void set_log_mask(int mask);
 
@@ -53,11 +56,17 @@ private:
     LogFile _error_log_file;
 };
 
-extern LogContext *log_context;
+#define log_line(Level, Fmt, ...) \
+    do \
+    { \
+        LogContext *inst = LogContext::inst(); \
+        if (inst) \
+            inst->log(Level, Fmt,## __VA_ARGS__); \
+    } while (false)
 
-#define log_debug(Fmt, ...) if (log_context) log_context->log(kLevelDebug, Fmt,## __VA_ARGS__)
-#define log_info(Fmt, ...)  if (log_context) log_context->log(kLevelInfo, Fmt,## __VA_ARGS__)
-#define log_error(Fmt, ...) if (log_context) log_context->log(kLevelError, Fmt,## __VA_ARGS__)
+#define log_debug(Fmt, ...) log_line(kLevelDebug, Fmt,## __VA_ARGS__)
+#define log_info(Fmt, ...)  log_line(kLevelInfo, Fmt,## __VA_ARGS__)
+#define log_error(Fmt, ...) log_line(kLevelError, Fmt,## __VA_ARGS__)
 
 struct lua_State;
 extern int lua_log(lua_State *L);

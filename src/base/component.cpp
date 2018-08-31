@@ -56,7 +56,8 @@ void Component::lua_start(lua_State *L)
 
 void Component::start()
 {
-    lua_start(lua_state);
+    if (lua_state)
+        lua_start(lua_state);
 }
 
 void Component::stop() noexcept

@@ -117,12 +117,12 @@ socket_t Socket::detach()
 
 void Socket::add_event(int event_flag)
 {
-    socket_manager->add_event(this, event_flag);
+    SocketManager::inst()->add_event(this, event_flag);
 }
 
 void Socket::set_event(int event_flag)
 {
-    socket_manager->set_event(this, event_flag);
+    SocketManager::inst()->set_event(this, event_flag);
 }
 
 void Socket::set_nonblock()
@@ -534,7 +534,7 @@ void Socket::stop() noexcept
     close();
 #ifdef _WIN32
     if (_ovl_ref > 0)
-        socket_manager->add_lost_socket(std::static_pointer_cast<Socket>(shared_from_this()));
+        SocketManager::inst()->add_lost_socket(std::static_pointer_cast<Socket>(shared_from_this()));
 #endif
 }
 

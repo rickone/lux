@@ -2,6 +2,7 @@
 
 #include <string>
 #include <unordered_map>
+#include "component.h"
 
 struct lua_State;
 
@@ -15,12 +16,16 @@ struct ConfigEnv
     size_t  socket_send_buffer_max;
 };
 
-class Config final
+class Config final : public Component
 {
 public:
-    Config(int argc, char *argv[]);
-    ~Config() = default;
+    Config();
+    ~Config();
 
+    static Config * inst();
+    static ConfigEnv * env();
+
+    void init(int argc, char *argv[]);
     void load_conf(const char *conf_path);
     void load_env();
 
@@ -32,8 +37,6 @@ public:
 
     void dump() const;
     void copy_to_lua(lua_State *L);
-
-    const ConfigEnv * env() const { return &_env; }
 
 private:
      int get_int(const char *field) const;
@@ -47,5 +50,3 @@ private:
     std::unordered_map<std::string, std::string> m_dict;
     ConfigEnv _env;
 };
-
-extern Config *config;

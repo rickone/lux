@@ -79,43 +79,11 @@ void LogFile::change_log_file(const struct tm *tm_last_log)
     _tm_last_log = *tm_last_log;
 }
 
-LogContext *log_context = nullptr;
+static LogContext *s_inst = nullptr;
 
 LogContext::LogContext() : _log_mask(0xff)
 {
-    assert(log_context == nullptr);
-    log_context = this;
-
-#if !defined(_WIN32)
-    const char *sys_log_ident = config->get_string("sys_log");
-    if (sys_log_ident)
-    {
-        _sys_log = true;
-        openlog(sys_log_ident, LOG_CONS | LOG_NDELAY | LOG_PID, LOG_USER);
-    }
-#endif
-
-    const char *local_log_file_path = config->get_string("local_log");
-    if (local_log_file_path)
-    {
-        _local_log_file.set_file_path(local_log_file_path);
-    }
-
-    const char *error_log_file_path = config->get_string("error_log");
-    if (error_log_file_path)
-    {
-        _error_log_file.set_file_path(error_log_file_path);
-    }
-
-    int log_level = config->env()->log_level;
-    if (log_level >= 0)
-    {
-#ifdef _WIN32
-        set_log_mask((1 << (log_level + 1)) - 1);
-#else
-        set_log_mask(LOG_UPTO(log_level));
-#endif
-    }
+    s_inst = this;
 }
 
 LogContext::~LogContext()
@@ -127,6 +95,47 @@ LogContext::~LogContext()
         _sys_log = false;
     }
 #endif
+
+    s_inst = nullptr;
+}
+
+void LogContext::init()
+{
+#if !defined(_WIN32)
+    const char *sys_log_ident = Config::inst()->get_string("sys_log");
+    if (sys_log_ident)
+    {
+        _sys_log = true;
+        openlog(sys_log_ident, LOG_CONS | LOG_NDELAY | LOG_PID, LOG_USER);
+    }
+#endif
+
+    const char *local_log_file_path = Config::inst()->get_string("local_log");
+    if (local_log_file_path)
+    {
+        _local_log_file.set_file_path(local_log_file_path);
+    }
+
+    const char *error_log_file_path = Config::inst()->get_string("error_log");
+    if (error_log_file_path)
+    {
+        _error_log_file.set_file_path(error_log_file_path);
+    }
+
+    int log_level = Config::env()->log_level;
+    if (log_level >= 0)
+    {
+#ifdef _WIN32
+        set_log_mask((1 << (log_level + 1)) - 1);
+#else
+        set_log_mask(LOG_UPTO(log_level));
+#endif
+    }
+}
+
+LogContext * LogContext::inst()
+{
+    return s_inst;
 }
 
 void LogContext::log(int level, const char *fmt, ...)

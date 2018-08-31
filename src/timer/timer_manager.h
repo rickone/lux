@@ -1,16 +1,17 @@
 #pragma once
 
 #include <memory>
+#include "component.h"
 #include "skip_list.h"
 #include "timer.h"
 
-class TimerManager final
+class TimerManager final : public Component
 {
 public:
-    typedef std::function<void (int)> Sleep;
-
     TimerManager();
-    ~TimerManager() = default;
+    ~TimerManager();
+
+    static TimerManager * inst();
 
     std::shared_ptr<Timer> create(int interval, int counter);
     int64_t time_now();
@@ -21,5 +22,3 @@ private:
     int64_t _time_now;
     int64_t _next_tick_time;
 };
-
-extern TimerManager *timer_manager;

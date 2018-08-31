@@ -1,5 +1,4 @@
 #include "config.h"
-#include <cassert>
 #include <fstream> // ifstream
 #include <memory>
 #ifdef _WIN32
@@ -9,9 +8,29 @@
 #endif
 #include "lua.hpp"
 
-Config *config = nullptr;
+static Config *s_inst = nullptr;
 
-Config::Config(int argc, char *argv[])
+Config::Config()
+{
+    s_inst = this;
+}
+
+Config::~Config()
+{
+    s_inst = nullptr;
+}
+
+Config * Config::inst()
+{
+    return s_inst;
+}
+
+ConfigEnv * Config::env()
+{
+    return &s_inst->_env;
+}
+
+void Config::init(int argc, char *argv[])
 {
     static char short_options[] = "";
     static struct option long_options[] = {
@@ -49,10 +68,7 @@ Config::Config(int argc, char *argv[])
         load_conf(conf_path);
 
     load_env();
-    //dump();
-
-    assert(config == nullptr);
-    config = this;
+    dump();
 }
 
 void Config::load_conf(const char *conf_path)

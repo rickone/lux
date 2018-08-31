@@ -1,4 +1,4 @@
-#include "system_manager.h"
+#include "lux_core.h"
 #include <algorithm> // std::min
 #include <signal.h>
 #include "world.h"
@@ -35,13 +35,13 @@
 #include <gperftools/profiler.h>
 #endif
 
-SystemManager *system_manager = nullptr;
+static LuxCore *s_inst = nullptr;
 
 extern char **environ;
 
 void on_quit(int sig)
 {
-    system_manager->quit();
+    LuxCore::inst()->quit();
 }
 
 void on_debug(int sig)
@@ -58,15 +58,13 @@ void on_debug(int sig)
     signal(sig, nullptr);
 }
 
-SystemManager::SystemManager(int argc, char *argv[]) : _config(argc, argv), _running_flag(true), _argc(argc), _argv(argv), _argv_max_len()
+LuxCore::LuxCore(int argc, char *argv[]) : _running_flag(true), _argc(argc), _argv(argv), _argv_max_len()
 {
-    system_manager = this;
+    s_inst = this;
 
 #if !defined(_WIN32)
     init_set_proc_title();
 #endif
-    lua_port_init();
-    lua_core_init(lua_state);
 
     signal(SIGINT, on_quit); // ctrl + c
     signal(SIGTERM, on_quit); // kill
@@ -79,42 +77,35 @@ SystemManager::SystemManager(int argc, char *argv[]) : _config(argc, argv), _run
     signal(SIGFPE, on_debug);
     signal(SIGSEGV, on_debug);
 #endif
-
-#if !defined(_WIN32)
-    if (_config.env()->daemon)
-    {
-        log_info("enter daemon mode");
-
-        int ret = daemon(1, 0);
-        if (ret == -1)
-            throw_system_error(errno, "daemon");
-    }
-#endif
-
-    log_info("SystemManager(v%s) start running, pid=%d, daemon=%s", CORE_VERSION, getpid(), _config.env()->daemon ? "On" : "Off");
 }
 
-SystemManager::~SystemManager()
+LuxCore::~LuxCore()
 {
-    lua_port_uninit();
-
-    log_info("SystemManager exit, pid=%d", getpid());
+    s_inst = nullptr;
 }
 
-void SystemManager::run()
+LuxCore * LuxCore::inst()
+{
+    return s_inst;
+}
+
+void LuxCore::run()
 {
     profile_start();
 
+    auto timer_mgr = TimerManager::inst();
+    auto socket_mgr = SocketManager::inst();
+
     while (_running_flag)
     {
-        int notick_time = _timer_mgr.tick();
-        _socket_mgr.wait_event(notick_time);
+        int notick_time = timer_mgr->tick();
+        socket_mgr->wait_event(notick_time);
     }
 
     profile_stop();
 }
 
-void SystemManager::set_proc_title(const char *title)
+void LuxCore::set_proc_title(const char *title)
 {
     size_t title_len = strlen(title) + 1;
     size_t copy_len = std::min(title_len, _argv_max_len);
@@ -130,25 +121,26 @@ void SystemManager::set_proc_title(const char *title)
 #endif
 }
 
-void SystemManager::on_timer(Timer *timer)
+void LuxCore::on_timer(Timer *timer)
 {
-    lua_gc(lua_state, LUA_GCSTEP, 0);
-    world->gc();
+    if (lua_state)
+        lua_gc(lua_state, LUA_GCSTEP, 0);
+    World::inst()->gc();
 #ifdef _WIN32
-    _socket_mgr.gc();
+    SocketManager::inst()->gc();
 #endif
 }
 
-void SystemManager::on_fork(int pid)
+void LuxCore::on_fork(int pid)
 {
-    _log_ctx.on_fork(pid);
-    _socket_mgr.on_fork(pid);
+    LogContext::inst()->on_fork(pid);
+    SocketManager::inst()->on_fork(pid);
 }
 
-void SystemManager::profile_start()
+void LuxCore::profile_start()
 {
 #ifdef GPERFTOOLS
-    const char *profile = config->get_string("profile");
+    const char *profile = Config::inst()->get_string("profile");
     if (profile)
     {
         ProfilerStart(profile);
@@ -157,10 +149,10 @@ void SystemManager::profile_start()
 #endif
 }
 
-void SystemManager::profile_stop()
+void LuxCore::profile_stop()
 {
 #ifdef GPERFTOOLS
-    const char *profile = config->get_string("profile");
+    const char *profile = Config::inst()->get_string("profile");
     if (profile)
     {
         ProfilerStop();
@@ -169,17 +161,51 @@ void SystemManager::profile_stop()
 #endif
 }
 
-void SystemManager::start()
+void LuxCore::start()
 {
+    auto config = std::make_shared<Config>();
+    config->init(_argc, _argv);
+    _entity->add_component(config);
+
+    auto log_ctx = std::make_shared<LogContext>();
+    log_ctx->init();
+    _entity->add_component(log_ctx);
+
+    auto timer_mgr = std::make_shared<TimerManager>();
+    _entity->add_component(timer_mgr);
+
+    auto socket_mgr = std::make_shared<SocketManager>();
+    socket_mgr->init();
+    _entity->add_component(socket_mgr);
+
     auto timer = _entity->add_timer(200);
-    timer->on_timer.set(this, &SystemManager::on_timer);
+    timer->on_timer.set(this, &LuxCore::on_timer);
+
+    lua_port_init();
+    lua_core_init(lua_state);
+
+#if !defined(_WIN32)
+    if (Config::env()->daemon)
+    {
+        log_info("enter daemon mode");
+
+        int ret = daemon(1, 0);
+        if (ret == -1)
+            throw_system_error(errno, "daemon");
+    }
+#endif
+
+    log_info("LuxCore(v%s) start running, pid=%d, daemon=%s", CORE_VERSION, getpid(), Config::env()->daemon ? "On" : "Off");
 }
 
-void SystemManager::stop() noexcept
+void LuxCore::stop() noexcept
 {
+    lua_port_uninit();
+
+    log_info("LuxCore exit, pid=%d", getpid());
 }
 
-void SystemManager::init_set_proc_title()
+void LuxCore::init_set_proc_title()
 {
     char *offset = _argv[0];
     size_t environ_len = 0;
@@ -216,11 +242,11 @@ void SystemManager::init_set_proc_title()
     }
 }
 
-void SystemManager::lua_core_init(lua_State *L)
+void LuxCore::lua_core_init(lua_State *L)
 {
-    config->copy_to_lua(L);
+    Config::inst()->copy_to_lua(L);
 
-    const char *lua_path = config->get_string("lua_path");
+    const char *lua_path = Config::inst()->get_string("lua_path");
     if (lua_path)
     {
         std::string path(lua_path);
@@ -238,7 +264,7 @@ void SystemManager::lua_core_init(lua_State *L)
 
     lua_core_openlibs(L);
 
-    const char *start = config->get_string("start");
+    const char *start = Config::inst()->get_string("start");
     logic_assert(start, "config.start is empty");
 
     int ret = luaL_loadfile(L, start);
@@ -246,10 +272,10 @@ void SystemManager::lua_core_init(lua_State *L)
         luaL_error(L, "loadfile(%s) error: %s", start, lua_tostring(L, -1));
 
     lua_call(L, 0, 1);
-    world->start_lua_component(L);
+    World::inst()->start_lua_component(L);
 }
 
-void SystemManager::lua_core_openlibs(lua_State *L)
+void LuxCore::lua_core_openlibs(lua_State *L)
 {
     lua_class_define<Entity>(L);
     lua_class_define<Component>(L);

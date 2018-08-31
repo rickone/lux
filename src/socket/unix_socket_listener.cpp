@@ -47,7 +47,7 @@ void UnixSocketListener::init_service(const char *socket_path)
     unlink(addr.sun_path);
 
     bind((const struct sockaddr *)&addr, sizeof(addr));
-    listen(config->env()->listen_backlog);
+    listen(Config::env()->listen_backlog);
     add_event(kSocketEvent_Read);
     _socket_path = addr.sun_path;
 }

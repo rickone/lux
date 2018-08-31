@@ -28,7 +28,7 @@ void Timer::new_class(lua_State *L)
 
 std::shared_ptr<Timer> Timer::create(int interval, int counter)
 {
-    return timer_manager->create(interval, counter);
+    return TimerManager::inst()->create(interval, counter);
 }
 
 void Timer::clear()

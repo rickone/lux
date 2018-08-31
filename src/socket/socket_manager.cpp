@@ -5,7 +5,7 @@
 
 const static int MAX_POLL_EVENT_CNT = 1024;
 
-SocketManager *socket_manager = nullptr;
+static SocketManager *s_inst = nullptr;
 
 SocketManager::SocketManager() :
 #ifdef _WIN32
@@ -20,10 +20,7 @@ SocketManager::SocketManager() :
     WSAStartup(version, &wsa_data);
 #endif
 
-    init();
-
-    assert(socket_manager == nullptr);
-    socket_manager = this;
+    s_inst = this;
 }
 
 SocketManager::~SocketManager()
@@ -33,6 +30,13 @@ SocketManager::~SocketManager()
 #ifdef _WIN32
     WSACleanup();
 #endif
+
+    s_inst = nullptr;
+}
+
+SocketManager * SocketManager::inst()
+{
+    return s_inst;
 }
 
 void SocketManager::on_fork(int pid)

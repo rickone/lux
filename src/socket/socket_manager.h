@@ -1,13 +1,16 @@
 #pragma once
 
 #include <unordered_set>
+#include "component.h"
 #include "socket.h"
 
-class SocketManager final
+class SocketManager final : public Component
 {
 public:
     SocketManager();
     ~SocketManager();
+
+    static SocketManager * inst();
 
     void init();
     void clear();
@@ -41,5 +44,3 @@ private:
     int _fd;
 #endif
 };
-
-extern SocketManager *socket_manager;

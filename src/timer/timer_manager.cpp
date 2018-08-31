@@ -1,7 +1,7 @@
 #include "timer_manager.h"
 #include <cassert>
 
-TimerManager *timer_manager = nullptr;
+static TimerManager *s_inst = nullptr;
 
 #ifdef _WIN32
 #include <windows.h>
@@ -36,10 +36,19 @@ static int64_t lux_gettime()
 
 TimerManager::TimerManager() : _skip_list(2), _time_now(), _next_tick_time()
 {
-    assert(timer_manager == nullptr);
-    timer_manager = this;
+    s_inst = this;
 
     _time_now = lux_gettime();
+}
+
+TimerManager::~TimerManager()
+{
+    s_inst = nullptr;
+}
+
+TimerManager * TimerManager::inst()
+{
+    return s_inst;
 }
 
 std::shared_ptr<Timer> TimerManager::create(int interval, int counter)

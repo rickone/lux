@@ -1,7 +1,7 @@
 #pragma once
 
 #include "lua_port.h"
-#include "log.h"
+#include "error.h"
 
 template<typename... A>
 class Callback
@@ -13,14 +13,16 @@ public:
 
     ~Callback()
     {
-        unref_lua_func(lua_state);
+        if (lua_state)
+            unref_lua_func(lua_state);
     }
 
     void clear()
     {
         _object.reset();
         _func = nullptr;
-        unref_lua_func(lua_state);
+        if (lua_state)
+            unref_lua_func(lua_state);
     }
 
     template<typename T>
@@ -80,6 +82,9 @@ public:
             return;
 
         lua_State *L = lua_state;
+        if (!L)
+            return;
+
         int top = lua_gettop(L);
 
         lua_rawgeti(L, LUA_REGISTRYINDEX, _lua_ref);
@@ -88,8 +93,9 @@ public:
         int ret = lua_btcall(L, sizeof...(args), 0);
         if (ret != LUA_OK)
         {
-            log_error("[Lua] %s", lua_tostring(L, -1));
+            std::string err(lua_tostring(L, -1));
             lua_settop(L, top);
+            throw_error(std::runtime_error, "[Lua] %s", err.c_str());
         }
     }
 

@@ -1,29 +1,40 @@
 #include "world.h"
-#include "system_manager.h"
+#include "lux_core.h"
 
-World *world = nullptr;
+static World *s_inst = nullptr;
 
 World::World()
 {
-    world = this;
+    s_inst = this;
 }
 
 World::~World()
 {
-    world = nullptr;
+    for (auto &entity : _entities)
+        entity->remove();
+
+    s_inst = nullptr;
+}
+
+World * World::inst()
+{
+    return s_inst;
 }
 
 int World::launch(int argc, char *argv[])
 {
-    World *the_world = new World();
+    auto the_world = std::make_shared<World>();
 
-    std::shared_ptr<SystemManager> sm(new SystemManager(argc, argv));
+    std::shared_ptr<LuxCore> sm(new LuxCore(argc, argv));
     the_world->start_component(sm);
 
     sm->run();
-
-    delete the_world;
     return 0;
+}
+
+void World::clear()
+{
+    _entities.clear();
 }
 
 void World::gc()

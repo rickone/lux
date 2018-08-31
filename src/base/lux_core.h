@@ -10,11 +10,13 @@
 
 struct lua_State;
 
-class SystemManager final : public Component
+class LuxCore final : public Component
 {
 public:
-    SystemManager(int argc, char *argv[]);
-    ~SystemManager();
+    LuxCore(int argc, char *argv[]);
+    ~LuxCore();
+
+    static LuxCore * inst();
 
     void run();
     void set_proc_title(const char *title);
@@ -33,15 +35,8 @@ private:
     void lua_core_init(lua_State *L);
     void lua_core_openlibs(lua_State *L);
 
-    Config        _config;
-    LogContext    _log_ctx;
-    TimerManager  _timer_mgr;
-    SocketManager _socket_mgr;
-
     volatile bool _running_flag;
     int _argc;
     char **_argv;
     size_t _argv_max_len;
 };
-
-extern SystemManager *system_manager;

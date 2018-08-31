@@ -59,7 +59,7 @@ void SocketKcp::on_timer(Timer *timer)
         return;
     }
 
-    unsigned int time = timer_manager->time_now();
+    unsigned int time = TimerManager::inst()->time_now();
     unsigned int update_time = ikcp_check(_kcp, time);
     if (time >= update_time)
         ikcp_update(_kcp, time);

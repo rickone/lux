@@ -1,7 +1,6 @@
 #if !defined(_WIN32)
 #include "unix_socket_stream.h"
-#include "config.h"
-#include "system_manager.h"
+#include "lux_core.h"
 #include "world.h"
 
 void UnixSocketStream::new_class(lua_State *L)
@@ -70,10 +69,10 @@ std::shared_ptr<UnixSocketStream> UnixSocketStream::fork(const char *proc_title,
         return create(pair.first.detach());
     }
 
-    system_manager->set_proc_title(proc_title);
+    LuxCore::inst()->set_proc_title(proc_title);
 
     int pid = getpid();
-    system_manager->on_fork(pid);
+    LuxCore::inst()->on_fork(pid);
 
     log_info("fork into child-process(%s) pid(%d) socket fd(%d)", proc_title, pid, pair.second.fd());
 
@@ -83,9 +82,9 @@ std::shared_ptr<UnixSocketStream> UnixSocketStream::fork(const char *proc_title,
 
     worker_proc(socket);
 
-    system_manager->run();
+    LuxCore::inst()->run();
 
-    delete system_manager;
+    World::inst()->clear();
     _exit(0);
 }
 
@@ -108,7 +107,7 @@ int UnixSocketStream::lua_fork(lua_State *L)
     auto socket_out = fork(proc_title, [L](const std::shared_ptr<UnixSocketStream> &socket_in){
         lua_remove(L, 1);
         lua_call(L, 0, 1);
-        world->start_lua_component(L);
+        World::inst()->start_lua_component(L);
     });
     lua_push(L, socket_out);
     return 1;

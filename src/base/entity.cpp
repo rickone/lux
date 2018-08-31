@@ -25,7 +25,7 @@ void Entity::new_class(lua_State *L)
 
 std::shared_ptr<Entity> Entity::create()
 {
-    return world->create_entity();
+    return World::inst()->create_entity();
 }
 
 void Entity::clear()
@@ -85,12 +85,11 @@ std::shared_ptr<Component> Entity::find_component(const char *name)
 
 void Entity::remove()
 {
-    auto it = _components.begin();
-    auto it_end = _components.end();
-    for (; it != it_end; ++it)
-    {
-        it->second->stop();
-    }
+    if (_removed)
+        return;
+
+    for (auto &pair : _components)
+        pair.second->stop();
 
     _removed = true;
 }

@@ -3,7 +3,7 @@
 #include "config.h"
 #include "log.h"
 
-TcpSocket::TcpSocket() : Socket(), _connected(), _recv_buffer(config->env()->socket_recv_buffer_init), _send_buffer(config->env()->socket_send_buffer_init)
+TcpSocket::TcpSocket() : Socket(), _connected(), _recv_buffer(Config::env()->socket_recv_buffer_init), _send_buffer(Config::env()->socket_send_buffer_init)
 {
 }
 
@@ -62,7 +62,7 @@ void TcpSocket::init_connection(const char *node, const char *service)
 void TcpSocket::send_pending(const char *data, size_t len)
 {
     _send_buffer.push(data, len);
-    if (_send_buffer.size() > config->env()->socket_send_buffer_max)
+    if (_send_buffer.size() > Config::env()->socket_send_buffer_max)
     {
         socket_t fd = _fd;
         on_error(this, -1);
@@ -187,7 +187,7 @@ BOOL TcpSocket::accept_ex(socket_t listen_fd, int family, int socktype, int prot
 {
     init(family, socktype, protocol);
 
-    BOOL succ = socket_manager->accept_ex(listen_fd, _fd, _accept_ex_buffer, ACCEPT_EX_ADDRESS_LEN, ACCEPT_EX_ADDRESS_LEN, &_read_ovl);
+    BOOL succ = SocketManager::inst()->accept_ex(listen_fd, _fd, _accept_ex_buffer, ACCEPT_EX_ADDRESS_LEN, ACCEPT_EX_ADDRESS_LEN, &_read_ovl);
     if (!succ)
     {
         int err = get_socket_error();
@@ -210,7 +210,7 @@ void TcpSocket::accept_ex_complete()
     struct sockaddr *remote_sockaddr = nullptr;
     socklen_t remote_sockaddr_len = 0;
 
-    socket_manager->get_accept_ex_sockaddrs(_accept_ex_buffer, ACCEPT_EX_ADDRESS_LEN, ACCEPT_EX_ADDRESS_LEN,
+    SocketManager::inst()->get_accept_ex_sockaddrs(_accept_ex_buffer, ACCEPT_EX_ADDRESS_LEN, ACCEPT_EX_ADDRESS_LEN,
         &local_sockaddr, &local_sockaddr_len, &remote_sockaddr, &remote_sockaddr_len);
 
     auto name = get_addrname(remote_sockaddr, remote_sockaddr_len);
@@ -227,7 +227,7 @@ BOOL TcpSocket::connect_ex(const struct sockaddr *addr, socklen_t addrlen)
 {
     bind_any(addr->sa_family);
 
-    BOOL connected = socket_manager->connect_ex(_fd, addr, addrlen, &_write_ovl);
+    BOOL connected = SocketManager::inst()->connect_ex(_fd, addr, addrlen, &_write_ovl);
     if (!connected)
     {
         int err = get_socket_error();

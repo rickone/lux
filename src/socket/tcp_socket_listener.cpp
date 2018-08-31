@@ -25,7 +25,7 @@ void TcpSocketListener::init_service(const char *node, const char *service)
 {
     logic_assert(_fd == INVALID_SOCKET, "_fd = %d", _fd);
 
-    int backlog = config->env()->listen_backlog;
+    int backlog = Config::env()->listen_backlog;
     any_addrinfo(node, service, SOCK_STREAM, AI_PASSIVE, [this,backlog](const struct addrinfo *ai){
         init(ai->ai_family, ai->ai_socktype, ai->ai_protocol);
         setsockopt(SOL_SOCKET, SO_REUSEADDR, true);
