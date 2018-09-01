@@ -18,7 +18,7 @@ class Config final : public Component
 {
 public:
     Config();
-    ~Config();
+    virtual ~Config();
 
     static Config * inst();
     static ConfigEnv * env();

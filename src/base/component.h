@@ -24,7 +24,7 @@ public:
     void set_entity(Entity *entity) { _entity = entity; }
 
     template<typename... A>
-    void lua_invoke(const char *name, A...args);
+    void lua_invoke(lua_State *L, const char *name, A...args);
 
     def_lua_callback(on_error, Component *, int)
 
@@ -33,12 +33,8 @@ protected:
 };
 
 template<typename...A>
-void Component::lua_invoke(const char *name, A...args)
+void Component::lua_invoke(lua_State *L, const char *name, A...args)
 {
-    lua_State *L = lua_state;
-    if (!L)
-        return;
-
     int top = lua_gettop(L);
     if (!get_luaref(L))
         return;

@@ -38,7 +38,7 @@ class LogContext final : public Component
 {
 public:
     LogContext();
-    ~LogContext();
+    virtual ~LogContext();
 
     static LogContext * inst();
 

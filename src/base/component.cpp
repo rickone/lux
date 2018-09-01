@@ -62,7 +62,8 @@ void Component::start()
 
 void Component::stop() noexcept
 {
-    lua_invoke("stop");
+    if (lua_state)
+        lua_invoke(lua_state, "stop");
 }
 
 const char * Component::name() const

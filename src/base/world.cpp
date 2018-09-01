@@ -23,12 +23,12 @@ World * World::inst()
 
 int World::launch(int argc, char *argv[])
 {
-    auto the_world = std::make_shared<World>();
+    auto world = std::make_shared<World>();
 
-    std::shared_ptr<LuxCore> sm(new LuxCore(argc, argv));
-    the_world->start_component(sm);
+    auto lux_core = std::make_shared<LuxCore>(argc, argv);
+    world->start_component(lux_core);
 
-    sm->run();
+    lux_core->run();
     return 0;
 }
 

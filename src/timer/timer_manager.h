@@ -9,7 +9,7 @@ class TimerManager final : public Component
 {
 public:
     TimerManager();
-    ~TimerManager();
+    virtual ~TimerManager();
 
     static TimerManager * inst();
 

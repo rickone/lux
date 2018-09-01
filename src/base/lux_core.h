@@ -5,19 +5,18 @@
 #include "component.h"
 
 class Timer;
-struct lua_State;
 
 class LuxCore final : public Component
 {
 public:
     LuxCore(int argc, char *argv[]);
-    ~LuxCore();
+    virtual ~LuxCore();
 
     static LuxCore * inst();
 
     void run();
     void set_proc_title(const char *title);
-    void on_timer(Timer *timer);
+    void on_gc(Timer *timer);
     void on_fork(int pid);
     void profile_start();
     void profile_stop();
@@ -29,8 +28,6 @@ public:
 
 private:
     void init_set_proc_title();
-    void lua_core_init(lua_State *L);
-    void lua_core_openlibs(lua_State *L);
 
     volatile bool _running_flag;
     int _argc;

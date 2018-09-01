@@ -13,9 +13,6 @@
 
 extern struct lua_State *lua_state;
 
-void lua_port_init();
-void lua_port_uninit();
-
 template<typename T, typename...A>
 inline int lua_push_x(lua_State *L, T value, A...args)
 {

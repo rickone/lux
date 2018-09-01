@@ -8,7 +8,7 @@ class SocketManager final : public Component
 {
 public:
     SocketManager();
-    ~SocketManager();
+    virtual ~SocketManager();
 
     static SocketManager * inst();
 

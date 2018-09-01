@@ -3,25 +3,6 @@
 
 struct lua_State *lua_state = nullptr;
 
-void lua_port_init()
-{
-    assert(lua_state == nullptr);
-
-    lua_State *L = luaL_newstate();
-    luaL_openlibs(L);
-    
-    lua_state = L;
-}
-
-void lua_port_uninit()
-{
-    if (lua_state != nullptr)
-    {
-        lua_close(lua_state);
-        lua_state = nullptr;
-    }
-}
-
 int lua_class_index(lua_State *L)
 {
     int property = lua_upvalueindex(1);
