@@ -1,7 +1,17 @@
 #include "lua_port.h"
 #include <cassert>
 
-struct lua_State *lua_state = nullptr;
+static struct lua_State *s_lua_state = nullptr;
+
+lua_State * get_lua_state()
+{
+    return s_lua_state;
+}
+
+void set_lua_state(lua_State *lua)
+{
+    s_lua_state = lua;
+}
 
 int lua_class_index(lua_State *L)
 {

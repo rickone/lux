@@ -24,7 +24,7 @@ LuaState::~LuaState()
     {
         lua_close(_state);
         _state = nullptr;
-        lua_state = nullptr;
+        set_lua_state(nullptr);
     }
 
     s_inst = nullptr;
@@ -39,7 +39,7 @@ void LuaState::init()
 {
     lua_State *L = luaL_newstate();
     _state = L;
-    lua_state = L;
+    set_lua_state(L);
 
     luaL_openlibs(L);
     lua_path_init(L);

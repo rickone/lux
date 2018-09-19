@@ -6,7 +6,7 @@ LuaObject::LuaObject() : _ref(LUA_NOREF)
 
 LuaObject::~LuaObject()
 {
-    lua_State *L = lua_state;
+    auto L = get_lua_state();;
     if (!L)
         return;
 

@@ -11,7 +11,8 @@
 #include "lua_bridge.h"
 #include "lua_proto.h"
 
-extern struct lua_State *lua_state;
+lua_State * get_lua_state();
+void set_lua_state(lua_State *lua);
 
 template<typename T, typename...A>
 inline int lua_push_x(lua_State *L, T value, A...args)

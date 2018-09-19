@@ -12,16 +12,18 @@ public:
 
     ~Callback()
     {
-        if (lua_state)
-            unref_lua_func(lua_state);
+        auto L = get_lua_state();
+        if (L)
+            unref_lua_func(L);
     }
 
     void clear()
     {
         _object.reset();
         _func = nullptr;
-        if (lua_state)
-            unref_lua_func(lua_state);
+        auto L = get_lua_state();
+        if (L)
+            unref_lua_func(L);
     }
 
     template<typename T>
@@ -80,7 +82,7 @@ public:
         if (_lua_ref == LUA_NOREF)
             return;
 
-        lua_State *L = lua_state;
+        auto L = get_lua_state();
         if (!L)
             return;
 

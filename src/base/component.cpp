@@ -56,14 +56,16 @@ void Component::lua_start(lua_State *L)
 
 void Component::start()
 {
-    if (lua_state)
-        lua_start(lua_state);
+    auto L = get_lua_state();
+    if (L)
+        lua_start(L);
 }
 
 void Component::stop() noexcept
 {
-    if (lua_state)
-        lua_invoke(lua_state, "stop");
+    auto L = get_lua_state();
+    if (L)
+        lua_invoke(L, "stop");
 }
 
 const char * Component::name() const
