@@ -2,11 +2,10 @@
 
 #include "socket.h"
 #include "buffer.h"
-#include "lua_port.h"
 
 struct LuaPackage;
 
-class SocketPackage : public Component
+class SocketPackage : public LuaObject
 {
 public:
     SocketPackage() = default;
@@ -17,8 +16,6 @@ public:
     void on_socket_recv(Socket *socket, Buffer *buffer);
 
     int lua_send(lua_State *L);
-
-    virtual void start() override;
 
     template<typename T, typename F>
     void set_callback(T *object, F func) { _callback.set(object, func); }

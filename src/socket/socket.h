@@ -2,7 +2,7 @@
 
 #include "socket_def.h"
 #include "socket_utils.h"
-#include "component.h"
+#include "callback.h"
 #include "buffer.h"
 
 enum SocketEventFlag
@@ -15,7 +15,7 @@ enum SocketEventFlag
 
 struct LuaSockAddr;
 
-class Socket : public Component
+class Socket : public LuaObject
 {
 public:
     Socket();
@@ -69,8 +69,6 @@ public:
 #ifdef _WIN32
     virtual void on_complete(LPWSAOVERLAPPED ovl, size_t len);
 #endif
-    virtual void stop() noexcept override;
-    virtual const char * name() const override;
 
     socket_t fd() { return _fd; }
     operator bool() const { return _fd != INVALID_SOCKET; }
@@ -83,6 +81,7 @@ public:
     def_lua_callback(on_accept, Socket *, Socket *)
     def_lua_callback(on_recv, Socket *, Buffer *)
     def_lua_callback(on_recvfrom, Socket *, Buffer *, LuaSockAddr *)
+    def_lua_callback(on_error, Socket *, int)
     
 protected:
     socket_t _fd;

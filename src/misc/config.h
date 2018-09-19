@@ -2,7 +2,8 @@
 
 #include <string>
 #include <unordered_map>
-#include "component.h"
+
+struct lua_State;
 
 struct ConfigEnv
 {
@@ -14,11 +15,11 @@ struct ConfigEnv
     size_t  socket_send_buffer_max;
 };
 
-class Config final : public Component
+class Config final
 {
 public:
-    Config();
-    virtual ~Config();
+    Config() = default;
+    virtual ~Config() = default;
 
     static Config * inst();
     static ConfigEnv * env();

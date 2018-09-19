@@ -150,6 +150,6 @@ int Entity::lua_find_component(lua_State *L)
 std::shared_ptr<Timer> Entity::add_timer(int interval, int counter)
 {
     auto timer = Timer::create(interval, counter);
-    add_component(timer);
+    //add_component(timer);
     return timer;
 }

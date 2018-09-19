@@ -1,8 +1,6 @@
 #include "timer_manager.h"
 #include <cassert>
 
-static TimerManager *s_inst = nullptr;
-
 #ifdef _WIN32
 #include <windows.h>
 #define lux_gettime GetTickCount64
@@ -34,21 +32,19 @@ static int64_t lux_gettime()
 }
 #endif
 
-TimerManager::TimerManager() : _skip_list(2), _time_now(), _next_tick_time()
+TimerManager::TimerManager() : _skip_list(2)
 {
-    s_inst = this;
-
-    _time_now = lux_gettime();
-}
-
-TimerManager::~TimerManager()
-{
-    s_inst = nullptr;
 }
 
 TimerManager * TimerManager::inst()
 {
-    return s_inst;
+    static TimerManager s_inst;
+    return &s_inst;
+}
+
+void TimerManager::init()
+{
+    _time_now = lux_gettime();
 }
 
 std::shared_ptr<Timer> TimerManager::create(int interval, int counter)

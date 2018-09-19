@@ -62,8 +62,10 @@ int SocketPackage::lua_send(lua_State *L)
     return 0;
 }
 
+/*
 void SocketPackage::start()
 {
     _socket = std::static_pointer_cast<Socket>(_entity->find_component("socket"));
     _socket->on_recv.set(this, &SocketPackage::on_socket_recv);
 }
+*/

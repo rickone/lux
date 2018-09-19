@@ -1,18 +1,18 @@
 #pragma once
 
 #include <memory>
-#include "component.h"
 #include "skip_list.h"
 #include "timer.h"
 
-class TimerManager final : public Component
+class TimerManager final
 {
 public:
     TimerManager();
-    virtual ~TimerManager();
+    virtual ~TimerManager() = default;
 
     static TimerManager * inst();
 
+    void init();
     std::shared_ptr<Timer> create(int interval, int counter);
     int64_t time_now();
     int tick();

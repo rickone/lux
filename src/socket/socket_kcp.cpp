@@ -54,7 +54,7 @@ void SocketKcp::on_timer(Timer *timer)
 {
     if (_kcp == nullptr)
     {
-        timer->stop();
+        timer->clear();
         return;
     }
 
@@ -72,7 +72,7 @@ void SocketKcp::on_socket_recv(Socket *socket, Buffer *buffer, LuaSockAddr *sadd
         int ret = ikcp_input(_kcp, front.first, front.second);
         if (ret != 0)
         {
-            _entity->remove();
+            //_entity->remove();
             throw_error(std::runtime_error, "ikcp_input buffer(%u) retcode(%d)", buffer->size(), ret);
         }
 
@@ -99,7 +99,7 @@ void SocketKcp::send(const char *data, size_t len)
     int ret = ikcp_send(_kcp, data, len);
     if (ret < 0)
     {
-        _entity->remove();
+        //_entity->remove();
         throw_error(std::runtime_error, "ikcp_send buffer(%u) retcode(%d)", len, ret);
     }
 }
@@ -113,6 +113,7 @@ int SocketKcp::lua_send(lua_State *L)
     return 0;
 }
 
+/*
 void SocketKcp::start()
 {
     _kcp = ikcp_create(0x1985, this);
@@ -138,3 +139,4 @@ void SocketKcp::stop() noexcept
         _kcp = nullptr;
     }
 }
+*/

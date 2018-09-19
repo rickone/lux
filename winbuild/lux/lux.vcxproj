@@ -165,12 +165,12 @@
   <ItemGroup>
     <ClCompile Include="..\..\src\base\component.cpp" />
     <ClCompile Include="..\..\src\base\entity.cpp" />
-    <ClCompile Include="..\..\src\base\lua_component.cpp" />
-    <ClCompile Include="..\..\src\base\system_manager.cpp" />
+    <ClCompile Include="..\..\src\base\lux_core.cpp" />
     <ClCompile Include="..\..\src\base\world.cpp" />
     <ClCompile Include="..\..\src\lua\lua_object.cpp" />
     <ClCompile Include="..\..\src\lua\lua_port.cpp" />
     <ClCompile Include="..\..\src\lua\lua_proto.cpp" />
+    <ClCompile Include="..\..\src\lua\lua_state.cpp" />
     <ClCompile Include="..\..\src\misc\buffer.cpp" />
     <ClCompile Include="..\..\src\misc\config.cpp" />
     <ClCompile Include="..\..\src\misc\error.cpp" />
@@ -202,14 +202,15 @@
   <ItemGroup>
     <ClInclude Include="..\..\src\base\component.h" />
     <ClInclude Include="..\..\src\base\entity.h" />
-    <ClInclude Include="..\..\src\base\lua_component.h" />
-    <ClInclude Include="..\..\src\base\system_manager.h" />
+    <ClInclude Include="..\..\src\base\lux_core.h" />
     <ClInclude Include="..\..\src\base\world.h" />
     <ClInclude Include="..\..\src\lua\lua_bridge.h" />
     <ClInclude Include="..\..\src\lua\lua_object.h" />
     <ClInclude Include="..\..\src\lua\lua_port.h" />
     <ClInclude Include="..\..\src\lua\lua_proto.h" />
+    <ClInclude Include="..\..\src\lua\lua_state.h" />
     <ClInclude Include="..\..\src\misc\buffer.h" />
+    <ClInclude Include="..\..\src\misc\callback.h" />
     <ClInclude Include="..\..\src\misc\config.h" />
     <ClInclude Include="..\..\src\misc\error.h" />
     <ClInclude Include="..\..\src\misc\getopt_win32.h" />

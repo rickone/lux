@@ -8,26 +8,15 @@
 #endif
 #include "lua.hpp"
 
-static Config *s_inst = nullptr;
-
-Config::Config()
-{
-    s_inst = this;
-}
-
-Config::~Config()
-{
-    s_inst = nullptr;
-}
-
 Config * Config::inst()
 {
-    return s_inst;
+    static Config s_inst;
+    return &s_inst;
 }
 
 ConfigEnv * Config::env()
 {
-    return &s_inst->_env;
+    return &(inst()->_env);
 }
 
 void Config::init(int argc, char *argv[])

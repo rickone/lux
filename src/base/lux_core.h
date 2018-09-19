@@ -1,19 +1,19 @@
 #pragma once
 
-#define CORE_VERSION "0.1.0"
-
-#include "component.h"
+#define CORE_VERSION "0.2.0"
+#include "lua_port.h"
 
 class Timer;
 
-class LuxCore final : public Component
+class LuxCore final : public LuaObject
 {
 public:
-    LuxCore(int argc, char *argv[]);
-    virtual ~LuxCore();
+    LuxCore() = default;
+    virtual ~LuxCore() = default;
 
     static LuxCore * inst();
 
+    void init(int argc, char *argv[]);
     void run();
     void set_proc_title(const char *title);
     void on_gc(Timer *timer);
@@ -21,13 +21,10 @@ public:
     void profile_start();
     void profile_stop();
 
-    virtual void start() override;
-    virtual void stop() noexcept override;
-
     void quit() { _running_flag = false; }
 
 private:
-    void init_set_proc_title();
+    void init_set_proc_title(int argc, char *argv[]);
 
     volatile bool _running_flag;
     int _argc;

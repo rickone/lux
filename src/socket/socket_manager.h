@@ -1,10 +1,10 @@
 #pragma once
 
 #include <unordered_set>
-#include "component.h"
+#include <unordered_map>
 #include "socket.h"
 
-class SocketManager final : public Component
+class SocketManager final
 {
 public:
     SocketManager();
@@ -16,10 +16,13 @@ public:
     void clear();
     void on_fork(int pid);
 
+    std::shared_ptr<Socket> create();
     void add_event(Socket *socket, int event_flag);
     void set_event(Socket *socket, int event_flag);
     void remove_event(Socket *socket) noexcept;
     void wait_event(int timeout);
+
+    size_t socket_count() const { return _sockets.size(); }
 
 #ifdef _WIN32
     BOOL accept_ex(socket_t listen_fd, socket_t accept_fd, void *buffer, DWORD local_addr_len, DWORD remote_addr_len, LPOVERLAPPED ovl);
@@ -43,4 +46,6 @@ private:
 #else
     int _fd;
 #endif
+    std::unordered_map<int, std::shared_ptr<Socket> > _sockets;
+    int _next_socket_id;
 };

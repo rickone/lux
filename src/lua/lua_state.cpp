@@ -11,13 +11,6 @@
 #include "socket_kcp.h"
 #include "socket_package.h"
 
-static LuaState *s_inst = nullptr;
-
-LuaState::LuaState() : _state(nullptr)
-{
-    s_inst = this;
-}
-
 LuaState::~LuaState()
 {
     if (_state != nullptr)
@@ -26,13 +19,12 @@ LuaState::~LuaState()
         _state = nullptr;
         set_lua_state(nullptr);
     }
-
-    s_inst = nullptr;
 }
 
 LuaState * LuaState::inst()
 {
-    return s_inst;
+    static LuaState s_inst;
+    return &s_inst;
 }
 
 void LuaState::init()
@@ -50,14 +42,6 @@ void LuaState::init()
 void LuaState::gc()
 {
     lua_gc(_state, LUA_GCSTEP, 0);
-}
-
-void LuaState::start()
-{
-}
-
-void LuaState::stop() noexcept
-{
 }
 
 void LuaState::lua_path_init(lua_State *L)
@@ -86,7 +70,7 @@ void LuaState::lua_core_openlibs(lua_State *L)
 
     lua_class_define<Timer>(L);
     lua_class_define<Buffer>(L);
-    lua_class_define<Socket, Component>(L);
+    lua_class_define<Socket>(L);
     lua_class_define<TcpSocket, Socket>(L);
     lua_class_define<TcpSocketListener, Socket>(L);
     lua_class_define<UdpSocket, Socket>(L);
@@ -96,8 +80,8 @@ void LuaState::lua_core_openlibs(lua_State *L)
     lua_class_define<UnixSocketStream, UnixSocket>(L);
     lua_class_define<UnixSocketListener, Socket>(L);
 #endif
-    lua_class_define<SocketKcp, Component>(L);
-    lua_class_define<SocketPackage, Component>(L);
+    lua_class_define<SocketKcp>(L);
+    lua_class_define<SocketPackage>(L);
 
     lua_lib(L, "lux_core");
     {
