@@ -4,7 +4,7 @@
 #include "socket.h"
 #include "timer.h"
 
-class SocketKcp : public Component
+class SocketKcp : public LuaObject
 {
 public:
     SocketKcp() = default;
@@ -19,9 +19,6 @@ public:
 
     void send(const char *data, size_t len);
     int lua_send(lua_State *L);
-
-    virtual void start() override;
-    virtual void stop() noexcept override;
 
 private:
     std::shared_ptr<Socket> _socket;

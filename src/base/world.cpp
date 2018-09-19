@@ -25,8 +25,8 @@ int World::launch(int argc, char *argv[])
 {
     auto world = std::make_shared<World>();
 
-    auto lux_core = std::make_shared<LuxCore>(argc, argv);
-    world->start_component(lux_core);
+    auto lux_core = std::make_shared<LuxCore>();
+    //world->start_component(lux_core);
 
     lux_core->run();
     return 0;

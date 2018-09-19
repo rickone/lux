@@ -79,11 +79,8 @@ void LogFile::change_log_file(const struct tm *tm_last_log)
     _tm_last_log = *tm_last_log;
 }
 
-static LogContext *s_inst = nullptr;
-
 LogContext::LogContext() : _log_mask(0xff)
 {
-    s_inst = this;
 }
 
 LogContext::~LogContext()
@@ -95,8 +92,6 @@ LogContext::~LogContext()
         _sys_log = false;
     }
 #endif
-
-    s_inst = nullptr;
 }
 
 void LogContext::init()
@@ -135,7 +130,8 @@ void LogContext::init()
 
 LogContext * LogContext::inst()
 {
-    return s_inst;
+    static LogContext s_inst;
+    return &s_inst;
 }
 
 void LogContext::log(int level, const char *fmt, ...)

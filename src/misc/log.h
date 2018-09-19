@@ -2,7 +2,6 @@
 
 #include <string>
 #include <fstream>
-#include "component.h"
 
 enum LogLevel
 {
@@ -34,7 +33,7 @@ private:
     std::ofstream _ofs;
 };
 
-class LogContext final : public Component
+class LogContext final
 {
 public:
     LogContext();
@@ -56,16 +55,10 @@ private:
     LogFile _error_log_file;
 };
 
-#define log_line(Level, Fmt, ...) \
-    do \
-    { \
-        LogContext *inst = LogContext::inst(); \
-        if (inst) \
-            inst->log(Level, Fmt,## __VA_ARGS__); \
-    } while (false)
-
+#define log_line(Level, Fmt, ...) LogContext::inst()->log(Level, Fmt,## __VA_ARGS__)
 #define log_debug(Fmt, ...) log_line(kLevelDebug, Fmt,## __VA_ARGS__)
 #define log_info(Fmt, ...)  log_line(kLevelInfo, Fmt,## __VA_ARGS__)
 #define log_error(Fmt, ...) log_line(kLevelError, Fmt,## __VA_ARGS__)
 
+struct lua_State;
 extern int lua_log(lua_State *L);

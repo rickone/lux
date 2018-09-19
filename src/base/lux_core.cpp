@@ -29,8 +29,6 @@
 #include <gperftools/profiler.h>
 #endif
 
-static LuxCore *s_inst = nullptr;
-
 extern char **environ;
 
 void on_quit(int sig)
@@ -52,13 +50,26 @@ void on_debug(int sig)
     signal(sig, nullptr);
 }
 
-LuxCore::LuxCore(int argc, char *argv[]) : _running_flag(true), _argc(argc), _argv(argv), _argv_max_len()
+LuxCore * LuxCore::inst()
 {
-    s_inst = this;
+    static LuxCore s_inst;
+    return &s_inst;
+}
 
+void LuxCore::init(int argc, char *argv[])
+{
 #if !defined(_WIN32)
-    init_set_proc_title();
+    init_set_proc_title(argc, argv);
 #endif
+
+    Config::inst()->init(argc, argv);
+    LogContext::inst()->init();
+    TimerManager::inst()->init();
+    SocketManager::inst()->init();
+    LuaState::inst()->init();
+
+    auto timer = Timer::create(200);
+    timer->on_timer.set(this, &LuxCore::on_gc);
 
     signal(SIGINT, on_quit); // ctrl + c
     signal(SIGTERM, on_quit); // kill
@@ -71,16 +82,19 @@ LuxCore::LuxCore(int argc, char *argv[]) : _running_flag(true), _argc(argc), _ar
     signal(SIGFPE, on_debug);
     signal(SIGSEGV, on_debug);
 #endif
-}
 
-LuxCore::~LuxCore()
-{
-    s_inst = nullptr;
-}
+#if !defined(_WIN32)
+    if (Config::env()->daemon)
+    {
+        log_info("enter daemon mode");
 
-LuxCore * LuxCore::inst()
-{
-    return s_inst;
+        int ret = daemon(1, 0);
+        if (ret == -1)
+            throw_system_error(errno, "daemon");
+    }
+#endif
+
+    log_info("LuxCore(v%s) start running, pid=%d, daemon=%s, build-time='%s %s'", CORE_VERSION, getpid(), Config::env()->daemon ? "On" : "Off", __TIME__, __DATE__);
 }
 
 void LuxCore::run()
@@ -97,6 +111,8 @@ void LuxCore::run()
     }
 
     profile_stop();
+
+    log_info("LuxCore exit, pid=%d", getpid());
 }
 
 void LuxCore::set_proc_title(const char *title)
@@ -154,51 +170,11 @@ void LuxCore::profile_stop()
 #endif
 }
 
-void LuxCore::start()
+void LuxCore::init_set_proc_title(int argc, char *argv[])
 {
-    auto config = std::make_shared<Config>();
-    config->init(_argc, _argv);
-    _entity->add_component(config);
+    _argc = argc;
+    _argv = argv;
 
-    auto log_ctx = std::make_shared<LogContext>();
-    log_ctx->init();
-    _entity->add_component(log_ctx);
-
-    auto timer_mgr = std::make_shared<TimerManager>();
-    _entity->add_component(timer_mgr);
-
-    auto socket_mgr = std::make_shared<SocketManager>();
-    socket_mgr->init();
-    _entity->add_component(socket_mgr);
-
-    auto timer = _entity->add_timer(200);
-    timer->on_timer.set(this, &LuxCore::on_gc);
-
-    auto lua = std::make_shared<LuaState>();
-    lua->init();
-    _entity->add_component(lua);
-
-#if !defined(_WIN32)
-    if (Config::env()->daemon)
-    {
-        log_info("enter daemon mode");
-
-        int ret = daemon(1, 0);
-        if (ret == -1)
-            throw_system_error(errno, "daemon");
-    }
-#endif
-
-    log_info("LuxCore(v%s) start running, pid=%d, daemon=%s", CORE_VERSION, getpid(), Config::env()->daemon ? "On" : "Off");
-}
-
-void LuxCore::stop() noexcept
-{
-    log_info("LuxCore exit, pid=%d", getpid());
-}
-
-void LuxCore::init_set_proc_title()
-{
     char *offset = _argv[0];
     size_t environ_len = 0;
 

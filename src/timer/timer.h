@@ -1,9 +1,9 @@
 #pragma once
 
 #include <memory>
-#include "component.h"
+#include "callback.h"
 
-class Timer : public Component
+class Timer : public LuaObject
 {
 public:
     Timer(int interval, int counter);
