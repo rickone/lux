@@ -19,7 +19,7 @@ void TcpSocket::new_class(lua_State *L)
 
 std::shared_ptr<TcpSocket> TcpSocket::create(socket_t fd)
 {
-    std::shared_ptr<TcpSocket> socket(new TcpSocket());
+    auto socket = SocketManager::inst()->create<TcpSocket>();
     socket->attach(fd);
     socket->setsockopt(IPPROTO_TCP, TCP_NODELAY, true);
     socket->add_event(kSocketEvent_Read);
@@ -33,7 +33,7 @@ std::shared_ptr<TcpSocket> TcpSocket::create(socket_t fd)
 
 std::shared_ptr<TcpSocket> TcpSocket::connect(const char *node, const char *service)
 {
-    std::shared_ptr<TcpSocket> socket(new TcpSocket());
+    auto socket = SocketManager::inst()->create<TcpSocket>();
     socket->init_connection(node, service);
     return socket;
 }

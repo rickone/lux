@@ -1,4 +1,5 @@
 #include "udp_socket.h"
+#include "socket_manager.h"
 
 UdpSocket::UdpSocket(socket_t fd) : Socket(fd), _recv_buffer(), _on_read()
 {
@@ -7,6 +8,18 @@ UdpSocket::UdpSocket(socket_t fd) : Socket(fd), _recv_buffer(), _on_read()
 void UdpSocket::new_class(lua_State *L)
 {
     lua_new_class(L, UdpSocket);
+
+    lua_newtable(L);
+    {
+        lua_method(L, set_reliable);
+    }
+    lua_setfield(L, -2, "__method");
+
+    lua_newtable(L);
+    {
+        lua_callback(L, on_recv_reliable);
+    }
+    lua_setfield(L, -2, "__property");
 
     lua_lib(L, "socket_core");
     {
@@ -18,7 +31,7 @@ void UdpSocket::new_class(lua_State *L)
 
 std::shared_ptr<UdpSocket> UdpSocket::create(socket_t fd)
 {
-    std::shared_ptr<UdpSocket> socket(new UdpSocket());
+    auto socket = SocketManager::inst()->create<UdpSocket>();
     socket->attach(fd);
     socket->add_event(kSocketEvent_Read);
     socket->_on_read = &UdpSocket::do_recv;
@@ -31,14 +44,14 @@ std::shared_ptr<UdpSocket> UdpSocket::create(socket_t fd)
 
 std::shared_ptr<UdpSocket> UdpSocket::bind(const char *node, const char *service)
 {
-    std::shared_ptr<UdpSocket> socket(new UdpSocket());
+    auto socket = SocketManager::inst()->create<UdpSocket>();
     socket->init_bind(node, service);
     return socket;
 }
 
 std::shared_ptr<UdpSocket> UdpSocket::connect(const char *node, const char *service)
 {
-    std::shared_ptr<UdpSocket> socket(new UdpSocket());
+    auto socket = SocketManager::inst()->create<UdpSocket>();
     socket->init_connect(node, service);
     return socket;
 }
@@ -84,6 +97,45 @@ void UdpSocket::on_recv_buffer(Buffer *buffer)
     on_recv(this, buffer);
 }
 
+void UdpSocket::set_reliable()
+{
+    _kcp = SocketKcp::create();
+
+    std::function<void (SocketKcp *, Socket *, Buffer *)> socket_recv_wrap = [](SocketKcp *kcp, Socket *socket, Buffer *buffer){
+        while (!buffer->empty())
+        {
+            auto front = buffer->front();
+            kcp->recv(front.first, front.second);
+            buffer->pop(nullptr, front.second);
+        }
+    };
+    on_recv.set(_kcp.get(), socket_recv_wrap);
+
+    std::function<void (UdpSocket *, SocketKcp *, Buffer *)> kcp_recv_wrap = [](UdpSocket *socket, SocketKcp *kcp, Buffer *buffer){
+        socket->on_recv_reliable(socket, buffer);
+    };
+    _kcp->on_recv.set(this, kcp_recv_wrap);
+
+    std::function<void (UdpSocket *, RawData *)> kcp_send_wrap = std::mem_fn(&UdpSocket::send_rawdata);
+    _kcp->on_send.set(this, kcp_send_wrap);
+}
+
+void UdpSocket::send_rawdata(RawData *rd)
+{
+    Socket::send(rd->data, rd->len, 0);
+}
+
+int UdpSocket::send(const char *data, size_t len, int flags)
+{
+    if (_kcp)
+    {
+        _kcp->send(data, len);
+        return (int)len;
+    }
+
+    return Socket::send(data, len, flags);
+}
+
 void UdpSocket::on_read(size_t len)
 {
     (this->*_on_read)(len);
@@ -96,9 +148,9 @@ void UdpSocket::do_recvfrom(size_t len)
     {
         _recv_buffer.push(nullptr, len);
 
-        LuaSockAddr sa;
-        sa.addr = (const struct sockaddr *)&_remote_sockaddr;
-        sa.addrlen = _remote_sockaddr_len;
+        RawData sa;
+        sa.data = (char *)&_remote_sockaddr;
+        sa.len = (size_t)_remote_sockaddr_len;
         on_recvfrom(this, &_recv_buffer, &sa);
     }
 #endif
@@ -119,9 +171,9 @@ void UdpSocket::do_recvfrom(size_t len)
 
         _recv_buffer.push(nullptr, ret);
 
-        LuaSockAddr sa;
-        sa.addr = (const struct sockaddr *)&_remote_sockaddr;
-        sa.addrlen = _remote_sockaddr_len;
+        RawData sa;
+        sa.data = (char *)&_remote_sockaddr;
+        sa.len = (size_t)_remote_sockaddr_len;
         on_recvfrom(this, &_recv_buffer, &sa);
     }
 }

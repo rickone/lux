@@ -1,8 +1,9 @@
 #pragma once
 
 #include "ikcp.h"
-#include "socket.h"
+#include "lua_port.h"
 #include "timer.h"
+#include "buffer.h"
 
 class SocketKcp : public LuaObject
 {
@@ -13,16 +14,18 @@ public:
     static void new_class(lua_State *L);
     static std::shared_ptr<SocketKcp> create();
 
-    int socket_send(const char *data, size_t len);
-    void on_timer(Timer *timer);
-    void on_socket_recv(Socket *socket, Buffer *buffer, LuaSockAddr *saddr);
-
+    void init();
+    void recv(const char *data, size_t len);
     void send(const char *data, size_t len);
+    void on_timer(Timer *timer);
+
+    int lua_recv(lua_State *L);
     int lua_send(lua_State *L);
 
+    def_lua_callback(on_recv, SocketKcp *, Buffer *)
+    def_lua_callback(on_send, RawData *)
+
 private:
-    std::shared_ptr<Socket> _socket;
     ikcpcb *_kcp;
     Buffer _recv_buffer;
-    Callback<SocketKcp *, Buffer *> _callback;
 };

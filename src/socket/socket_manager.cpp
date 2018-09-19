@@ -40,9 +40,20 @@ void SocketManager::on_fork(int pid)
     init();
 }
 
-std::shared_ptr<Socket> SocketManager::create()
+void SocketManager::gc()
 {
-    return nullptr;
+    for (auto it = _sockets.begin(); it != _sockets.end(); )
+    {
+        auto &socket = it->second;
+        if (socket)
+        {
+            ++it;
+            continue;
+        }
+
+        log_debug("remove socket: %p", socket.get());
+        _sockets.erase(it++);
+    }
 }
 
 #ifdef __linux__
@@ -338,27 +349,4 @@ BOOL SocketManager::connect_ex(socket_t fd, const struct sockaddr *addr, socklen
 
     return _fn_connect_ex(fd, addr, addrlen, nullptr, 0, nullptr, ovl);
 }
-
-void SocketManager::add_lost_socket(const std::shared_ptr<Socket> &socket)
-{
-    log_debug("add lost socket: %p", socket.get());
-    _lost_sockets.insert(socket);
-}
-
-void SocketManager::gc()
-{
-    for (auto it = _lost_sockets.begin(); it != _lost_sockets.end(); )
-    {
-        auto &socket = *it;
-        if (socket->ovl_ref() > 0)
-        {
-            ++it;
-            continue;
-        }
-
-        log_debug("remove lost socket: %p", socket.get());
-        _lost_sockets.erase(it++);
-    }
-}
-
 #endif // _WIN32

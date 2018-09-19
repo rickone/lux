@@ -13,8 +13,6 @@ enum SocketEventFlag
     kSocketEvent_ReadWrite  = 3,
 };
 
-struct LuaSockAddr;
-
 class Socket : public LuaObject
 {
 public:
@@ -70,20 +68,26 @@ public:
     virtual void on_complete(LPWSAOVERLAPPED ovl, size_t len);
 #endif
 
-    socket_t fd() { return _fd; }
-    operator bool() const { return _fd != INVALID_SOCKET; }
+    int id() const { return _id; }
+    void set_id(int id) { _id = id; }
+
+    socket_t fd() const { return _fd; }
+
 #ifdef _WIN32
-    int ovl_ref() { return _ovl_ref; }
+    operator bool() const { return _fd != INVALID_SOCKET || _ovl_ref > 0; }
+#else
+    operator bool() const { return _fd != INVALID_SOCKET; }
 #endif
 
     def_lua_callback(on_connect, Socket *)
     def_lua_callback(on_close, Socket *)
     def_lua_callback(on_accept, Socket *, Socket *)
     def_lua_callback(on_recv, Socket *, Buffer *)
-    def_lua_callback(on_recvfrom, Socket *, Buffer *, LuaSockAddr *)
+    def_lua_callback(on_recvfrom, Socket *, Buffer *, RawData *)
     def_lua_callback(on_error, Socket *, int)
     
 protected:
+    int _id;
     socket_t _fd;
 
 #ifdef _WIN32
@@ -102,15 +106,3 @@ protected:
         close(); \
         throw_system_error(__sock_err, "fd(%d)", (int)fd); \
     } while (false)
-
-struct LuaSockAddr : public LuaObject
-{
-    const struct sockaddr *addr;
-    socklen_t addrlen;
-
-    virtual int lua_push_self(lua_State *L) override
-    {
-        lua_pushlstring(L, (const char *)addr, addrlen);
-        return 1;
-    }
-};

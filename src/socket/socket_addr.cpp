@@ -50,7 +50,7 @@ SocketAddr::~SocketAddr()
 
 std::shared_ptr<SocketAddr> SocketAddr::create(const char *node, const char *service, int socktype, int flags)
 {
-    std::shared_ptr<SocketAddr> sa(new SocketAddr());
+    auto sa = std::make_shared<SocketAddr>();
     sa->init(node, service, socktype, flags);
     return sa;
 }

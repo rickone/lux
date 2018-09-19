@@ -1,7 +1,7 @@
 #if !defined(_WIN32)
 #include "unix_socket_stream.h"
+#include "socket_manager.h"
 #include "lux_core.h"
-#include "world.h"
 
 void UnixSocketStream::new_class(lua_State *L)
 {
@@ -41,7 +41,7 @@ std::pair<Socket, Socket> UnixSocketStream::create_pair()
 
 std::shared_ptr<UnixSocketStream> UnixSocketStream::create(int fd)
 {
-    std::shared_ptr<UnixSocketStream> socket(new UnixSocketStream());
+    auto socket = SocketManager::inst()->create<UnixSocketStream>();
     socket->attach(fd);
     socket->add_event(kSocketEvent_Read);
     return socket;
@@ -49,7 +49,7 @@ std::shared_ptr<UnixSocketStream> UnixSocketStream::create(int fd)
 
 std::shared_ptr<UnixSocketStream> UnixSocketStream::connect(const char *socket_path)
 {
-    std::shared_ptr<UnixSocketStream> socket(new UnixSocketStream());
+    auto socket = SocketManager::inst()->create<UnixSocketStream>();
     socket->init_connect(socket_path);
     return socket;
 }
@@ -79,12 +79,9 @@ std::shared_ptr<UnixSocketStream> UnixSocketStream::fork(const char *proc_title,
     pair.first.close();
 
     auto socket = create(pair.second.detach());
-
     worker_proc(socket);
 
     LuxCore::inst()->run();
-
-    World::inst()->clear();
     _exit(0);
 }
 
@@ -106,8 +103,7 @@ int UnixSocketStream::lua_fork(lua_State *L)
 
     auto socket_out = fork(proc_title, [L](const std::shared_ptr<UnixSocketStream> &socket_in){
         lua_remove(L, 1);
-        lua_call(L, 0, 1);
-        World::inst()->start_lua_component(L);
+        lua_call(L, 0, 0);
     });
     lua_push(L, socket_out);
     return 1;

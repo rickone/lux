@@ -1,7 +1,7 @@
 #if !defined(_WIN32)
 #include "udp_socket_listener.h"
 #include <cstring> // memcpy
-#include "udp_socket.h"
+#include "socket_manager.h"
 
 UdpSocketListener::UdpSocketListener(socket_t fd) : Socket(fd), _local_sockinfo(), _recv_buffer()
 {
@@ -20,7 +20,7 @@ void UdpSocketListener::new_class(lua_State *L)
 
 std::shared_ptr<UdpSocketListener> UdpSocketListener::create(const char *node, const char *service)
 {
-    std::shared_ptr<UdpSocketListener> socket(new UdpSocketListener());
+    auto socket = SocketManager::inst()->create<UdpSocketListener>();
     socket->init_service(node, service);
     return socket;
 }

@@ -50,6 +50,7 @@ void Socket::new_class(lua_State *L)
 
     lua_newtable(L);
     {
+        lua_property_readonly(L, id);
         lua_property_readonly(L, fd);
 
         lua_callback(L, on_connect);
@@ -57,6 +58,7 @@ void Socket::new_class(lua_State *L)
         lua_callback(L, on_accept);
         lua_callback(L, on_recv);
         lua_callback(L, on_recvfrom);
+        lua_callback(L, on_error);
     }
     lua_setfield(L, -2, "__property");
 }
@@ -527,14 +529,3 @@ void Socket::on_complete(LPWSAOVERLAPPED ovl, size_t len)
         on_write(len);
 }
 #endif
-
-/*
-void Socket::stop() noexcept
-{
-    close();
-#ifdef _WIN32
-    if (_ovl_ref > 0)
-        SocketManager::inst()->add_lost_socket(std::static_pointer_cast<Socket>(shared_from_this()));
-#endif
-}
-*/

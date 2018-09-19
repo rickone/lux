@@ -420,7 +420,7 @@ inline void lua_push_func_userdata(lua_State *L, int (C::*f)(lua_State *))
 {
     void *userdata = lua_newuserdata(L, sizeof(LuaFunction));
     new (userdata) LuaFunction([f](lua_State *L){
-        C *object = lua_to<C *>(L, 1);
+        C *object = lua_to_ptr<C>(L, 1);
         if (object != nullptr)
         {
             lua_remove(L, 1);

@@ -6,7 +6,6 @@
 #include "timer_manager.h"
 #include "socket_manager.h"
 #include "lua_state.h"
-#include "world.h"
 
 #ifdef _WIN32
 #include <process.h>
@@ -52,8 +51,16 @@ void on_debug(int sig)
 
 LuxCore * LuxCore::inst()
 {
-    static LuxCore s_inst;
-    return &s_inst;
+    static std::shared_ptr<LuxCore> s_inst(new LuxCore());
+    return s_inst.get();
+}
+
+int LuxCore::main(int argc, char *argv[])
+{
+    auto core = LuxCore::inst();
+    core->init(argc, argv);
+    core->run();
+    return 0;
 }
 
 void LuxCore::init(int argc, char *argv[])
@@ -104,6 +111,7 @@ void LuxCore::run()
     auto timer_mgr = TimerManager::inst();
     auto socket_mgr = SocketManager::inst();
 
+    _running_flag = true;
     while (_running_flag)
     {
         int notick_time = timer_mgr->tick();
@@ -134,10 +142,7 @@ void LuxCore::set_proc_title(const char *title)
 void LuxCore::on_gc(Timer *timer)
 {
     LuaState::inst()->gc();
-    World::inst()->gc();
-#ifdef _WIN32
     SocketManager::inst()->gc();
-#endif
 }
 
 void LuxCore::on_fork(int pid)

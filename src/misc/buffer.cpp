@@ -77,7 +77,7 @@ void Buffer::new_class(lua_State *L)
 
 std::shared_ptr<Buffer> Buffer::create()
 {
-    return std::shared_ptr<Buffer>(new Buffer());
+    return std::make_shared<Buffer>();
 }
 
 void Buffer::clear()

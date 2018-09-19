@@ -12,6 +12,7 @@ public:
     virtual ~LuxCore() = default;
 
     static LuxCore * inst();
+    static int main(int argc, char *argv[]);
 
     void init(int argc, char *argv[]);
     void run();

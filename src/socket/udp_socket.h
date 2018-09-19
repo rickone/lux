@@ -2,6 +2,7 @@
 
 #include <memory>
 #include "socket.h"
+#include "socket_kcp.h"
 
 class UdpSocket : public Socket
 {
@@ -18,8 +19,13 @@ public:
     void init_bind(const char *node, const char *service);
     void init_connect(const char *node, const char *service);
     void on_recv_buffer(Buffer *buffer);
+    void set_reliable();
+    void send_rawdata(RawData *rd);
 
+    virtual int send(const char *data, size_t len, int flags) override;
     virtual void on_read(size_t len) override;
+
+    def_lua_callback(on_recv_reliable, Socket *, Buffer *)
 
 private:
     void do_recvfrom(size_t len);
@@ -30,4 +36,6 @@ private:
 
     sockaddr_storage _remote_sockaddr;
     socklen_t _remote_sockaddr_len;
+
+    std::shared_ptr<SocketKcp> _kcp;
 };

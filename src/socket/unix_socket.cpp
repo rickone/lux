@@ -1,5 +1,6 @@
 #if !defined(_WIN32)
 #include "unix_socket.h"
+#include "socket_manager.h"
 #include "config.h"
 
 UnixSocket::~UnixSocket()
@@ -33,7 +34,7 @@ void UnixSocket::new_class(lua_State *L)
 
 std::shared_ptr<UnixSocket> UnixSocket::bind(const char *socket_path)
 {
-    std::shared_ptr<UnixSocket> socket(new UnixSocket());
+    auto socket = SocketManager::inst()->create<UnixSocket>();
     socket->init_bind(socket_path);
     return socket;
 }
@@ -270,9 +271,9 @@ void UnixSocket::do_recvfrom(size_t len)
 
         _recv_buffer.push(nullptr, ret);
 
-        LuaSockAddr sa;
-        sa.addr = (const struct sockaddr *)&remote_sockaddr;
-        sa.addrlen = remote_sockaddr_len;
+        RawData sa;
+        sa.data = (char *)&remote_sockaddr;
+        sa.len = (size_t)remote_sockaddr_len;
         on_recvfrom(this, &_recv_buffer, &sa);
     }
 }

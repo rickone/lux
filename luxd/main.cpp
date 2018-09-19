@@ -1,6 +1,6 @@
-#include "world.h"
+#include "lux_core.h"
 
 int main(int argc, char* argv[])
 {
-    return World::launch(argc, argv);
+    return LuxCore::main(argc, argv);
 }

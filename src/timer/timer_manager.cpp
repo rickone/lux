@@ -51,7 +51,7 @@ std::shared_ptr<Timer> TimerManager::create(int interval, int counter)
 {
     logic_assert(interval > 0, "interval = %d", interval);
 
-    std::shared_ptr<Timer> timer(new Timer(interval, counter));
+    auto timer = std::make_shared<Timer>(interval, counter);
     int64_t key = _time_now + interval;
     _skip_list.create(key, timer);
 

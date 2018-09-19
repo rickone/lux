@@ -1,6 +1,5 @@
 #include "lua_state.h"
 #include "config.h"
-#include "world.h"
 #include "tcp_socket.h"
 #include "tcp_socket_listener.h"
 #include "udp_socket.h"
@@ -65,9 +64,6 @@ void LuaState::lua_path_init(lua_State *L)
 
 void LuaState::lua_core_openlibs(lua_State *L)
 {
-    lua_class_define<Entity>(L);
-    lua_class_define<Component>(L);
-
     lua_class_define<Timer>(L);
     lua_class_define<Buffer>(L);
     lua_class_define<Socket>(L);
@@ -103,6 +99,5 @@ void LuaState::lua_start_run(lua_State *L)
     if (ret != LUA_OK)
         luaL_error(L, "loadfile(%s) error: %s", start, lua_tostring(L, -1));
 
-    lua_call(L, 0, 1);
-    World::inst()->start_lua_component(L);
+    lua_call(L, 0, 0);
 }

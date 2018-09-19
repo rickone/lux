@@ -1,5 +1,5 @@
 #include "tcp_socket_listener.h"
-#include "tcp_socket.h"
+#include "socket_manager.h"
 #include "config.h"
 
 void TcpSocketListener::new_class(lua_State *L)
@@ -15,7 +15,7 @@ void TcpSocketListener::new_class(lua_State *L)
 
 std::shared_ptr<TcpSocketListener> TcpSocketListener::create(const char *node, const char *service)
 {
-    std::shared_ptr<TcpSocketListener> socket(new TcpSocketListener());
+    auto socket = SocketManager::inst()->create<TcpSocketListener>();
     socket->init_service(node, service);
     return socket;
 }

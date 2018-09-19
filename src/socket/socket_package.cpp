@@ -1,5 +1,4 @@
 #include "socket_package.h"
-#include "entity.h"
 
 void SocketPackage::new_class(lua_State *L)
 {
@@ -20,7 +19,7 @@ void SocketPackage::new_class(lua_State *L)
 
 std::shared_ptr<SocketPackage> SocketPackage::create()
 {
-    return std::shared_ptr<SocketPackage>(new SocketPackage());
+    return std::make_shared<SocketPackage>();
 }
 
 void SocketPackage::on_socket_recv(Socket *socket, Buffer *buffer)

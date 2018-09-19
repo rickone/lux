@@ -1,6 +1,7 @@
 #if !defined(_WIN32)
 #include "unix_socket_listener.h"
 #include "unix_socket_stream.h"
+#include "socket_manager.h"
 #include "config.h"
 
 UnixSocketListener::~UnixSocketListener()
@@ -25,7 +26,7 @@ void UnixSocketListener::new_class(lua_State *L)
 
 std::shared_ptr<UnixSocketListener> UnixSocketListener::create(const char *socket_path)
 {
-    std::shared_ptr<UnixSocketListener> socket(new UnixSocketListener());
+    auto socket = SocketManager::inst()->create<UnixSocketListener>();
     socket->init_service(socket_path);
     return socket;
 }

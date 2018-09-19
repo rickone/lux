@@ -1,6 +1,5 @@
 #include "timer.h"
 #include "timer_manager.h"
-#include "component.h"
 
 Timer::Timer(int interval, int counter) : _interval(interval), _counter(counter)
 {
@@ -24,6 +23,12 @@ void Timer::new_class(lua_State *L)
         lua_callback(L, on_timer);
     }
     lua_setfield(L, -2, "__property");
+
+    lua_lib(L, "lux_core");
+    {
+        lua_set_method(L, "create_timer", create);
+    }
+    lua_pop(L, 1);
 }
 
 std::shared_ptr<Timer> Timer::create(int interval, int counter)
