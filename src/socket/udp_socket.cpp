@@ -15,12 +15,6 @@ void UdpSocket::new_class(lua_State *L)
     }
     lua_setfield(L, -2, "__method");
 
-    lua_newtable(L);
-    {
-        lua_callback(L, on_recv_reliable);
-    }
-    lua_setfield(L, -2, "__property");
-
     lua_lib(L, "socket_core");
     {
         lua_set_method(L, "udp_bind", bind);
@@ -94,6 +88,12 @@ void UdpSocket::init_connect(const char *node, const char *service)
 
 void UdpSocket::on_recv_buffer(Buffer *buffer)
 {
+    if (_kcp)
+    {
+        _kcp->recv(buffer->data(), buffer->size());
+        return;
+    }
+
     on_recv(this, buffer);
 }
 
@@ -101,18 +101,8 @@ void UdpSocket::set_reliable()
 {
     _kcp = SocketKcp::create();
 
-    std::function<void (SocketKcp *, Socket *, Buffer *)> socket_recv_wrap = [](SocketKcp *kcp, Socket *socket, Buffer *buffer){
-        while (!buffer->empty())
-        {
-            auto front = buffer->front();
-            kcp->recv(front.first, front.second);
-            buffer->pop(nullptr, front.second);
-        }
-    };
-    on_recv.set(_kcp.get(), socket_recv_wrap);
-
     std::function<void (UdpSocket *, SocketKcp *, Buffer *)> kcp_recv_wrap = [](UdpSocket *socket, SocketKcp *kcp, Buffer *buffer){
-        socket->on_recv_reliable(socket, buffer);
+        socket->on_recv(socket, buffer);
     };
     _kcp->on_recv.set(this, kcp_recv_wrap);
 
@@ -185,7 +175,7 @@ void UdpSocket::do_recv(size_t len)
     {
         _recv_buffer.push(nullptr, len);
 
-        on_recv(this, &_recv_buffer);
+        on_recv_buffer(&_recv_buffer);
     }
 #endif
 
@@ -205,6 +195,6 @@ void UdpSocket::do_recv(size_t len)
 
         _recv_buffer.push(nullptr, ret);
 
-        on_recv(this, &_recv_buffer);
+        on_recv_buffer(&_recv_buffer);
     }
 }

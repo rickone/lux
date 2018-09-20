@@ -31,20 +31,17 @@ local function on_accept(listen_socket, socket)
     socket.on_recv = on_recv
 end
 
-local function on_accept_kcp(listen_socket, socket)
-    print("on_accept", socket)
-
-    socket:set_reliable()
-    socket.on_recv_reliable = on_recv
-end
-
 local factory = {
     tcp = socket_core.tcp_listen,
     udp = socket_core.udp_bind,
     udp_ex = socket_core.udp_listen,
     unix = socket_core.unix_bind,
     unix_ex = socket_core.unix_listen,
-    kcp = socket_core.udp_listen,
+    kcp = function(...)
+        local socket = socket_core.udp_listen(...)
+        socket:set_reliable()
+        return socket
+    end,
 }
 
 local params = {
@@ -58,5 +55,5 @@ local params = {
 
 local extra = config.extra
 local socket = factory[extra](table.unpack(params[extra]))
-socket.on_accept = (extra == "kcp" and on_accept_kcp or on_accept)
+socket.on_accept = on_accept
 socket.on_recvfrom = on_recvfrom

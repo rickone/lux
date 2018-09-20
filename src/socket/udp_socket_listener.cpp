@@ -11,6 +11,12 @@ void UdpSocketListener::new_class(lua_State *L)
 {
     lua_new_class(L, UdpSocketListener);
 
+    lua_newtable(L);
+    {
+        lua_method(L, set_reliable);
+    }
+    lua_setfield(L, -2, "__method");
+
     lua_lib(L, "socket_core");
     {
         lua_set_method(L, "udp_listen", create);
@@ -45,6 +51,11 @@ void UdpSocketListener::init_service(const char *node, const char *service)
     });
 }
 
+void UdpSocketListener::set_reliable()
+{
+    _reliable = true;
+}
+
 void UdpSocketListener::do_accept()
 {
     std::string key = get_sockaddr_key((const struct sockaddr *)&_remote_sockaddr, _remote_sockaddr_len);
@@ -63,6 +74,8 @@ void UdpSocketListener::do_accept()
     socket.connect((const struct sockaddr *)&_remote_sockaddr, _remote_sockaddr_len);
 
     auto udp_socket = UdpSocket::create(socket.detach());
+    if (_reliable)
+        udp_socket->set_reliable();
     on_accept(this, udp_socket.get());
 
     udp_socket->on_recv_buffer(&_recv_buffer);

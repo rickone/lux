@@ -25,8 +25,6 @@ public:
     virtual int send(const char *data, size_t len, int flags) override;
     virtual void on_read(size_t len) override;
 
-    def_lua_callback(on_recv_reliable, Socket *, Buffer *)
-
 private:
     void do_recvfrom(size_t len);
     void do_recv(size_t len);

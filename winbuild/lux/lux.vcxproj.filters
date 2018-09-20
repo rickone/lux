@@ -15,12 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\base\component.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\base\world.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\lua\lua_object.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -75,9 +69,6 @@
     <ClCompile Include="..\..\src\socket\udp_socket_listener.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\base\entity.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\lua\lua_proto.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -95,12 +86,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\src\base\component.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\base\world.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\lua\lua_object.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -165,9 +150,6 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\socket\socket_utils.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\base\entity.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\lua\lua_bridge.h">

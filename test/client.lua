@@ -40,11 +40,7 @@ local params = {
 local extra = config.extra
 local socket = factory[extra](table.unpack(params[extra]))
 socket.on_connect = bind(print, "CONNECTED!!")
-if extra == "kcp" then
-    socket.on_recv_reliable = on_recv
-else
-    socket.on_recv = on_recv
-end
+socket.on_recv = on_recv
 
 local timer = lux_core.create_timer(100, 10)
 timer.on_timer = bind(on_timer, socket)
