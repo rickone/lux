@@ -20,14 +20,17 @@ void TcpSocket::new_class(lua_State *L)
 std::shared_ptr<TcpSocket> TcpSocket::create(socket_t fd)
 {
     auto socket = SocketManager::inst()->create<TcpSocket>();
-    socket->attach(fd);
-    socket->setsockopt(IPPROTO_TCP, TCP_NODELAY, true);
-    socket->add_event(kSocketEvent_Read);
-    socket->_connected = true;
+    if (fd != INVALID_SOCKET)
+    {
+        socket->attach(fd);
+        socket->setsockopt(IPPROTO_TCP, TCP_NODELAY, true);
+        socket->add_event(kSocketEvent_Read);
+        socket->_connected = true;
 
 #ifdef _WIN32
-    socket->on_read(0);
+        socket->on_read(0);
 #endif
+    }
     return socket;
 }
 

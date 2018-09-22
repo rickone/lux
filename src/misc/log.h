@@ -22,7 +22,7 @@ public:
     ~LogFile() = default;
 
     void set_file_path(const char *log_file_path);
-    void write(const struct tm *tm_now, const std::string &log_text);
+    void write_line(const struct tm *tm_now, const std::string &log_text);
     void on_fork(int pid);
     
 private:
@@ -42,7 +42,8 @@ public:
     static LogContext * inst();
 
     void init();
-    void log(int level, const char *fmt, ...);
+    void log(int level, const char *str);
+    void log_format(int level, const char *fmt, ...);
     void set_log_mask(int mask);
 
     void on_fork(int pid);
@@ -55,7 +56,7 @@ private:
     LogFile _error_log_file;
 };
 
-#define log_line(Level, Fmt, ...) LogContext::inst()->log(Level, Fmt,## __VA_ARGS__)
+#define log_line(Level, Fmt, ...) LogContext::inst()->log_format(Level, Fmt,## __VA_ARGS__)
 #define log_debug(Fmt, ...) log_line(kLevelDebug, Fmt,## __VA_ARGS__)
 #define log_info(Fmt, ...)  log_line(kLevelInfo, Fmt,## __VA_ARGS__)
 #define log_error(Fmt, ...) log_line(kLevelError, Fmt,## __VA_ARGS__)

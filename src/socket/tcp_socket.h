@@ -10,7 +10,7 @@ public:
     virtual ~TcpSocket() = default;
 
     static void new_class(lua_State *L);
-    static std::shared_ptr<TcpSocket> create(socket_t fd);
+    static std::shared_ptr<TcpSocket> create(socket_t fd = INVALID_SOCKET);
     static std::shared_ptr<TcpSocket> connect(const char *node, const char *service);
 
     void init_connection(const char *node, const char *service);

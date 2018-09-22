@@ -8,6 +8,8 @@
 #include "lua_state.h"
 
 #ifdef _WIN32
+#include <io.h>
+#include <fcntl.h>
 #include <process.h>
 #define getpid _getpid
 
@@ -65,7 +67,29 @@ int LuxCore::main(int argc, char *argv[])
 
 void LuxCore::init(int argc, char *argv[])
 {
-#if !defined(_WIN32)
+    setlocale(LC_ALL, "en-US.65001");
+
+#ifdef _WIN32
+    SetConsoleOutputCP(CP_UTF8);
+
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+
+    CONSOLE_FONT_INFOEX font = { 0 };
+    font.cbSize = sizeof(font);
+    font.dwFontSize.Y = 16;
+    font.FontWeight = FW_NORMAL;
+    wcscpy(font.FaceName, L"Consolas");
+    SetCurrentConsoleFontEx(hConsole, NULL, &font);
+
+    SetConsoleTitle("LuxCore." CORE_VERSION);
+
+#ifdef _DEBUG
+    //SetConsoleTextAttribute(hConsole, FOREGROUND_GREEN);
+#else
+    SetConsoleTextAttribute(hConsole, FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+#endif
+
+#else
     init_set_proc_title(argc, argv);
 #endif
 
@@ -97,7 +121,7 @@ void LuxCore::init(int argc, char *argv[])
 
         int ret = daemon(1, 0);
         if (ret == -1)
-            throw_system_error(errno, "daemon");
+            throw_unix_error("daemon");
     }
 #endif
 

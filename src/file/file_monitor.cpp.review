@@ -23,7 +23,7 @@ void FileMonitor::add(const char *file_path)
     int ret = stat(file_path, &file_stat);
     if (ret != 0)
     {
-        throw_system_error(errno, "stat");
+        throw_unix_error("stat");
     }
 
     _file_mtime_map.insert(std::make_pair(file_path, (int)file_stat.st_mtime));

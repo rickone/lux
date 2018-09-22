@@ -1,5 +1,6 @@
 #include "socket_kcp.h"
 #include "timer_manager.h"
+#include "log.h"
 
 static int kcp_output(const char *buf, int len, struct IKCPCB *kcp, void *user)
 {
@@ -113,7 +114,7 @@ void SocketKcp::on_timer(Timer *timer)
         return;
     }
 
-    unsigned int time = TimerManager::inst()->time_now();
+    unsigned int time = timer->duration();
     unsigned int update_time = ikcp_check(_kcp, time);
     if (time >= update_time)
         ikcp_update(_kcp, time);

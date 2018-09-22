@@ -64,7 +64,7 @@ void SocketManager::init()
 {
     _fd = epoll_create(1024);
     if (_fd < 0)
-        throw_system_error(errno, "epoll_create");
+        throw_unix_error("epoll_create");
 }
 
 void SocketManager::clear()
@@ -92,7 +92,7 @@ void SocketManager::add_event(Socket *socket, int event_flag)
 
     int ret = epoll_ctl(_fd, EPOLL_CTL_ADD, fd, &event);
     if (ret != 0)
-        throw_system_error(errno, "epoll_ctl");
+        throw_unix_error("epoll_ctl");
 }
 
 void SocketManager::set_event(Socket *socket, int event_flag)
@@ -111,7 +111,7 @@ void SocketManager::set_event(Socket *socket, int event_flag)
 
     int ret = epoll_ctl(_fd, EPOLL_CTL_MOD, fd, &event);
     if (ret != 0)
-        throw_system_error(errno, "epoll_ctl");
+        throw_unix_error("epoll_ctl");
 }
 
 void SocketManager::remove_event(Socket *socket) noexcept
@@ -131,7 +131,7 @@ void SocketManager::wait_event(int timeout)
         if (errno == EINTR)
             return;
 
-        throw_system_error(errno, "epoll_wait");
+        throw_unix_error("epoll_wait");
     }
 
     for (int i = 0; i < event_cnt; ++i)
@@ -164,7 +164,7 @@ void SocketManager::init()
 {
     _fd = kqueue();
     if (_fd < 0)
-        throw_system_error(errno, "kqueue");
+        throw_unix_error("kqueue");
 }
 
 void SocketManager::clear()
@@ -191,7 +191,7 @@ void SocketManager::set_event(Socket *socket, int event_flag)
 
     int ret = kevent(_fd, &events[0], 2, nullptr, 0, nullptr);
     if (ret == -1)
-        throw_system_error(errno, "kevent");
+        throw_unix_error("kevent");
 }
 
 void SocketManager::remove_event(Socket *socket) noexcept
@@ -219,7 +219,7 @@ void SocketManager::wait_event(int timeout)
         if (errno == EINTR)
             return;
 
-        throw_system_error(errno, "kevent");
+        throw_unix_error("kevent");
     }
 
     for (int i = 0; i < event_cnt; ++i)
@@ -249,7 +249,7 @@ void SocketManager::init()
 {
     _hd = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 0);
     if (_hd == NULL)
-        throw_system_error(GetLastError(), "CreateIoCompletionPort");
+        throw_win32_error("CreateIoCompletionPort");
 
     Socket socket(AF_INET, SOCK_STREAM, 0);
 
@@ -257,19 +257,19 @@ void SocketManager::init()
     GUID guid = WSAID_ACCEPTEX;
     int ret = WSAIoctl(socket.fd(), SIO_GET_EXTENSION_FUNCTION_POINTER, &guid, sizeof(guid), &_fn_accept_ex, sizeof(_fn_accept_ex), &bytes, nullptr, nullptr);
     if (ret == SOCKET_ERROR)
-        throw_system_error(WSAGetLastError(), "WSAIoctl");
+        throw_win32_wsa_error("WSAIoctl");
 
     bytes = 0;
     guid = WSAID_GETACCEPTEXSOCKADDRS;
     ret = WSAIoctl(socket.fd(), SIO_GET_EXTENSION_FUNCTION_POINTER, &guid, sizeof(guid), &_fn_get_accept_ex_sockaddrs, sizeof(_fn_get_accept_ex_sockaddrs), &bytes, nullptr, nullptr);
     if (ret == SOCKET_ERROR)
-        throw_system_error(WSAGetLastError(), "WSAIoctl");
+        throw_win32_wsa_error("WSAIoctl");
 
     bytes = 0;
     guid = WSAID_CONNECTEX;
     ret = WSAIoctl(socket.fd(), SIO_GET_EXTENSION_FUNCTION_POINTER, &guid, sizeof(guid), &_fn_connect_ex, sizeof(_fn_connect_ex), &bytes, nullptr, nullptr);
     if (ret == SOCKET_ERROR)
-        throw_system_error(WSAGetLastError(), "WSAIoctl");
+        throw_win32_wsa_error("WSAIoctl");
 }
 
 void SocketManager::clear()
@@ -287,7 +287,7 @@ void SocketManager::add_event(Socket *socket, int event_flag)
 
     HANDLE hd = CreateIoCompletionPort((HANDLE)fd, _hd, (ULONG_PTR)socket, 0);
     if (hd == NULL)
-        throw_system_error(GetLastError(), "CreateIoCompletionPort");
+        throw_win32_error("CreateIoCompletionPort");
 }
 
 void SocketManager::set_event(Socket *socket, int event_flag)
@@ -309,7 +309,7 @@ void SocketManager::wait_event(int timeout)
         if (err == WAIT_TIMEOUT)
             return;
 
-        throw_system_error(err, "GetQueuedCompletionStatusEx");
+        throw_system_error(err, win32_category(), "GetQueuedCompletionStatusEx");
     }
 
     for (ULONG i = 0; i < event_cnt; i++)

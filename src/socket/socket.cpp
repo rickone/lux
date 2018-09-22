@@ -238,10 +238,10 @@ Socket Socket::accept()
     if (fd == INVALID_SOCKET)
     {
         int err = get_socket_error();
-        if (err == EWOULDBLOCK)
-            return Socket();
+        if (err != EWOULDBLOCK)
+            throw_socket_error();
 
-        throw_socket_error();
+        return Socket();
     }
 
     Socket socket(fd);
@@ -339,6 +339,7 @@ int Socket::send(const char *data, size_t len, int flags)
     return ret;
 }
 
+#ifndef _WIN32
 int Socket::read(char *data, size_t len)
 {
     int ret = ::read(_fd, data, len);
@@ -368,8 +369,7 @@ int Socket::write(const char *data, size_t len)
     log_debug("fd(%d) write %d bytes", _fd, ret);
     return ret;
 }
-
-#ifdef _WIN32
+#else // _WIN32
 int Socket::wsa_recvfrom(char *data, size_t len, int flags, struct sockaddr *src_addr, socklen_t *addrlen)
 {
     WSABUF wsa_buf = { (ULONG)len, data };

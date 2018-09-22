@@ -42,5 +42,5 @@ local socket = factory[extra](table.unpack(params[extra]))
 socket.on_connect = bind(print, "CONNECTED!!")
 socket.on_recv = on_recv
 
-local timer = lux_core.create_timer(100, 10)
+local timer = lux_core.create_timer(100, 10, 100)
 timer.on_timer = bind(on_timer, socket)

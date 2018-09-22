@@ -5,7 +5,7 @@
 #include <algorithm> // min
 #include <random>
 #include "error.h"
-#include "log.h"
+//#include "log.h"
 
 template<typename KeyType, typename ValueType, int I>
 class SkipListNode
@@ -71,6 +71,7 @@ public:
 
     void dump(bool header)
     {
+        /*
         if (header)
         {
             log_info("(header)");
@@ -99,6 +100,7 @@ public:
             }
         }
         log_info("\n------------\n");
+        */
     }
 
 private:

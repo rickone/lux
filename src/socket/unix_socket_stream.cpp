@@ -29,7 +29,7 @@ std::pair<Socket, Socket> UnixSocketStream::create_pair()
     int ret = socketpair(AF_UNIX, SOCK_STREAM, 0, fd);
 #endif
     if (ret != 0)
-        throw_system_error(errno, "socketpair");
+        throw_unix_error("socketpair");
 
     auto pair = std::make_pair(Socket(fd[0]), Socket(fd[1]));
 #if !defined(__linux__)
@@ -60,7 +60,7 @@ std::shared_ptr<UnixSocketStream> UnixSocketStream::fork(const char *proc_title,
 
     int ret = ::fork();
     if (ret < 0)
-        throw_system_error(errno, "fork");
+        throw_unix_error("fork");
 
     if (ret > 0)
     {

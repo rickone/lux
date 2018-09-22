@@ -49,9 +49,10 @@ public:
     virtual int sendto(const char *data, size_t len, int flags, const struct sockaddr *dest_addr, socklen_t addrlen);
     virtual int recv(char *data, size_t len, int flags);
     virtual int send(const char *data, size_t len, int flags);
+#ifndef _WIN32
     virtual int read(char *data, size_t len);
     virtual int write(const char *data, size_t len);
-#ifdef _WIN32
+#else
     int wsa_recvfrom(char *data, size_t len, int flags, struct sockaddr *src_addr, socklen_t *addrlen);
     int wsa_sendto(const char *data, size_t len, int flags, const struct sockaddr *dest_addr, socklen_t addrlen);
     int wsa_recv(char *data, size_t len, int flags);
@@ -97,12 +98,23 @@ protected:
 #endif
 };
 
+#ifdef _WIN32
 #define throw_socket_error() \
     do  \
     {   \
         socket_t fd = _fd;   \
-        int __sock_err = get_socket_error(); \
+        int __sock_err = WSAGetLastError(); \
         on_error(this, __sock_err);     \
         close(); \
-        throw_system_error(__sock_err, "fd(%d)", (int)fd); \
+        throw_system_error(__sock_err, win32_category(), "fd(%d)", (int)fd); \
     } while (false)
+#else
+#define throw_socket_error() \
+    do  \
+    {   \
+        socket_t fd = _fd;   \
+        on_error(this, errno);     \
+        close(); \
+        throw_unix_error("fd(%d)", (int)fd); \
+    } while (false)
+#endif

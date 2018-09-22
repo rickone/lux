@@ -1,5 +1,7 @@
 require "lux"
 
+print("测试开始")
+
 for k,v in pairs(_G.class_info) do
     print(k,tree(v))
 end

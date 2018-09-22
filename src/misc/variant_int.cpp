@@ -9,7 +9,7 @@ inline unsigned long zigzag_encode(long value)
 
 inline long zigzag_decode(unsigned long value)
 {
-    return (long)((value >> 1) ^ -(value & 1));
+    return (long)((value >> 1) ^ (~(value & 1) + 1));
 }
 
 void variant_int_write(std::string &str, long value)

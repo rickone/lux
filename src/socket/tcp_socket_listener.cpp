@@ -42,7 +42,7 @@ void TcpSocketListener::init_service(const char *node, const char *service)
 
         for (int i = 0; i < 8; ++i)
         {
-            auto tcp_socket = std::make_shared<TcpSocket>();
+            auto tcp_socket = TcpSocket::create();
             BOOL succ = tcp_socket->accept_ex(_fd, _local_sockinfo.family, _local_sockinfo.socktype, _local_sockinfo.protocol);
             if (!succ)
             {
@@ -70,7 +70,7 @@ void TcpSocketListener::on_complete(LPWSAOVERLAPPED ovl, size_t len)
     {
         on_accept(this, tcp_socket.get());
 
-        tcp_socket = std::make_shared<TcpSocket>();
+        tcp_socket = TcpSocket::create();
         BOOL ret = tcp_socket->accept_ex(_fd, _local_sockinfo.family, _local_sockinfo.socktype, _local_sockinfo.protocol);
         if (!ret)
             break;

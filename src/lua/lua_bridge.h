@@ -24,7 +24,7 @@ inline int lua_push(lua_State* L, T value)
         static c_type to(lua_State* L, int index) \
         { \
             luaL_checktype(L, index, lua_type); \
-            return (c_type)to_func(L, index); \
+            return (c_type)(to_func(L, index)); \
         } \
         static int push(lua_State* L, c_type value) \
         { \
@@ -51,7 +51,7 @@ lua_bridge_def(unsigned char, LUA_TNUMBER, lua_tointeger, lua_pushinteger);
 lua_bridge_def(float, LUA_TNUMBER, lua_tonumber, lua_pushnumber);
 lua_bridge_def(double, LUA_TNUMBER, lua_tonumber, lua_pushnumber);
 
-lua_bridge_def(bool, LUA_TBOOLEAN, lua_toboolean, lua_pushboolean);
+lua_bridge_def(bool, LUA_TBOOLEAN, 0 != lua_toboolean, lua_pushboolean);
 
 lua_bridge_def(const char*, LUA_TSTRING, lua_tostring, lua_pushstring);
 

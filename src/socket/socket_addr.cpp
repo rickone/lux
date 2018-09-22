@@ -91,7 +91,7 @@ void SocketAddr::init(const char *node, const char *service, int socktype, int f
 
     _fd = signalfd(-1, &mask, 0);
     if (_fd == INVALID_SOCKET)
-        throw_system_error(errno, "signalfd");
+        throw_unix_error("signalfd");
 #else
     struct addrinfo hints;
     memset(&hints, 0, sizeof(hints));

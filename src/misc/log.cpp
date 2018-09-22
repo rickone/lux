@@ -3,7 +3,9 @@
 #include <cstdarg> // va_list
 #include <sys/stat.h>
 #include <time.h>
-#if !defined(_WIN32)
+#if defined(_WIN32)
+#include <codecvt>
+#else
 #include <syslog.h>
 #endif
 #include "config.h"
@@ -28,12 +30,12 @@ void LogFile::set_file_path(const char *log_file_path)
 
     struct tm *tm_last_log = localtime(&time_value);
     if (tm_last_log == nullptr)
-        throw_system_error(errno, "localtime");
+        throw_unix_error("localtime");
 
     change_log_file(tm_last_log);
 }
 
-void LogFile::write(const struct tm *tm_now, const std::string &log_text)
+void LogFile::write_line(const struct tm *tm_now, const std::string &log_text)
 {
     if (_log_file_path == "")
         return;
@@ -42,7 +44,7 @@ void LogFile::write(const struct tm *tm_now, const std::string &log_text)
         change_log_file(tm_now);
 
     if (_ofs.is_open())
-        _ofs << log_text;
+        _ofs << log_text << std::endl;
 }
 
 void LogFile::on_fork(int pid)
@@ -72,7 +74,7 @@ void LogFile::change_log_file(const struct tm *tm_last_log)
 
         int ret = rename(_log_file_path.c_str(), last_file_path.c_str());
         if (ret != 0)
-            throw_system_error(errno, "rename");
+            throw_unix_error("rename");
     }
 
     _ofs.open(_log_file_path, std::ofstream::out | std::ofstream::app);
@@ -134,21 +136,8 @@ LogContext * LogContext::inst()
     return &s_inst;
 }
 
-void LogContext::log(int level, const char *fmt, ...)
+void LogContext::log(int level, const char *str)
 {
-#if !defined(_WIN32)
-    if (_sys_log)
-    {
-        va_list args;
-        va_start(args, fmt);
-        vsyslog(LOG_USER | level, fmt, args);
-        va_end(args);
-    }
-#endif
-
-    if (!((1 << level) & _log_mask))
-        return;
-
     static const char *s_level_name[] = {
         "Emerg",
         "Alert",
@@ -159,47 +148,55 @@ void LogContext::log(int level, const char *fmt, ...)
         "Info",
         "Debug",
     };
+    static char s_head_buffer[32];
+
+#if !defined(_WIN32)
+    if (_sys_log)
+        syslog(LOG_USER | level, "%s", str);
+#endif
+
+    if (!((1 << level) & _log_mask))
+        return;
 
     time_t time_now = time(0);
     struct tm *tm_now = localtime(&time_now);
     if (tm_now == nullptr)
-        throw_system_error(errno, "localtime");
+        throw_unix_error("localtime");
 
-    static char buffer[512];
-
-    int ret = snprintf(buffer, sizeof(buffer), "%02d:%02d:%02d [%s] ",
+    int ret = snprintf(s_head_buffer, sizeof(s_head_buffer), "%02d:%02d:%02d [%s] ",
         tm_now->tm_hour, tm_now->tm_min, tm_now->tm_sec, s_level_name[level]);
     if (ret < 0)
-        throw_system_error(errno, "snprintf");
+        throw_unix_error("snprintf");
 
-    std::string log_text(buffer, ret);
+    std::string log_text(s_head_buffer, ret);
+
+    log_text.append(str);
+
+    FILE* fout = stdout;
+    _local_log_file.write_line(tm_now, log_text);
+    if (level <= kLevelError)
+    {
+        _error_log_file.write_line(tm_now, log_text);
+        fout = stderr;
+    }
+
+    fprintf(fout, "%s\n", str);
+    fflush(fout);
+}
+
+void LogContext::log_format(int level, const char *fmt, ...)
+{
+    static char s_log_buffer[1024];
 
     va_list args;
-
     va_start(args, fmt);
-    ret = vsnprintf(buffer, sizeof(buffer), fmt, args);
+    int ret = vsnprintf(s_log_buffer, sizeof(s_log_buffer), fmt, args);
     va_end(args);
 
     if (ret < 0)
-        throw_system_error(errno, "vsnprintf");
+        throw_unix_error("vsnprintf");
 
-    std::string body_text(buffer, ret);
-    if (buffer[ret - 1] != '\n')
-        body_text += "\n";
-
-    log_text += body_text;
-
-    _local_log_file.write(tm_now, log_text);
-
-    if (level <= kLevelError)
-    {
-        _error_log_file.write(tm_now, log_text);
-        fprintf(stderr, "%s", body_text.c_str());
-    }
-    else
-    {
-        printf("%s", body_text.c_str());
-    }
+    log(level, s_log_buffer);
 }
 
 void LogContext::set_log_mask(int mask)
@@ -220,7 +217,7 @@ void LogContext::on_fork(int pid)
 
 int lua_log(lua_State *L)
 {
-    const char *text = luaL_checkstring(L, 1);
-    log_info("[Lua] %s", text);
+    const char *str = luaL_checkstring(L, 1);
+    LogContext::inst()->log(kLevelInfo, str);
     return 0;
 }

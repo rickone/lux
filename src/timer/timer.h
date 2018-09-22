@@ -6,15 +6,15 @@
 class Timer : public LuaObject
 {
 public:
-    Timer(int interval, int counter);
-    Timer(const Timer &other) = default;
+    Timer(uint64_t start_time, unsigned int interval, int counter);
     virtual ~Timer() = default;
 
     static void new_class(lua_State *L);
-    static std::shared_ptr<Timer> create(int interval, int counter = -1);
+    static std::shared_ptr<Timer> create(unsigned int interval, int counter = -1, unsigned int delay = 0);
 
     void clear();
     bool trigger();
+    unsigned int duration() const;
 
     int interval() const { return _interval; }
     void set_interval(int interval) { _interval = interval; }
@@ -25,6 +25,7 @@ public:
     def_lua_callback(on_timer, Timer *)
 
 private:
-    int _interval;
+    uint64_t _start_time;
+    unsigned int _interval;
     int _counter;
 };

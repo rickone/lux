@@ -1,7 +1,8 @@
 #include "timer.h"
 #include "timer_manager.h"
+#include "log.h"
 
-Timer::Timer(int interval, int counter) : _interval(interval), _counter(counter)
+Timer::Timer(uint64_t start_time, unsigned int interval, int counter) : _start_time(start_time), _interval(interval), _counter(counter)
 {
 }
 
@@ -17,6 +18,7 @@ void Timer::new_class(lua_State *L)
 
     lua_newtable(L);
     {
+        lua_property_readonly(L, duration);
         lua_property(L, interval);
         lua_property(L, counter);
 
@@ -31,9 +33,9 @@ void Timer::new_class(lua_State *L)
     lua_pop(L, 1);
 }
 
-std::shared_ptr<Timer> Timer::create(int interval, int counter)
+std::shared_ptr<Timer> Timer::create(unsigned int interval, int counter, unsigned int delay)
 {
-    return TimerManager::inst()->create(interval, counter);
+    return TimerManager::inst()->create(interval, counter, delay);
 }
 
 void Timer::clear()
@@ -60,4 +62,9 @@ bool Timer::trigger()
         log_error("%s", err.what());
     }
     return _counter != 0;
+}
+
+unsigned int Timer::duration() const
+{
+    return (unsigned int)(TimerManager::inst()->time_now() - _start_time);
 }

@@ -10,9 +10,6 @@ typedef SOCKET socket_t;
 
 #define get_socket_error() WSAGetLastError()
 
-#define read _read
-#define write _write
-
 #ifdef EWOULDBLOCK
 #undef EWOULDBLOCK
 #endif

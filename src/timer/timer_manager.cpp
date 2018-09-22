@@ -6,18 +6,18 @@
 #define lux_gettime GetTickCount64
 #elif __APPLE__
 #include <sys/time.h>
-static int64_t lux_gettime()
+static uint64_t lux_gettime()
 {
     struct timeval tv;
     int ret = gettimeofday(&tv, nullptr);
     if (ret == -1)
-        throw_system_error(errno, "gettimeofday");
+        throw_unix_error("gettimeofday");
 
-    return (int64_t)tv.tv_sec * 1000 + (int64_t)tv.tv_usec / 1000;
+    return (uint64_t)tv.tv_sec * 1000 + (uint64_t)tv.tv_usec / 1000;
 }
 #else
 #include <sys/time.h>
-static int64_t lux_gettime()
+static uint64_t lux_gettime()
 {
     struct timespec ts;
 #ifdef __linux__
@@ -26,9 +26,9 @@ static int64_t lux_gettime()
     int ret = clock_gettime(CLOCK_MONOTONIC, &ts);
 #endif
     if (ret == -1)
-        throw_system_error(errno, "clock_gettime");
+        throw_unix_error("clock_gettime");
 
-    return (int64_t)ts.tv_sec * 1000 + (int64_t)ts.tv_nsec / 1'000'000;
+    return (uint64_t)ts.tv_sec * 1000 + (uint64_t)ts.tv_nsec / 1'000'000;
 }
 #endif
 
@@ -47,18 +47,18 @@ void TimerManager::init()
     _time_now = lux_gettime();
 }
 
-std::shared_ptr<Timer> TimerManager::create(int interval, int counter)
+std::shared_ptr<Timer> TimerManager::create(unsigned int interval, int counter, unsigned int delay)
 {
     logic_assert(interval > 0, "interval = %d", interval);
 
-    auto timer = std::make_shared<Timer>(interval, counter);
-    int64_t key = _time_now + interval;
+    auto timer = std::make_shared<Timer>(_time_now, interval, counter);
+    uint64_t key = _time_now + delay;
     _skip_list.create(key, timer);
 
     return timer;
 }
 
-int64_t TimerManager::time_now()
+uint64_t TimerManager::time_now()
 {
     return _time_now;
 }
@@ -76,8 +76,8 @@ int TimerManager::tick()
         auto next = node->forward(0);
         auto &timer = node->get_value();
 
-        int64_t key = node->get_key();
-        int64_t interval = (int64_t)timer->interval();
+        uint64_t key = node->get_key();
+        uint64_t interval = (uint64_t)timer->interval();
         bool timeup = false;
         do
         {
