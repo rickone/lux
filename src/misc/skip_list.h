@@ -5,7 +5,7 @@
 #include <algorithm> // min
 #include <random>
 #include "error.h"
-//#include "log.h"
+#include "log.h"
 
 template<typename KeyType, typename ValueType, int I>
 class SkipListNode

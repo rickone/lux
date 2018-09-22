@@ -31,29 +31,16 @@ local function on_accept(listen_socket, socket)
     socket.on_recv = on_recv
 end
 
-local factory = {
-    tcp = socket_core.tcp_listen,
-    udp = socket_core.udp_bind,
-    udp_ex = socket_core.udp_listen,
-    unix = socket_core.unix_bind,
-    unix_ex = socket_core.unix_listen,
-    kcp = function(...)
-        local socket = socket_core.udp_listen(...)
-        socket:set_reliable()
-        return socket
-    end,
-}
-
 local params = {
-    tcp = {"localhost", "8866"},
-    udp = {"localhost", "8866"},
-    udp_ex = {"localhost", "8866"},
-    unix = {"luxd-server.sock"},
-    unix_ex = {"luxd.sock"},
-    kcp = {"localhost", "8866"},
+    tcp = "tcp://localhost:8866",
+    udp = "udp://localhost:8866",
+    udp_ex = "udp_ex://localhost:8866",
+    unix = "unix://luxd-server.sock",
+    unix_s = "unix_s://luxd.sock",
+    kcp = "kcp://localhost:8866",
 }
 
-local extra = config.extra
-local socket = factory[extra](table.unpack(params[extra]))
+local service = require "service"
+local socket = service.create(params[config.extra])
 socket.on_accept = on_accept
 socket.on_recvfrom = on_recvfrom

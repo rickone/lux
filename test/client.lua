@@ -13,32 +13,17 @@ local function on_timer(socket, t)
     end
 end
 
-local factory = {
-    tcp = socket_core.tcp_connect,
-    udp = socket_core.udp_connect,
-    unix = function(a1, a2)
-        local socket = socket_core.unix_bind(a1)
-        socket:connect(a2)
-        return socket
-    end,
-    unix_ex = socket_core.unix_connect,
-    kcp = function(...)
-        local socket = socket_core.udp_connect(...)
-        socket:set_reliable()
-        return socket
-    end
-}
-
 local params = {
-    tcp = {"localhost", "8866"},
-    udp = {"localhost", "8866"},
-    unix = {"luxd-client.sock", "luxd-server.sock"},
-    unix_ex = {"luxd.sock"},
-    kcp = {"localhost", "8866"},
+    tcp = "tcp://localhost:8866",
+    udp = "udp://localhost:8866",
+    udp_ex = "udp_ex://localhost:8866",
+    unix = "unix://luxd-client.sock:luxd-server.sock",
+    unix_s = "unix_s://luxd.sock",
+    kcp = "kcp://localhost:8866",
 }
 
-local extra = config.extra
-local socket = factory[extra](table.unpack(params[extra]))
+local service = require "service"
+local socket = service.connect(params[config.extra])
 socket.on_connect = bind(print, "CONNECTED!!")
 socket.on_recv = on_recv
 
