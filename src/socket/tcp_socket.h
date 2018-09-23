@@ -2,6 +2,7 @@
 
 #include <memory>
 #include "socket.h"
+#include "socket_package.h"
 
 class TcpSocket : public Socket
 {
@@ -15,6 +16,9 @@ public:
 
     void init_connection(const char *node, const char *service);
     void send_pending(const char *data, size_t len);
+    void sendv(RawBuffer *rb, size_t count);
+    void on_recv_buffer(Buffer *buffer);
+    void set_package_mode();
 
     virtual int send(const char *data, size_t len, int flags) override;
     virtual void on_read(size_t len) override;
@@ -34,6 +38,8 @@ protected:
     bool _connected;
     Buffer _recv_buffer;
     Buffer _send_buffer;
+
+    std::shared_ptr<SocketPackage> _package;
 
 #ifdef _WIN32
 #define ACCEPT_EX_ADDRESS_LEN (64) // at least 44 = sizeof(sockaddr_in6) + 16

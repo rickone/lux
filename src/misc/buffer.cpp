@@ -204,6 +204,21 @@ std::string Buffer::pop_string(size_t len)
     return str;
 }
 
+void Buffer::pop_buffer(Buffer *buffer, size_t len)
+{
+    size_t sz = size();
+    logic_assert(len <= sz, "len = %u, size = %u", len, sz);
+
+    size_t offset = (_front_pos) & _mask;
+    size_t first_part = std::min(len, _max_size - offset);
+
+    buffer->push(_data + offset, first_part);
+    if (len > first_part)
+        buffer->push(_data, len - first_part);
+
+    _front_pos += len;
+}
+
 int Buffer::find(size_t pos, const std::string &str)
 {
     // KMP later

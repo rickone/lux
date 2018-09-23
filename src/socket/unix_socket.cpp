@@ -124,6 +124,7 @@ int UnixSocket::recvfrom(char *data, size_t len, int flags, struct sockaddr *src
     msg.msg_iovlen = 1;
     msg.msg_control = cmsgu.control;
     msg.msg_controllen = sizeof(cmsgu.control);
+    msg.msg_flags = 0;
 
     int ret = recvmsg(_fd, &msg, flags);
     if (ret < 0)
@@ -271,10 +272,10 @@ void UnixSocket::do_recvfrom(size_t len)
 
         _recv_buffer.push(nullptr, ret);
 
-        RawData sa;
-        sa.data = (char *)&remote_sockaddr;
-        sa.len = (size_t)remote_sockaddr_len;
-        on_recvfrom(this, &_recv_buffer, &sa);
+        RawBuffer rb;
+        rb.data = (char *)&remote_sockaddr;
+        rb.len = (size_t)remote_sockaddr_len;
+        on_recvfrom(this, &_recv_buffer, &rb);
     }
 }
 

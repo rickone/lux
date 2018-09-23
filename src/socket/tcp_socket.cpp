@@ -10,6 +10,12 @@ void TcpSocket::new_class(lua_State *L)
 {
     lua_new_class(L, TcpSocket);
 
+    lua_newtable(L);
+    {
+        lua_method(L, set_package_mode);
+    }
+    lua_setfield(L, -2, "__method");
+
     lua_lib(L, "socket_core");
     {
         lua_set_method(L, "tcp_connect", connect);
@@ -74,9 +80,60 @@ void TcpSocket::send_pending(const char *data, size_t len)
     log_info("fd(%d) write pending", _fd);
 }
 
+void TcpSocket::sendv(RawBuffer *rb, size_t count)
+{
+    if (!_send_buffer.empty())
+    {
+        for (size_t i = 0; i < count; ++i)
+            send_pending(rb[i].data, rb[i].len);
+
+        return;
+    }
+
+    for (size_t i = 0; i < count; ++i)
+        _send_buffer.push(rb[i].data, rb[i].len);
+
+    flush();
+
+    if (!_send_buffer.empty())
+    {
+        set_event(kSocketEvent_ReadWrite);
+    }
+}
+
+void TcpSocket::on_recv_buffer(Buffer *buffer)
+{
+    if (_package)
+    {
+        _package->recv(buffer);
+        return;
+    }
+
+    on_recv(this, buffer);
+}
+
+void TcpSocket::set_package_mode()
+{
+    _package = std::make_shared<SocketPackage>();
+
+    std::function<void (TcpSocket *, Buffer *)> pkg_recv_wrap = [](TcpSocket *socket, Buffer *buffer){
+        socket->on_recv(socket, buffer);
+    };
+    _package->on_recv.set(this, pkg_recv_wrap);
+
+    std::function<void (TcpSocket *socket, RawBuffer *buffer, size_t count)> pkg_send_wrap = std::mem_fn(&TcpSocket::sendv);
+    _package->on_send.set(this, pkg_send_wrap);
+}
+
 int TcpSocket::send(const char *data, size_t len, int flags)
 {
     runtime_assert(_connected, "send error: fd(%d) not connected", _fd);
+
+    if (_package)
+    {
+        _package->send(data, len);
+        return 0;
+    }
 
     if (!_send_buffer.empty())
     {
@@ -138,7 +195,7 @@ void TcpSocket::on_read(size_t len)
 
         _recv_buffer.push(nullptr, ret);
 
-        on_recv(this, &_recv_buffer);
+        on_recv_buffer(&_recv_buffer);
     }
 }
 

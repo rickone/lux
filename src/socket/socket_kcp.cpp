@@ -5,10 +5,10 @@
 static int kcp_output(const char *buf, int len, struct IKCPCB *kcp, void *user)
 {
     SocketKcp *sr = (SocketKcp *)user;
-    RawData rd;
-    rd.data = buf;
-    rd.len = len;
-    sr->on_send(&rd);
+    RawBuffer rb;
+    rb.data = buf;
+    rb.len = len;
+    sr->on_send(&rb);
     return 0;
 }
 
@@ -92,7 +92,7 @@ void SocketKcp::recv(const char *data, size_t len)
 
         _recv_buffer.push(nullptr, recv_len);
 
-        on_recv(this, &_recv_buffer);
+        on_recv(&_recv_buffer);
     }
 }
 

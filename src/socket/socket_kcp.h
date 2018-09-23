@@ -22,8 +22,8 @@ public:
     int lua_recv(lua_State *L);
     int lua_send(lua_State *L);
 
-    def_lua_callback(on_recv, SocketKcp *, Buffer *)
-    def_lua_callback(on_send, RawData *)
+    def_lua_callback(on_recv, Buffer *)
+    def_lua_callback(on_send, RawBuffer *)
 
 private:
     ikcpcb *_kcp;

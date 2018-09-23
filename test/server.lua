@@ -33,11 +33,12 @@ end
 
 local params = {
     tcp = "tcp://localhost:8866",
+    tcp_x = "tcp_x://localhost:8866",
     udp = "udp://localhost:8866",
-    udp_ex = "udp_ex://localhost:8866",
+    udp_x = "udp_x://localhost:8866",
+    udp_r = "udp_r://localhost:8866",
     unix = "unix://luxd-server.sock",
     unix_s = "unix_s://luxd.sock",
-    kcp = "kcp://localhost:8866",
 }
 
 local service = require "service"

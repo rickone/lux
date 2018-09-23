@@ -15,6 +15,7 @@ public:
     static std::shared_ptr<TcpSocketListener> create(const char *node, const char *service);
 
     void init_service(const char *node, const char *service);
+    void set_package_mode();
 
 #ifdef _WIN32
     virtual void on_complete(LPWSAOVERLAPPED ovl, size_t len) override;
@@ -22,7 +23,7 @@ public:
     virtual void on_read(size_t len) override;
 #endif
 
-protected:
+private:
 #ifdef _WIN32
     struct {
         int family;
@@ -32,4 +33,5 @@ protected:
 
     std::unordered_set< std::shared_ptr<TcpSocket> > _pending_accept_sockets;
 #endif
+    bool _package_mode;
 };

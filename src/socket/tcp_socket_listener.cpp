@@ -6,6 +6,12 @@ void TcpSocketListener::new_class(lua_State *L)
 {
     lua_new_class(L, TcpSocketListener);
 
+    lua_newtable(L);
+    {
+        lua_method(L, set_package_mode);
+    }
+    lua_setfield(L, -2, "__method");
+
     lua_lib(L, "socket_core");
     {
         lua_set_method(L, "tcp_listen", create);
@@ -54,6 +60,11 @@ void TcpSocketListener::init_service(const char *node, const char *service)
     });
 }
 
+void TcpSocketListener::set_package_mode()
+{
+    _package_mode = true;
+}
+
 #ifdef _WIN32
 void TcpSocketListener::on_complete(LPWSAOVERLAPPED ovl, size_t len)
 {
@@ -68,6 +79,8 @@ void TcpSocketListener::on_complete(LPWSAOVERLAPPED ovl, size_t len)
 
     for (;;)
     {
+        if (_package_mode)
+            tcp_socket->set_package_mode();
         on_accept(this, tcp_socket.get());
 
         tcp_socket = TcpSocket::create();
@@ -90,6 +103,8 @@ void TcpSocketListener::on_read(size_t len)
             break;
 
         auto tcp_socket = TcpSocket::create(socket.detach());
+        if (_package_mode)
+            tcp_socket->set_package_mode();
         on_accept(this, tcp_socket.get());
     }
 }

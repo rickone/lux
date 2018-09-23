@@ -19,8 +19,8 @@ public:
     void init_bind(const char *node, const char *service);
     void init_connect(const char *node, const char *service);
     void on_recv_buffer(Buffer *buffer);
+    void send_rawdata(RawBuffer *rb);
     void set_reliable();
-    void send_rawdata(RawData *rd);
 
     virtual int send(const char *data, size_t len, int flags) override;
     virtual void on_read(size_t len) override;

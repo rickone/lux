@@ -84,7 +84,7 @@ public:
     def_lua_callback(on_close, Socket *)
     def_lua_callback(on_accept, Socket *, Socket *)
     def_lua_callback(on_recv, Socket *, Buffer *)
-    def_lua_callback(on_recvfrom, Socket *, Buffer *, RawData *)
+    def_lua_callback(on_recvfrom, Socket *, Buffer *, RawBuffer *)
     def_lua_callback(on_error, Socket *, int)
     
 protected:

@@ -31,6 +31,7 @@ public:
     size_t var(size_t len);
     void push_string(const std::string &str);
     std::string pop_string(size_t len);
+    void pop_buffer(Buffer *buffer, size_t len);
     int find(size_t pos, const std::string &str);
 
     std::pair<char *, size_t> front();
@@ -53,7 +54,7 @@ protected:
     size_t _back_pos;
 };
 
-struct RawData : LuaObject
+struct RawBuffer : LuaObject
 {
     const char *data;
     size_t len;

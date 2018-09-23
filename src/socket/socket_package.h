@@ -3,8 +3,6 @@
 #include "socket.h"
 #include "buffer.h"
 
-struct LuaPackage;
-
 class SocketPackage : public LuaObject
 {
 public:
@@ -13,26 +11,18 @@ public:
 
     static void new_class(lua_State *L);
     static std::shared_ptr<SocketPackage> create();
-    void on_socket_recv(Socket *socket, Buffer *buffer);
 
+    void recv(Buffer *buffer);
+    void send(const char *data, size_t len);
+
+    int lua_recv(lua_State *L);
     int lua_send(lua_State *L);
 
-    template<typename T, typename F>
-    void set_callback(T *object, F func) { _callback.set(object, func); }
+    def_lua_callback(on_recv, Buffer *)
+    def_lua_callback(on_send, RawBuffer *, size_t)
 
 private:
-    std::shared_ptr<Socket> _socket;
     uint16_t _package_len;
-    Callback<SocketPackage *, LuaPackage *> _callback;
+    Buffer _package_buffer;
 };
 
-struct LuaPackage : LuaObject
-{
-    std::string str;
-
-    virtual int lua_push_self(lua_State *L) override
-    {
-        lua_pushlstring(L, str.data(), str.size());
-        return 1;
-    }
-};

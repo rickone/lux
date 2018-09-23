@@ -12,32 +12,42 @@ end
 
 local server_factory = {
     tcp = socket_core.tcp_listen,
+    tcp_x = function(...)
+        local socket = socket_core.tcp_listen(...)
+        socket:set_package_mode()
+        return socket
+    end,
     udp = socket_core.udp_bind,
-    udp_ex = socket_core.udp_listen,
-    unix = socket_core.unix_bind,
-    unix_s = socket_core.unix_listen,
-    kcp = function(...)
+    udp_x = socket_core.udp_listen,
+    udp_r = function(...)
         local socket = socket_core.udp_listen(...)
         socket:set_reliable()
         return socket
     end,
+    unix = socket_core.unix_bind,
+    unix_s = socket_core.unix_listen,
 }
 
 local client_factory = {
     tcp = socket_core.tcp_connect,
+    tcp_x = function(...)
+        local socket = socket_core.tcp_connect(...)
+        socket:set_package_mode()
+        return socket
+    end,
     udp = socket_core.udp_connect,
-    udp_ex = socket_core.udp_connect,
+    udp_x = socket_core.udp_connect,
+    udp_r = function(...)
+        local socket = socket_core.udp_connect(...)
+        socket:set_reliable()
+        return socket
+    end,
     unix = function(a1, a2)
         local socket = socket_core.unix_bind(a1)
         socket:connect(a2)
         return socket
     end,
     unix_s = socket_core.unix_connect,
-    kcp = function(...)
-        local socket = socket_core.udp_connect(...)
-        socket:set_reliable()
-        return socket
-    end
 }
 
 function service.create(path)

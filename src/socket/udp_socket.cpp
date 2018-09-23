@@ -97,22 +97,22 @@ void UdpSocket::on_recv_buffer(Buffer *buffer)
     on_recv(this, buffer);
 }
 
+void UdpSocket::send_rawdata(RawBuffer *rb)
+{
+    Socket::send(rb->data, rb->len, 0);
+}
+
 void UdpSocket::set_reliable()
 {
     _kcp = SocketKcp::create();
 
-    std::function<void (UdpSocket *, SocketKcp *, Buffer *)> kcp_recv_wrap = [](UdpSocket *socket, SocketKcp *kcp, Buffer *buffer){
+    std::function<void (UdpSocket *, Buffer *)> kcp_recv_wrap = [](UdpSocket *socket, Buffer *buffer){
         socket->on_recv(socket, buffer);
     };
     _kcp->on_recv.set(this, kcp_recv_wrap);
 
-    std::function<void (UdpSocket *, RawData *)> kcp_send_wrap = std::mem_fn(&UdpSocket::send_rawdata);
+    std::function<void (UdpSocket *, RawBuffer *)> kcp_send_wrap = std::mem_fn(&UdpSocket::send_rawdata);
     _kcp->on_send.set(this, kcp_send_wrap);
-}
-
-void UdpSocket::send_rawdata(RawData *rd)
-{
-    Socket::send(rd->data, rd->len, 0);
 }
 
 int UdpSocket::send(const char *data, size_t len, int flags)
@@ -138,10 +138,10 @@ void UdpSocket::do_recvfrom(size_t len)
     {
         _recv_buffer.push(nullptr, len);
 
-        RawData sa;
-        sa.data = (char *)&_remote_sockaddr;
-        sa.len = (size_t)_remote_sockaddr_len;
-        on_recvfrom(this, &_recv_buffer, &sa);
+        RawBuffer rb;
+        rb.data = (char *)&_remote_sockaddr;
+        rb.len = (size_t)_remote_sockaddr_len;
+        on_recvfrom(this, &_recv_buffer, &rb);
     }
 #endif
 
@@ -161,10 +161,10 @@ void UdpSocket::do_recvfrom(size_t len)
 
         _recv_buffer.push(nullptr, ret);
 
-        RawData sa;
-        sa.data = (char *)&_remote_sockaddr;
-        sa.len = (size_t)_remote_sockaddr_len;
-        on_recvfrom(this, &_recv_buffer, &sa);
+        RawBuffer rb;
+        rb.data = (char *)&_remote_sockaddr;
+        rb.len = (size_t)_remote_sockaddr_len;
+        on_recvfrom(this, &_recv_buffer, &rb);
     }
 }
 
