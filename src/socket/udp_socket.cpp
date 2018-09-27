@@ -136,6 +136,10 @@ void UdpSocket::do_recvfrom(size_t len)
 #ifdef _WIN32
     if (len > 0)
     {
+#ifdef _DEBUG
+        auto name = get_addrname((struct sockaddr *)&_remote_sockaddr, _remote_sockaddr_len);
+        log_debug("fd(%d) wsa-recv %u bytes from %s", _fd, len, name.c_str());
+#endif
         _recv_buffer.push(nullptr, len);
 
         RawBuffer rb;
@@ -151,13 +155,14 @@ void UdpSocket::do_recvfrom(size_t len)
         auto back = _recv_buffer.back();
 
         _remote_sockaddr_len = sizeof(_remote_sockaddr);
-#ifdef _WIN32
-        int ret = wsa_recvfrom(back.first, back.second, 0, (struct sockaddr *)&_remote_sockaddr, &_remote_sockaddr_len);
-#else
         int ret = recvfrom(back.first, back.second, 0, (struct sockaddr *)&_remote_sockaddr, &_remote_sockaddr_len);
-#endif
         if (ret < 0)
+        {
+#ifdef _WIN32
+            wsa_recvfrom(back.first, back.second, 0, (struct sockaddr *)&_remote_sockaddr, &_remote_sockaddr_len);
+#endif
             break;
+        }
 
         _recv_buffer.push(nullptr, ret);
 
@@ -173,6 +178,9 @@ void UdpSocket::do_recv(size_t len)
 #ifdef _WIN32
     if (len > 0)
     {
+#ifdef _DEBUG
+        log_debug("fd(%d) wsa-recv %u bytes", _fd, len);
+#endif
         _recv_buffer.push(nullptr, len);
 
         on_recv_buffer(&_recv_buffer);
@@ -184,14 +192,14 @@ void UdpSocket::do_recv(size_t len)
         _recv_buffer.clear();
         auto back = _recv_buffer.back();
 
-#ifdef _WIN32
-        _remote_sockaddr_len = sizeof(_remote_sockaddr);
-        int ret = wsa_recvfrom(back.first, back.second, 0, (struct sockaddr *)&_remote_sockaddr, &_remote_sockaddr_len);
-#else
         int ret = recv(back.first, back.second, 0);
-#endif
         if (ret < 0)
+        {
+#ifdef _WIN32
+            wsa_recv(back.first, back.second, 0);
+#endif
             break;
+        }
 
         _recv_buffer.push(nullptr, ret);
 

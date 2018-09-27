@@ -68,8 +68,8 @@ void SocketKcp::init()
     ikcp_nodelay(_kcp, 1, 10, 2, 1);
     //ikcp_setmtu(_kcp, 512);
 
-    auto timer = Timer::create(20);
-    timer->on_timer.set(this, &SocketKcp::on_timer);
+    _timer = Timer::create(20);
+    _timer->on_timer.set(this, &SocketKcp::on_timer);
 }
 
 void SocketKcp::recv(const char *data, size_t len)
@@ -106,15 +106,15 @@ void SocketKcp::send(const char *data, size_t len)
     }
 }
 
-void SocketKcp::on_timer(Timer *timer)
+void SocketKcp::on_timer()
 {
     if (_kcp == nullptr)
     {
-        timer->clear();
+        _timer->clear();
         return;
     }
 
-    unsigned int time = timer->duration();
+    unsigned int time = _timer->duration();
     unsigned int update_time = ikcp_check(_kcp, time);
     if (time >= update_time)
         ikcp_update(_kcp, time);

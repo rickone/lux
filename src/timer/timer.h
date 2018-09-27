@@ -22,7 +22,7 @@ public:
     int counter() const { return _counter; }
     void set_counter(int count) { _counter = count; }
 
-    def_lua_callback(on_timer, Timer *)
+    def_lua_callback(on_timer)
 
 private:
     uint64_t _start_time;

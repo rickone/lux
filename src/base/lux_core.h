@@ -3,8 +3,6 @@
 #define CORE_VERSION "0.2.0"
 #include "lua_port.h"
 
-class Timer;
-
 class LuxCore final : public LuaObject
 {
 public:
@@ -17,7 +15,7 @@ public:
     void init(int argc, char *argv[]);
     void run();
     void set_proc_title(const char *title);
-    void on_gc(Timer *timer);
+    void on_gc();
     void on_fork(int pid);
     void profile_start();
     void profile_stop();

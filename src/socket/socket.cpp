@@ -392,11 +392,11 @@ int Socket::wsa_recvfrom(char *data, size_t len, int flags, struct sockaddr *src
     if (src_addr)
     {
         auto name = get_addrname(src_addr, *addrlen);
-        log_debug("fd(%d) recv %d bytes from %s", _fd, ret, name.c_str());
+        log_debug("fd(%d) recv %u bytes from %s", _fd, recv_len, name.c_str());
     }
     else
     {
-        log_debug("fd(%d) recv %d bytes", _fd, ret);
+        log_debug("fd(%d) recv %u bytes", _fd, recv_len);
     }
 #endif
     return (int)recv_len;

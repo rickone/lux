@@ -55,7 +55,7 @@ bool Timer::trigger()
 
     try
     {
-        on_timer(this);
+        on_timer();
     }
     catch (const std::runtime_error &err)
     {

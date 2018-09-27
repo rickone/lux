@@ -70,21 +70,19 @@ void LuxCore::init(int argc, char *argv[])
 #ifdef _WIN32
     SetConsoleOutputCP(CP_UTF8);
 
-    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    HANDLE hstdout = GetStdHandle(STD_OUTPUT_HANDLE);
+    CONSOLE_FONT_INFOEX cfi = { sizeof(cfi) };
+    GetCurrentConsoleFontEx(hstdout, FALSE, &cfi);
 
-    CONSOLE_FONT_INFOEX font = { 0 };
-    font.cbSize = sizeof(font);
-    font.dwFontSize.Y = 18;
-    font.FontWeight = FW_NORMAL;
-    wcscpy(font.FaceName, L"Consolas");
-    SetCurrentConsoleFontEx(hConsole, FALSE, &font);
+    cfi.dwFontSize.Y = 18;
+    cfi.FontWeight = FW_NORMAL;
+    wcscpy(cfi.FaceName, L"Consolas");
+    SetCurrentConsoleFontEx(hstdout, FALSE, &cfi);
 
-    std::string title("LuxCore." CORE_VERSION);
-    title +=
 #ifdef _DEBUG
-        "(Debug)";
+    std::string title("lux " CORE_VERSION " [Debug]");
 #else
-        "(Release)";
+    std::string title("lux " CORE_VERSION " [Release]");
 #endif
     SetConsoleTitle(title.c_str());
 #else
@@ -123,7 +121,7 @@ void LuxCore::init(int argc, char *argv[])
     }
 #endif
 
-    log_info("LuxCore(v%s) start running, pid=%d, daemon=%s, build-time='%s %s'", CORE_VERSION, getpid(), Config::env()->daemon ? "On" : "Off", __TIME__, __DATE__);
+    log_info("lux start (pid=%d, version=%s, build-time='%s %s')", getpid(), CORE_VERSION, __TIME__, __DATE__);
 }
 
 void LuxCore::run()
@@ -142,7 +140,7 @@ void LuxCore::run()
 
     profile_stop();
 
-    log_info("LuxCore exit, pid=%d", getpid());
+    log_info("lux exit (pid=%d)", getpid());
 }
 
 void LuxCore::set_proc_title(const char *title)
@@ -161,7 +159,7 @@ void LuxCore::set_proc_title(const char *title)
 #endif
 }
 
-void LuxCore::on_gc(Timer *timer)
+void LuxCore::on_gc()
 {
     LuaState::inst()->gc();
     SocketManager::inst()->gc();

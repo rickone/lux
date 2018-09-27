@@ -17,7 +17,7 @@ public:
     void init();
     void recv(const char *data, size_t len);
     void send(const char *data, size_t len);
-    void on_timer(Timer *timer);
+    void on_timer();
 
     int lua_recv(lua_State *L);
     int lua_send(lua_State *L);
@@ -27,5 +27,6 @@ public:
 
 private:
     ikcpcb *_kcp;
+    std::shared_ptr<Timer> _timer;
     Buffer _recv_buffer;
 };
