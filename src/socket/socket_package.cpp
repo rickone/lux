@@ -36,10 +36,28 @@ void SocketPackage::recv(Buffer *buffer)
     {
         if (_package_len == 0)
         {
-            if (buffer->size() < sizeof(_package_len))
-                break;
+            if (_header == 0)
+            {
+                if (buffer->size() < sizeof(_header))
+                    break;
 
-            buffer->pop((char *)&_package_len, sizeof(_package_len));
+                buffer->pop((char *)&_header, sizeof(_header));
+            }
+
+            if (_header & 0x8000)
+            {
+                uint16_t tail = 0;
+                if (buffer->size() < sizeof(tail))
+                    break;
+
+                buffer->pop((char *)&tail, sizeof(tail));
+
+                _package_len = ((size_t)(_header & 0x7fff) | ((size_t)tail << 15));
+            }
+            else
+            {
+                _package_len = (size_t)_header;
+            }
         }
 
         if (buffer->size() < _package_len)
@@ -48,18 +66,32 @@ void SocketPackage::recv(Buffer *buffer)
         _package_buffer.clear();
         buffer->pop_buffer(&_package_buffer, _package_len);
         on_recv(&_package_buffer);
+
+        _header = 0;
         _package_len = 0;
     }
 }
 
 void SocketPackage::send(const char *data, size_t len)
 {
-    runtime_assert(len <= USHRT_MAX, "package too long to send. len = %u", len);
+    runtime_assert(len <= 0x7fff'ffff, "package too long to send. len = %u", len);
 
-    uint16_t package_len = (uint16_t)len;
     RawBuffer rb[2];
-    rb[0].data = (const char *)&package_len;
-    rb[0].len = sizeof(package_len);
+    uint16_t header[2];
+
+    rb[0].data = (const char *)&header[0];
+    if (len <= 0x7fff)
+    {
+        header[0] = (uint16_t)len;
+        rb[0].len = 2;
+    }
+    else
+    {
+        header[0] = (uint16_t)(len & 0x7fff) | 0x8000;
+        header[1] = (uint16_t)(len >> 15);
+        rb[0].len = 4;
+    }
+
     rb[1].data = data;
     rb[1].len = len;
 

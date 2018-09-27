@@ -22,7 +22,8 @@ public:
     def_lua_callback(on_send, RawBuffer *, size_t)
 
 private:
-    uint16_t _package_len;
+    uint16_t _header;
+    size_t _package_len;
     Buffer _package_buffer;
 };
 
