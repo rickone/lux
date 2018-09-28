@@ -70,13 +70,15 @@ void LuxCore::init(int argc, char *argv[])
 #ifdef _WIN32
     SetConsoleOutputCP(CP_UTF8);
 
-    HANDLE hstdout = GetStdHandle(STD_OUTPUT_HANDLE);
-    CONSOLE_FONT_INFOEX cfi = { sizeof(cfi) };
-    GetCurrentConsoleFontEx(hstdout, FALSE, &cfi);
-
-    cfi.dwFontSize.Y = 18;
+    CONSOLE_FONT_INFOEX cfi = { 0 };
+    cfi.cbSize = sizeof(cfi);
+    cfi.nFont = DEVICE_DEFAULT_FONT;
+    cfi.dwFontSize.Y = 20;
+    cfi.FontFamily = TMPF_VECTOR | TMPF_TRUETYPE | FF_MODERN;
     cfi.FontWeight = FW_NORMAL;
     wcscpy(cfi.FaceName, L"Consolas");
+
+    HANDLE hstdout = GetStdHandle(STD_OUTPUT_HANDLE);
     SetCurrentConsoleFontEx(hstdout, FALSE, &cfi);
 
 #ifdef _DEBUG
