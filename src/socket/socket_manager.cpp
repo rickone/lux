@@ -4,12 +4,7 @@
 
 const static int MAX_POLL_EVENT_CNT = 1024;
 
-SocketManager::SocketManager() :
-#ifdef _WIN32
-    _hd(NULL), _fn_accept_ex(), _fn_get_accept_ex_sockaddrs(), _fn_connect_ex()
-#else
-    _fd(-1)
-#endif
+SocketManager::SocketManager()
 {
 #ifdef _WIN32
     WORD version = MAKEWORD(2, 2);

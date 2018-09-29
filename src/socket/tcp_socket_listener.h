@@ -33,5 +33,5 @@ private:
 
     std::unordered_set< std::shared_ptr<TcpSocket> > _pending_accept_sockets;
 #endif
-    bool _package_mode;
+    bool _package_mode = false;
 };

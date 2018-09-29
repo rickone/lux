@@ -2,7 +2,7 @@
 #include "socket_manager.h"
 #include "config.h"
 
-TcpSocket::TcpSocket() : Socket(), _connected(), _recv_buffer(Config::env()->socket_recv_buffer_init), _send_buffer(Config::env()->socket_send_buffer_init)
+TcpSocket::TcpSocket() : _recv_buffer(Config::env()->socket_recv_buffer_init), _send_buffer(Config::env()->socket_send_buffer_init)
 {
 }
 

@@ -35,7 +35,7 @@ public:
 protected:
     void flush();
 
-    bool _connected;
+    bool _connected = false;
     Buffer _recv_buffer;
     Buffer _send_buffer;
 

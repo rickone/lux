@@ -2,7 +2,7 @@ require "lux"
 
 local function on_recv(socket, buffer)
     local data = tostring(buffer)
-    print("on_recv", data)
+    print("on_recv", socket, data)
 
     if data == "close" then
         socket:close()
@@ -15,7 +15,7 @@ end
 
 local function on_recvfrom(socket, buffer, addr)
     local data = tostring(buffer)
-    print("on_recvfrom", data)
+    print("on_recvfrom", socket, data)
 
     if data == "close" then
         socket:close()

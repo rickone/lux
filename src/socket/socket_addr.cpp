@@ -8,8 +8,6 @@ SocketAddr::SocketAddr()
 {
 #ifdef __linux__
     memset(&_gaicb, 0, sizeof(_gaicb));
-#else
-    _ai_result = nullptr;
 #endif
 }
 

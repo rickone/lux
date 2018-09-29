@@ -36,16 +36,16 @@ public:
 
 private:
 #ifdef _WIN32
-    HANDLE _hd;
+    HANDLE _hd = NULL;
 
-    LPFN_ACCEPTEX _fn_accept_ex;
-    LPFN_GETACCEPTEXSOCKADDRS _fn_get_accept_ex_sockaddrs;
-    LPFN_CONNECTEX _fn_connect_ex;
+    LPFN_ACCEPTEX _fn_accept_ex = NULL;
+    LPFN_GETACCEPTEXSOCKADDRS _fn_get_accept_ex_sockaddrs = NULL;
+    LPFN_CONNECTEX _fn_connect_ex = NULL;
 
     // lost socket: main thread closed but IOCP didn't complete yet
     std::unordered_set< std::shared_ptr<Socket> > _lost_sockets;
 #else
-    int _fd;
+    int _fd = -1;
 #endif
     std::unordered_map<int, std::shared_ptr<Socket> > _sockets;
     int _next_socket_id;

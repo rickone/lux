@@ -38,7 +38,7 @@ private:
 
     Buffer _recv_buffer;
     std::unordered_map< std::string, std::shared_ptr<UdpSocket> > _accepted_sockets;
-    bool _reliable;
+    bool _reliable = false;
 };
 
 #endif // !_WIN32

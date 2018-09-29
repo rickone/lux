@@ -19,6 +19,6 @@ public:
 
 private:
     SkipList<int64_t, std::shared_ptr<Timer>, std::less<int64_t>, 32> _skip_list;
-    uint64_t _time_now;
-    uint64_t _next_tick_time;
+    uint64_t _time_now = 0;
+    uint64_t _next_tick_time = 0;
 };

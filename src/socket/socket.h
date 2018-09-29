@@ -16,7 +16,7 @@ enum SocketEventFlag
 class Socket : public LuaObject
 {
 public:
-    Socket();
+    Socket() = default;
     explicit Socket(socket_t fd);
     Socket(int domain, int type, int protocol);
     Socket(const Socket& sock) = delete;
@@ -88,13 +88,13 @@ public:
     def_lua_callback(on_error, Socket *, int)
     
 protected:
-    int _id;
-    socket_t _fd;
+    int _id = 0;
+    socket_t _fd = INVALID_SOCKET;
 
 #ifdef _WIN32
     WSAOVERLAPPED _read_ovl;
     WSAOVERLAPPED _write_ovl;
-    int _ovl_ref;
+    int _ovl_ref = 0;
 #endif
 };
 

@@ -22,6 +22,6 @@ private:
 #ifdef __linux__
     struct gaicb _gaicb;
 #else
-    struct addrinfo *_ai_result;
+    struct addrinfo *_ai_result = nullptr;
 #endif
 };

@@ -37,7 +37,7 @@ protected:
     Buffer _send_buffer;
     std::list<int> _recv_fd_list;
     std::list<int> _send_fd_list;
-    void (UnixSocket::*_on_read)(size_t len);
+    void (UnixSocket::*_on_read)(size_t len) = nullptr;
     std::string _socket_path;
 };
 

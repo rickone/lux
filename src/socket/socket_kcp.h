@@ -26,7 +26,7 @@ public:
     def_lua_callback(on_send, RawBuffer *)
 
 private:
-    ikcpcb *_kcp;
+    ikcpcb *_kcp = nullptr;
     std::shared_ptr<Timer> _timer;
     Buffer _recv_buffer;
 };

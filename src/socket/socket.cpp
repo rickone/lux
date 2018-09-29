@@ -1,32 +1,16 @@
 #include "socket.h"
 #include "socket_manager.h"
 
-Socket::Socket() : _fd(INVALID_SOCKET)
-#ifdef _WIN32
-    , _read_ovl(), _write_ovl(), _ovl_ref()
-#endif
-{
-}
-
 Socket::Socket(socket_t fd) : _fd(fd)
-#ifdef _WIN32
-    , _read_ovl(), _write_ovl(), _ovl_ref()
-#endif
 {
 }
 
 Socket::Socket(int domain, int type, int protocol) : _fd(INVALID_SOCKET)
-#ifdef _WIN32
-    , _read_ovl(), _write_ovl(), _ovl_ref()
-#endif
 {
     init(domain, type, protocol);
 }
 
 Socket::Socket(Socket&& socket) : _fd(socket.detach())
-#ifdef _WIN32
-    , _read_ovl(), _write_ovl(), _ovl_ref()
-#endif
 {
 }
 
