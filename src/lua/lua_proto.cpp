@@ -127,7 +127,11 @@ inline size_t lua_proto_unpack_int(lua_State *L, const std::string &str, size_t 
 inline size_t lua_proto_unpack_number(lua_State *L, const std::string &str, size_t pos)
 {
     double value = 0;
+#ifdef _WIN32
+    str._Copy_s((char *)&value, sizeof(value), pos);
+#else
     str.copy((char *)&value, sizeof(value), pos);
+#endif
 
     lua_pushnumber(L, value);
     return sizeof(value);

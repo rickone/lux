@@ -20,6 +20,8 @@
 #else
 #include <unistd.h> // getpid, fork
 #include <sys/wait.h>
+
+extern char **environ;
 #endif
 
 #ifdef __linux__
@@ -29,8 +31,6 @@
 #ifdef GPERFTOOLS
 #include <gperftools/profiler.h>
 #endif
-
-extern char **environ;
 
 void on_quit(int sig)
 {
@@ -147,6 +147,7 @@ void LuxCore::run()
 
 void LuxCore::set_proc_title(const char *title)
 {
+#ifndef _WIN32
     size_t title_len = strlen(title) + 1;
     size_t copy_len = std::min(title_len, _argv_max_len);
 
@@ -158,6 +159,8 @@ void LuxCore::set_proc_title(const char *title)
 
 #ifdef __linux__
     prctl(PR_SET_NAME, title);
+#endif
+
 #endif
 }
 
@@ -202,6 +205,7 @@ void LuxCore::init_set_proc_title(int argc, char *argv[])
     _argc = argc;
     _argv = argv;
 
+#ifndef _WIN32
     char *offset = _argv[0];
     size_t environ_len = 0;
 
@@ -235,4 +239,5 @@ void LuxCore::init_set_proc_title(int argc, char *argv[])
         environ[i] = offset;
         offset += len;
     }
+#endif
 }

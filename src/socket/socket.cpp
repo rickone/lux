@@ -239,6 +239,11 @@ Socket Socket::accept()
     return socket;
 }
 
+#ifdef _WIN32
+#pragma warning(push)
+#pragma warning(disable : 4267) // warning C4267: “参数”: 从“size_t”转换到“int”，可能丢失数据
+#endif
+
 int Socket::recvfrom(char *data, size_t len, int flags, struct sockaddr *src_addr, socklen_t *addrlen)
 {
     int ret = ::recvfrom(_fd, data, len, flags, src_addr, addrlen);
@@ -322,6 +327,10 @@ int Socket::send(const char *data, size_t len, int flags)
     log_debug("fd(%d) send %d bytes", _fd, ret);
     return ret;
 }
+
+#ifdef _WIN32
+#pragma warning(pop) // 4267
+#endif
 
 #ifndef _WIN32
 int Socket::read(char *data, size_t len)
