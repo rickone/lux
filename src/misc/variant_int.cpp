@@ -2,20 +2,28 @@
 #include <algorithm> // std::min
 #include "error.h"
 
-inline unsigned long zigzag_encode(long value)
+uint32_t zigzag_encode32(int32_t value)
 {
-    return (unsigned long)((value << 1) ^ (value >> (sizeof(value) * 8 - 1)));
+    return (uint32_t)((value << 1) ^ (value >> 31));
 }
 
-inline long zigzag_decode(unsigned long value)
+int32_t zigzag_decode32(uint32_t value)
 {
-    return (long)((value >> 1) ^ (~(value & 1) + 1));
+    return (int32_t)((value >> 1) ^ (-(int32_t)(value & 1)));
 }
 
-void variant_int_write(std::string &str, long value)
+uint64_t zigzag_encode64(int64_t value)
 {
-    unsigned long var_int = zigzag_encode(value);
+    return (uint64_t)((value << 1) ^ (value >> 63));
+}
 
+int64_t zigzag_decode64(uint64_t value)
+{
+    return (int64_t)((value >> 1) ^ (-(int64_t)(value & 1)));
+}
+
+void varint_pack(std::string &str, uint64_t var_int)
+{
     if (var_int <= 0x7f)
     {
         uint8_t byte = (uint8_t)var_int;
@@ -44,12 +52,12 @@ void variant_int_write(std::string &str, long value)
     }
 }
 
-long variant_int_read(const std::string &str, size_t pos, size_t *read_len)
+uint64_t varint_unpack(const std::string &str, size_t pos, size_t *read_len)
 {
     size_t sz = str.size();
-    runtime_assert(pos < sz, "string pos overflow");
+    runtime_assert(pos < sz, "pos overflow");
 
-    size_t parse_len = std::min((size_t)10ul, sz - pos);
+    size_t parse_len = std::min((size_t)5u, sz - pos);
     size_t var_len = 0;
     for (size_t i = 0; i < parse_len; ++i)
     {
@@ -59,12 +67,12 @@ long variant_int_read(const std::string &str, size_t pos, size_t *read_len)
             break;
         }
     }
-    runtime_assert(var_len > 0, "string is illegal variant-int");
+    runtime_assert(var_len > 0, "illegal varint32");
 
-    unsigned long var_int = 0;
+    uint64_t var_int = 0;
     if (var_len == 1)
     {
-        var_int = (unsigned long)(uint8_t)str.at(pos);
+        var_int = (uint32_t)(uint8_t)str.at(pos);
     }
     else
     {
@@ -74,5 +82,5 @@ long variant_int_read(const std::string &str, size_t pos, size_t *read_len)
     }
 
     *read_len = var_len;
-    return zigzag_decode(var_int);
+    return var_int;
 }

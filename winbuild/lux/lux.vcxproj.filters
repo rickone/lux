@@ -84,6 +84,9 @@
     <ClCompile Include="..\..\src\lua\lua_state.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\proto\lux_proto.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\lua\lua_object.h">
@@ -165,6 +168,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\misc\callback.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\proto\lux_proto.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\proto\lux_proto_def.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

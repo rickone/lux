@@ -17,7 +17,7 @@ inline void lua_proto_pack_bool(std::string &str, bool value)
 
 inline void lua_proto_pack_int(std::string &str, long value)
 {
-    variant_int_write(str, value);
+    varint_pack(str, zigzag_encode32(value));
 }
 
 inline void lua_proto_pack_number(std::string &str, double value)
@@ -29,7 +29,7 @@ inline void lua_proto_pack_number(std::string &str, double value)
 inline void lua_proto_pack_string(std::string &str, const char *data, size_t len)
 {
     str.append("\xC4", 1);
-    variant_int_write(str, (long)len);
+    varint_pack(str, len);
     str.append(data, len);
 }
 
@@ -118,7 +118,7 @@ void lua_proto_pack_args(std::string &str, lua_State *L, int n)
 inline size_t lua_proto_unpack_int(lua_State *L, const std::string &str, size_t pos)
 {
     size_t var_len = 0;
-    long value = variant_int_read(str, pos, &var_len);
+    long value = zigzag_decode32(varint_unpack(str, pos, &var_len));
 
     lua_pushinteger(L, value);
     return var_len;
@@ -140,10 +140,7 @@ inline size_t lua_proto_unpack_number(lua_State *L, const std::string &str, size
 inline size_t lua_proto_unpack_string(lua_State *L, const std::string &str, size_t pos)
 {
     size_t var_len = 0;
-    long value = variant_int_read(str, pos, &var_len);
-    runtime_assert(value >= 0, "value(%ld)", value);
-
-    size_t str_len = (size_t)value;
+    size_t str_len = varint_unpack(str, pos, &var_len);
     lua_pushlstring(L, str.data() + pos + var_len, str_len);
     return var_len + str_len;
 }
