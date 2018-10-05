@@ -9,4 +9,4 @@ uint64_t zigzag_encode64(int64_t value);
 int64_t zigzag_decode64(uint64_t value);
 
 void varint_pack(std::string &str, uint64_t value);
-uint64_t varint_unpack(const std::string &str, size_t pos, size_t *read_len);
+uint64_t varint_unpack(const std::string &str, size_t pos, size_t *used_len);
