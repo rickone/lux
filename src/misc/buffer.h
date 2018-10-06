@@ -3,10 +3,12 @@
 #include <string>
 #include "lua_port.h"
 
+#define DEFAULT_MIN_ALLOC_SIZE (512)
+
 class Buffer : public LuaObject
 {
 public:
-    explicit Buffer(size_t min_alloc_size = 512);
+    explicit Buffer(size_t min_alloc_size = DEFAULT_MIN_ALLOC_SIZE);
     Buffer(const Buffer &other);
     Buffer(Buffer &&other);
     virtual ~Buffer();
@@ -46,12 +48,12 @@ public:
 protected:
     void realloc(size_t len);
 
-    char  *_data;
-    size_t _max_size;
-    size_t _min_alloc_size;
-    size_t _mask;
-    size_t _front_pos;
-    size_t _back_pos;
+    char  *_data = nullptr;
+    size_t _max_size = 0;
+    size_t _min_alloc_size = DEFAULT_MIN_ALLOC_SIZE;
+    size_t _mask = 0;
+    size_t _front_pos = 0;
+    size_t _back_pos = 0;
 };
 
 struct RawBuffer : LuaObject

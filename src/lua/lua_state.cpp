@@ -9,6 +9,7 @@
 #include "unix_socket_listener.h"
 #include "socket_kcp.h"
 #include "socket_package.h"
+#include "lux_proto.h"
 
 LuaState::~LuaState()
 {
@@ -78,11 +79,10 @@ void LuaState::lua_core_openlibs(lua_State *L)
 #endif
     lua_class_define<SocketKcp>(L);
     lua_class_define<SocketPackage>(L);
+    lua_class_define<LuxProto>(L);
 
     lua_lib(L, "lux_core");
     {
-        lua_set_function(L, "pack", luap_pack);
-        lua_set_function(L, "unpack", luap_unpack);
         lua_std_function(L, log);
     }
     lua_pop(L, 1);

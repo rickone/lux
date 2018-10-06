@@ -9,7 +9,6 @@
 #include "error.h"
 #include "lua_object.h"
 #include "lua_bridge.h"
-#include "lua_proto.h"
 
 lua_State * get_lua_state();
 void set_lua_state(lua_State *lua);

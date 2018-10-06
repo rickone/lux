@@ -1,20 +1,22 @@
 #pragma once
 
-#include <cstddef> // size_t
-#include <string>
-#include <list>
-#include <vector>
-#include <map>
 #include "lux_proto_def.h"
-#include "error.h"
-#include <cstdio>
+#include "lua_port.h"
 
-class LuxProto
+class LuxProto : public LuaObject
 {
 public:
     LuxProto() = default;
+    virtual ~LuxProto() = default;
+
+    static void new_class(lua_State *L);
+    static std::shared_ptr<LuxProto> create();
 
     void clear();
+    std::string dump();
+    int lua_pack(lua_State *L);
+    int lua_packlist(lua_State *L);
+    int lua_unpack(lua_State *L);
 
     template<typename T>
     void pack(T t)
@@ -31,25 +33,8 @@ public:
         return result;
     }
 
-    /*
-    template<typename T>
-    void pack(const std::list<T> &value);
-
-    template<typename T>
-    void pack(const std::vector<T> &value);
-
-    template<typename T>
-    std::vector<T> unpack();
-
-    template<typename K, typename V>
-    void pack(const std::map<K, V> &value);
-
-    template<typename K, typename V>
-    std::map<K, V> unpack();
-    */
-
     template<typename...A>
-    void invoke(const std::function<void(A...args)> &func)
+    void invoke(const std::function<void (A...args)> &func)
     {
         func(unpack<typename lux_proto_unpack_type<A>::type>()...);
     }
@@ -60,24 +45,28 @@ public:
         func(unpack<typename lux_proto_unpack_type<A>::type>()...);
     }
 
+    template<typename R, typename...A>
+    R call(const std::function<R (A...args)> &func)
+    {
+        return func(unpack<typename lux_proto_unpack_type<A>::type>()...);
+    }
+
+    template<typename R, typename...A>
+    R call(R (*func)(A...args))
+    {
+        return func(unpack<typename lux_proto_unpack_type<A>::type>()...);
+    }
+
     size_t pos() const { return _pos; }
     void set_pos(size_t pos) { _pos = pos; }
 
-    std::string & data() { return _str; }
-    void set_data(const std::string &str) { _str = str; }
+    const std::string & str() const { return _str; }
+    void set_str(const std::string &str) { _str = str; }
 
-    std::string dump()
-    {
-        std::string result = "result=(";
-        for (char c : _str)
-        {
-            static char temp[32];
-            sprintf(temp, "%02x,", (unsigned char)c);
-            result += temp;
-        }
-        result += ")";
-        return result;
-    }
+private:
+    void lua_pack_one(lua_State *L, int index);
+    int lua_unpack_one(lua_State *L);
+
 private:
     std::string _str;
     size_t _pos = 0;

@@ -3,11 +3,11 @@
 #include <cstring> // memcpy strndup
 #include <cstdlib> // free
 
-Buffer::Buffer(size_t min_alloc_size) : _data(), _max_size(), _min_alloc_size(min_alloc_size), _mask(), _front_pos(), _back_pos()
+Buffer::Buffer(size_t min_alloc_size) : _min_alloc_size(min_alloc_size)
 {
 }
 
-Buffer::Buffer(const Buffer &other) : _data(), _max_size(other._max_size), _min_alloc_size(other._min_alloc_size),
+Buffer::Buffer(const Buffer &other) : _max_size(other._max_size), _min_alloc_size(other._min_alloc_size),
     _mask(other._mask), _front_pos(other._front_pos), _back_pos(other._back_pos)
 {
     if (other._data)

@@ -54,12 +54,10 @@ void varint_pack(std::string &str, uint64_t var_int)
 
 uint64_t varint_unpack(const std::string &str, size_t pos, size_t *used_len)
 {
-    size_t sz = str.size();
-    runtime_assert(pos < sz, "pos overflow");
-
     uint8_t header = (uint8_t)str.at(pos);
     runtime_assert((header & 0xC0) != 0xC0, "varint header illegal");
 
+    size_t sz = str.size();
     size_t parse_len = std::min((size_t)10u, sz - pos);
     size_t var_len = 0;
     for (size_t i = 0; i < parse_len; ++i)

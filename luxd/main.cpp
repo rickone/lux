@@ -1,5 +1,6 @@
 #include "lux_core.h"
 #include "lux_proto.h"
+#include <cstdio>
 #include <iostream>
 #include <climits>
 
@@ -15,6 +16,20 @@ void test(bool a, unsigned char b, unsigned short c, unsigned int d, unsigned lo
         << h << std::endl
         << str << std::endl
         << c_str << std::endl;
+}
+
+void test2(const std::vector<int> &arr)
+{
+    std::cout << "vector:" << std::endl;
+    for (int n : arr)
+        std::cout << n << std::endl;
+}
+
+void test3(const std::map<std::string, int> &dict)
+{
+    std::cout << "dict:" << std::endl;
+    for (auto &pair : dict)
+        std::cout << pair.first << ": " << pair.second << std::endl;
 }
 
 int main(int argc, char* argv[])
@@ -34,5 +49,32 @@ int main(int argc, char* argv[])
 
     std::cout << pt.dump() << std::endl;
     pt.invoke(test);
+
+    pt.clear();
+    std::vector<int> arr = {1,2,3,4,5,6,100};
+    pt.pack(arr);
+
+    std::cout << pt.dump() << std::endl;
+    pt.invoke(test2);
+
+    pt.clear();
+    pt.pack("This is a test for calling puts()");
+
+    std::cout << pt.dump() << std::endl;
+    int ret = pt.call(puts);
+    std::cout << "puts ret = " << ret << std::endl;
+
+    pt.clear();
+    std::map<std::string, int> dict = {{"Rick", 33}, {"Tina", 28}};
+    pt.pack(dict);
+
+    std::cout << pt.dump() << std::endl;
+    pt.invoke(test3);
+
+    pt.clear();
+    pt.pack(nullptr);
+
+    std::cout << pt.dump() << std::endl;
+
     return 0;
 }
