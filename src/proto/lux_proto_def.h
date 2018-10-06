@@ -26,7 +26,6 @@
 * 0xC8 - object +(len:varint) +[len]
 */
 
-#define LUX_HEADER_VARINT   (0xFF)
 #define LUX_HEADER_NULL     (0xC0)
 #define LUX_HEADER_FALSE    (0xC1)
 #define LUX_HEADER_TRUE     (0xC2)
@@ -36,36 +35,6 @@
 #define LUX_HEADER_LIST     (0xC6)
 #define LUX_HEADER_DICT     (0xC7)
 #define LUX_HEADER_OBJECT   (0xC8)
-
-template<typename T>
-struct lux_proto_unpack_type
-{
-    typedef T type;
-};
-
-template<>
-struct lux_proto_unpack_type<const std::string &>
-{
-    typedef std::string type;
-};
-
-template<typename T>
-struct lux_proto_unpack_type<const std::list<T> &>
-{
-    typedef std::list<T> type;
-};
-
-template<typename T>
-struct lux_proto_unpack_type<const std::vector<T> &>
-{
-    typedef std::vector<T> type;
-};
-
-template<typename K, typename V>
-struct lux_proto_unpack_type<const std::map<K, V> &>
-{
-    typedef std::map<K, V> type;
-};
 
 template<typename T>
 struct LuxProtoDef;

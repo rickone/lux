@@ -1,7 +1,18 @@
 #pragma once
 
+#include <unordered_set>
+#include <memory>
 #include "lux_proto_def.h"
 #include "lua_port.h"
+
+class LuxProto;
+
+struct LuxpObject
+{
+    virtual ~LuxpObject() {}
+    virtual void pack(LuxProto *proto) = 0;
+    virtual void unpack(LuxProto *proto) = 0;
+};
 
 class LuxProto : public LuaObject
 {
@@ -21,11 +32,36 @@ public:
     template<typename T>
     void pack(T t)
     {
+        pack_impl(
+            t,
+            typename std::is_base_of<LuxpObject, typename std::decay<typename std::remove_pointer<T>::type>::type>::type()
+        );
+    }
+
+    template<typename T, typename C>
+    void pack_impl(T t, C &&)
+    {
         LuxProtoDef<T>::pack(_str, t);
     }
 
     template<typename T>
+    void pack_impl(T t, std::true_type &&)
+    {
+        static_assert(std::is_pointer<T>::value, "should be a pointer");
+        t->pack(this);
+    }
+
+    template<typename T>
     T unpack()
+    {
+        return unpack_impl<T>(
+            typename std::is_pointer<T>::type(),
+            typename std::is_base_of<LuxpObject, typename std::decay<typename std::remove_pointer<T>::type>::type>::type()
+        );
+    }
+
+    template<typename T, typename C1, typename C2>
+    T unpack_impl(C1 &&, C2 &&)
     {
         size_t used_len = 0;
         T result = LuxProtoDef<T>::unpack(_str, _pos, &used_len);
@@ -33,28 +69,46 @@ public:
         return result;
     }
 
+    template<typename T>
+    T unpack_impl(std::false_type &&, std::true_type &&)
+    {
+        auto object = std::make_shared<T>();
+        _luxp_objs.insert(object);
+        object->unpack(this);
+        return *object;
+    }
+
+    template<typename T>
+    T unpack_impl(std::true_type &&, std::true_type &&)
+    {
+        auto object = std::make_shared<typename std::decay<typename std::remove_pointer<T>::type>::type>();
+        _luxp_objs.insert(object);
+        object->unpack(this);
+        return object.get();
+    }
+
     template<typename...A>
     void invoke(const std::function<void (A...args)> &func)
     {
-        func(unpack<typename lux_proto_unpack_type<A>::type>()...);
+        func(unpack<typename std::decay<A>::type>()...);
     }
 
     template<typename...A>
     void invoke(void (*func)(A...args))
     {
-        func(unpack<typename lux_proto_unpack_type<A>::type>()...);
+        func(unpack<typename std::decay<A>::type>()...);
     }
 
     template<typename R, typename...A>
     R call(const std::function<R (A...args)> &func)
     {
-        return func(unpack<typename lux_proto_unpack_type<A>::type>()...);
+        return func(unpack<typename std::decay<A>::type>()...);
     }
 
     template<typename R, typename...A>
     R call(R (*func)(A...args))
     {
-        return func(unpack<typename lux_proto_unpack_type<A>::type>()...);
+        return func(unpack<typename std::decay<A>::type>()...);
     }
 
     size_t pos() const { return _pos; }
@@ -70,104 +124,5 @@ private:
 private:
     std::string _str;
     size_t _pos = 0;
+    std::unordered_set< std::shared_ptr<LuxpObject> > _luxp_objs;
 };
-
-/*
-// std::list
-template<typename T>
-void LuxProto::pack(const std::list<T> &value)
-{
-    _str.push_back(LUX_HEADER_LIST);
-    varint_pack(_str, value.size());
-    for (auto &item : value)
-    {
-        pack(item);
-    }
-}
-
-template<typename T>
-std::list<T> LuxProto::unpack()
-{
-    uint8_t header = (uint8_t)_str.at(_pos);
-    if (header != LUX_HEADER_LIST)
-        throw_error(std::runtime_error, "header=0x%02X", header);
-
-    size_t var_len = 0;
-    size_t size = varint_unpack(_str, _pos + 1, &var_len);
-    _pos += 1 + var_len;
-
-    std::list<T> value;
-    for (size_t i = 0; i < size; ++i)
-    {
-        T item = unpack<T>();
-        value.push_back(item);
-    }
-    return value;
-}
-
-// std::vector
-template<typename T>
-void LuxProto::pack(const std::vector<T> &value)
-{
-    _str.push_back(LUX_HEADER_LIST);
-    varint_pack(_str, value.size());
-    for (auto &item : value)
-    {
-        pack(item);
-    }
-}
-
-template<typename T>
-std::vector<T> LuxProto::unpack()
-{
-    uint8_t header = (uint8_t)_str.at(_pos);
-    if (header != LUX_HEADER_LIST)
-        throw_error(std::runtime_error, "header=0x%02X", header);
-
-    size_t var_len = 0;
-    size_t size = varint_unpack(_str, _pos + 1, &var_len);
-    _pos += 1 + var_len;
-
-    std::vector<T> value;
-    for (size_t i = 0; i < size; ++i)
-    {
-        T item = unpack<T>();
-        value.push_back(item);
-    }
-    return value;
-}
-
-// std::map
-template<typename K, typename V>
-void LuxProto::pack(const std::map<K, V> &value)
-{
-    _str.push_back(LUX_HEADER_DICT);
-    varint_pack(_str, value.size());
-    for (auto &pair : value)
-    {
-        pack(pair.first);
-        pack(pair.second);
-    }
-}
-
-template<typename K, typename V>
-std::map<K, V> LuxProto::unpack()
-{
-    uint8_t header = (uint8_t)_str.at(_pos);
-    if (header != LUX_HEADER_DICT)
-        throw_error(std::runtime_error, "header=0x%02X", header);
-
-    size_t var_len = 0;
-    size_t size = varint_unpack(_str, _pos + 1, &var_len);
-    _pos += 1 + var_len;
-
-    std::map<K, V> dict;
-    for (size_t i = 0; i < size; ++i)
-    {
-        K key = unpack<K>();
-        V value = unpack<V>();
-        dict.push_back(std::make_pair(key, value));
-    }
-    return dict;
-}
-*/

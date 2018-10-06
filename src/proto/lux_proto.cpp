@@ -38,6 +38,7 @@ void LuxProto::clear()
 {
     _str.clear();
     _pos = 0;
+    _luxp_objs.clear();
 }
 
 std::string LuxProto::dump()
@@ -176,7 +177,7 @@ void LuxProto::lua_pack_one(lua_State *L, int index)
 int LuxProto::lua_unpack_one(lua_State *L)
 {
     uint8_t header = (uint8_t)_str.at(_pos);
-    if ((header & 0xC0) != 0xC0)
+    if (is_varint_header(header))
     {
         long value = unpack<long>();
         lua_pushinteger(L, value);

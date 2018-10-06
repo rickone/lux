@@ -1,5 +1,6 @@
 #include "lux_core.h"
 #include "lux_proto.h"
+#include "buffer.h"
 #include <cstdio>
 #include <iostream>
 #include <climits>
@@ -32,13 +33,43 @@ void test3(const std::map<std::string, int> &dict)
         std::cout << pair.first << ": " << pair.second << std::endl;
 }
 
+struct TestProto : LuxpObject
+{
+    std::string name;
+    int age;
+    bool gender;
+
+    virtual void pack(LuxProto *proto) override
+    {
+        proto->pack(name);
+        proto->pack(age);
+        proto->pack(gender);
+    }
+
+    virtual void unpack(LuxProto *proto) override
+    {
+        name = proto->unpack<std::string>();
+        age = proto->unpack<int>();
+        gender = proto->unpack<bool>();
+    }
+};
+
+void test4(const TestProto *info, int score)
+{
+    std::cout << "TestProto:" << std::endl
+        << info->name << std::endl
+        << info->age << std::endl
+        << info->gender << std::endl
+        << score << std::endl;
+}
+
 int main(int argc, char* argv[])
 {
     //return LuxCore::main(argc, argv);
     LuxProto pt;
     pt.pack(true);
-    pt.pack((unsigned char)UCHAR_MAX);
-    pt.pack((unsigned short)USHRT_MAX);
+    pt.pack<unsigned char>(UCHAR_MAX);
+    pt.pack<unsigned short>(USHRT_MAX);
     pt.pack(UINT_MAX);
     pt.pack(ULONG_MAX);
     pt.pack(ULLONG_MAX);
@@ -72,9 +103,15 @@ int main(int argc, char* argv[])
     pt.invoke(test3);
 
     pt.clear();
-    pt.pack(nullptr);
+    TestProto tp;
+    tp.name = "Rick Yan";
+    tp.age = 33;
+    tp.gender = true;
+    pt.pack(&tp);
+    pt.pack(100);
 
     std::cout << pt.dump() << std::endl;
+    pt.invoke(test4);
 
     return 0;
 }
