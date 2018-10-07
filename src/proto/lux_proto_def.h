@@ -23,7 +23,6 @@
 * 0xC5 - string/const char * +(len:varint) +[len]
 * 0xC6 - list/vector +(n:varint) +(value) x n
 * 0xC7 - dict/map +(n:varint) +(key,value) x n
-* 0xC8 - object +(len:varint) +[len]
 */
 
 #define LUX_HEADER_NULL     (0xC0)
@@ -34,10 +33,48 @@
 #define LUX_HEADER_STRING   (0xC5)
 #define LUX_HEADER_LIST     (0xC6)
 #define LUX_HEADER_DICT     (0xC7)
-#define LUX_HEADER_OBJECT   (0xC8)
+
+// basic string
+inline void lux_pack_string(std::string &str, const char *data, size_t len)
+{
+    str.push_back(LUX_HEADER_STRING);
+    varint_pack(str, len);
+    str.append(data, len);
+    str.push_back(0);
+}
+
+inline const char * lux_unpack_string(const std::string &str, size_t pos, size_t *str_len, size_t *used_len)
+{
+    uint8_t header = (uint8_t)str.at(pos);
+    if (header != LUX_HEADER_STRING)
+        throw_error(std::runtime_error, "header=0x%02X", header);
+
+    size_t str_len_len = 0;
+    *str_len = varint_unpack(str, pos + 1, &str_len_len);
+
+    const char *result = str.c_str() + pos + 1 + str_len_len;
+    *used_len = 1 + str_len_len + *str_len + 1;
+
+    return result;
+}
 
 template<typename T>
-struct LuxProtoDef;
+struct LuxProtoDef
+{
+    static void pack(std::string &str, T t)
+    {
+        static_assert(std::is_pointer<T>::value, "should be a pointer");
+        lux_pack_string(str, (const char *)t, sizeof(*t));
+    }
+
+    static T unpack(const std::string &str, size_t pos, size_t *used_len)
+    {
+        static_assert(std::is_pointer<T>::value, "should be a pointer");
+
+        size_t len = 0;
+        return (T)lux_unpack_string(str, pos, &len, used_len);
+    }
+};
 
 // nullptr
 template<>
@@ -161,30 +198,6 @@ struct LuxProtoDef<double>
         return value;
     }
 };
-
-// basic string
-inline void lux_pack_string(std::string &str, const char *data, size_t len)
-{
-    str.push_back(LUX_HEADER_STRING);
-    varint_pack(str, len);
-    str.append(data, len);
-    str.push_back(0);
-}
-
-inline const char * lux_unpack_string(const std::string &str, size_t pos, size_t *str_len, size_t *used_len)
-{
-    uint8_t header = (uint8_t)str.at(pos);
-    if (header != LUX_HEADER_STRING)
-        throw_error(std::runtime_error, "header=0x%02X", header);
-
-    size_t str_len_len = 0;
-    *str_len = varint_unpack(str, pos + 1, &str_len_len);
-
-    const char *result = str.c_str() + pos + 1 + str_len_len;
-    *used_len = 1 + str_len_len + *str_len + 1;
-
-    return result;
-}
 
 // const char *
 template<>

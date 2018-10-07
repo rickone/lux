@@ -63,6 +63,24 @@ void test4(const TestProto *info, int score)
         << score << std::endl;
 }
 
+#pragma pack(1)
+struct TestProto2
+{
+    char name[32];
+    uint8_t age;
+    uint8_t gender;
+};
+#pragma pack()
+
+void test5(const TestProto2 *info, int score)
+{
+    std::cout << "TestProto2:" << std::endl
+        << info->name << std::endl
+        << (int)info->age << std::endl
+        << (int)info->gender << std::endl
+        << score << std::endl;
+}
+
 int main(int argc, char* argv[])
 {
     //return LuxCore::main(argc, argv);
@@ -112,6 +130,17 @@ int main(int argc, char* argv[])
 
     std::cout << pt.dump() << std::endl;
     pt.invoke(test4);
+
+    pt.clear();
+    TestProto2 tp2;
+    sprintf(tp2.name, "%s", "Tina");
+    tp2.age = 28;
+    tp2.gender = false;
+    pt.pack(&tp2);
+    pt.pack(200);
+
+    std::cout << pt.dump() << std::endl;
+    pt.invoke(test5);
 
     return 0;
 }
