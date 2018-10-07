@@ -65,6 +65,36 @@ void SocketKcp::on_timer(Timer *timer)
         ikcp_update(_kcp, time);
 }
 
+void SocketKcp::on_socket_recv(Socket *socket, Buffer *buffer, LuaSockAddr *saddr)
+{
+    while (!buffer->empty())
+    {
+        auto front = buffer->front();
+        int ret = ikcp_input(_kcp, front.first, front.second);
+        if (ret != 0)
+        {
+            _entity->remove();
+            throw_error(std::runtime_error, "ikcp_input buffer(%u) retcode(%d)", buffer->size(), ret);
+        }
+
+        buffer->pop(nullptr, front.second);
+    }
+
+    while (_kcp)
+    {
+        _recv_buffer.clear();
+
+        auto back = _recv_buffer.back();
+        int recv_len = ikcp_recv(_kcp, back.first, back.second);
+        if (recv_len < 0)
+            break;
+
+        _recv_buffer.push(nullptr, recv_len);
+
+        _callback(this, &_recv_buffer);
+    }
+}
+
 void SocketKcp::send(const char *data, size_t len)
 {
     int ret = ikcp_send(_kcp, data, len);
@@ -97,7 +127,7 @@ void SocketKcp::start()
     set_timer(this, &SocketKcp::on_timer, 20);
 
     _socket = std::static_pointer_cast<Socket>(_entity->find_component("socket"));
-    _socket->add_delegate(this);
+    _socket->on_recvfrom.set(this, &SocketKcp::on_socket_recv);
 }
 
 void SocketKcp::stop() noexcept
@@ -106,35 +136,5 @@ void SocketKcp::stop() noexcept
     {
         ikcp_release(_kcp);
         _kcp = nullptr;
-    }
-}
-
-void SocketKcp::on_socket_recv(Socket *socket, Buffer *buffer)
-{
-    while (!buffer->empty())
-    {
-        auto front = buffer->front();
-        int ret = ikcp_input(_kcp, front.first, front.second);
-        if (ret != 0)
-        {
-            _entity->remove();
-            throw_error(std::runtime_error, "ikcp_input buffer(%u) retcode(%d)", buffer->size(), ret);
-        }
-
-        buffer->pop(nullptr, front.second);
-    }
-
-    while (_kcp)
-    {
-        _recv_buffer.clear();
-
-        auto back = _recv_buffer.back();
-        int recv_len = ikcp_recv(_kcp, back.first, back.second);
-        if (recv_len < 0)
-            break;
-
-        _recv_buffer.push(nullptr, recv_len);
-
-        invoke_delegate(on_kcp_recv, this, &_recv_buffer);
     }
 }

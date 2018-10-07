@@ -28,7 +28,7 @@ public:
     BOOL connect_ex(const struct sockaddr *addr, socklen_t addrlen);
 #endif
 
-public:
+protected:
     void flush();
 
     bool _connected;

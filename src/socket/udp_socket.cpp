@@ -21,7 +21,7 @@ std::shared_ptr<UdpSocket> UdpSocket::create(socket_t fd)
     std::shared_ptr<UdpSocket> socket(new UdpSocket());
     socket->attach(fd);
     socket->add_event(kSocketEvent_Read);
-    socket->_on_read = &UdpSocket::on_recv;
+    socket->_on_read = &UdpSocket::do_recv;
 
 #ifdef _WIN32
     socket->on_read(0);
@@ -55,7 +55,7 @@ void UdpSocket::init_bind(const char *node, const char *service)
 #endif
         Socket::bind(ai->ai_addr, (socklen_t)ai->ai_addrlen);
         add_event(kSocketEvent_Read);
-        _on_read = &UdpSocket::on_recvfrom;
+        _on_read = &UdpSocket::do_recvfrom;
 
 #ifdef _WIN32
         on_read(0);
@@ -71,7 +71,7 @@ void UdpSocket::init_connect(const char *node, const char *service)
         init(ai->ai_family, ai->ai_socktype, ai->ai_protocol);
         Socket::connect(ai->ai_addr, (socklen_t)ai->ai_addrlen);
         add_event(kSocketEvent_Read);
-        _on_read = &UdpSocket::on_recv;
+        _on_read = &UdpSocket::do_recv;
 
 #ifdef _WIN32
         on_read(0);
@@ -81,7 +81,7 @@ void UdpSocket::init_connect(const char *node, const char *service)
 
 void UdpSocket::on_recv_buffer(Buffer *buffer)
 {
-    invoke_delegate(on_socket_recv, this, buffer);
+    on_recv(this, buffer);
 }
 
 void UdpSocket::on_read(size_t len)
@@ -89,7 +89,7 @@ void UdpSocket::on_read(size_t len)
     (this->*_on_read)(len);
 }
 
-void UdpSocket::on_recvfrom(size_t len)
+void UdpSocket::do_recvfrom(size_t len)
 {
 #ifdef _WIN32
     if (len > 0)
@@ -99,7 +99,7 @@ void UdpSocket::on_recvfrom(size_t len)
         LuaSockAddr sa;
         sa.addr = (const struct sockaddr *)&_remote_sockaddr;
         sa.addrlen = _remote_sockaddr_len;
-        invoke_delegate(on_socket_recvfrom, this, &_recv_buffer, &sa);
+        on_recvfrom(this, &_recv_buffer, &sa);
     }
 #endif
 
@@ -122,18 +122,18 @@ void UdpSocket::on_recvfrom(size_t len)
         LuaSockAddr sa;
         sa.addr = (const struct sockaddr *)&_remote_sockaddr;
         sa.addrlen = _remote_sockaddr_len;
-        invoke_delegate(on_socket_recvfrom, this, &_recv_buffer, &sa);
+        on_recvfrom(this, &_recv_buffer, &sa);
     }
 }
 
-void UdpSocket::on_recv(size_t len)
+void UdpSocket::do_recv(size_t len)
 {
 #ifdef _WIN32
     if (len > 0)
     {
         _recv_buffer.push(nullptr, len);
 
-        invoke_delegate(on_socket_recv, this, &_recv_buffer);
+        on_recv(this, &_recv_buffer);
     }
 #endif
 
@@ -153,6 +153,6 @@ void UdpSocket::on_recv(size_t len)
 
         _recv_buffer.push(nullptr, ret);
 
-        invoke_delegate(on_socket_recv, this, &_recv_buffer);
+        on_recv(this, &_recv_buffer);
     }
 }

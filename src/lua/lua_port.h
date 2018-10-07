@@ -554,6 +554,16 @@ inline void set_class_info(lua_State *L, const char *class_name, const char *id,
     } \
     lua_setfield(L, -2, #property)
 
+#define lua_property(L, property) \
+    lua_newtable(L); \
+    { \
+        lua_push_method(L, property); \
+        lua_setfield(L, -2, "get"); \
+        lua_push_method(L, set_##property); \
+        lua_setfield(L, -2, "set"); \
+    } \
+    lua_setfield(L, -2, #property)
+
 #define lua_lib(L, name) \
     do \
     { \
@@ -566,17 +576,6 @@ inline void set_class_info(lua_State *L, const char *class_name, const char *id,
             lua_setglobal(L, name); \
         } \
     } while (false)
-
-
-#define lua_property(L, property) \
-    lua_newtable(L); \
-    { \
-        lua_push_method(L, property); \
-        lua_setfield(L, -2, "get"); \
-        lua_push_method(L, set_##property); \
-        lua_setfield(L, -2, "set"); \
-    } \
-    lua_setfield(L, -2, #property)
 
 inline int lua_btcall(lua_State *L, int nargs, int nresults)
 {

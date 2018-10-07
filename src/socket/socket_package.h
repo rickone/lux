@@ -4,15 +4,9 @@
 #include "buffer.h"
 #include "lua_port.h"
 
-class SocketPackage;
 struct LuaPackage;
 
-struct SocketPackageDelegate
-{
-    virtual void on_package_recv(SocketPackage *, LuaPackage *){}
-};
-
-class SocketPackage : public Component, public SocketDelegate, public Delegate<SocketPackageDelegate>
+class SocketPackage : public Component
 {
 public:
     SocketPackage() = default;
@@ -20,15 +14,19 @@ public:
 
     static void new_class(lua_State *L);
     static std::shared_ptr<SocketPackage> create();
+    void on_socket_recv(Socket *socket, Buffer *buffer);
 
     int lua_send(lua_State *L);
 
     virtual void start() override;
-    virtual void on_socket_recv(Socket *socket, Buffer *buffer) override;
+
+    template<typename T, typename F>
+    void set_callback(T *object, F func) { _callback.set(object, func); }
 
 private:
     std::shared_ptr<Socket> _socket;
     uint16_t _package_len;
+    Callback<SocketPackage *, LuaPackage *> _callback;
 };
 
 struct LuaPackage : LuaObject

@@ -17,7 +17,11 @@ public:
 
     virtual void on_read(size_t len) override;
 
+    template<typename T, typename F>
+    void set_callback(T *object, F func) { _callback.set(object, func); }
+
 private:
     struct gaicb _gaicb;
     struct addrinfo *_cur_addrinfo;
+    Callback<SocketAddr *> _callback;
 };

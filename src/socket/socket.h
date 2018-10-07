@@ -6,6 +6,7 @@
 #include "lua_component.h"
 #include "error.h"
 #include "buffer.h"
+#include "callback.h"
 
 enum SocketEventFlag
 {
@@ -15,21 +16,9 @@ enum SocketEventFlag
     kSocketEvent_ReadWrite  = 3,
 };
 
-class Socket;
 struct LuaSockAddr;
 
-struct SocketDelegate
-{
-    virtual void on_socket_connect(Socket *){}
-    virtual void on_socket_error(Socket *){}
-    virtual void on_socket_close(Socket *){}
-    virtual void on_socket_accept(Socket *, Socket *){}
-    virtual void on_socket_recv(Socket *, Buffer *){}
-    virtual void on_socket_recvfrom(Socket *, Buffer *, LuaSockAddr *){}
-    virtual void on_socket_singnal(Socket *){}
-};
-
-class Socket : public Component, public Delegate<SocketDelegate>
+class Socket : public Component
 {
 public:
     Socket();
@@ -46,6 +35,8 @@ public:
 
     void init(int family, int socktype, int protocol);
     void close() noexcept;
+    void disconnect(); // passively close
+    void shutdown(); // 
     void attach(socket_t fd);
     socket_t detach();
     void add_event(int event_flag);
@@ -80,7 +71,6 @@ public:
     
     virtual void on_read(size_t len);
     virtual void on_write(size_t len);
-    virtual void on_error() noexcept;
 #ifdef _WIN32
     virtual void on_complete(LPWSAOVERLAPPED ovl, size_t len);
 #endif
@@ -93,6 +83,13 @@ public:
     int ovl_ref() { return _ovl_ref; }
 #endif
 
+    def_lua_callback(on_connect, Socket *)
+    def_lua_callback(on_error, Socket *)
+    def_lua_callback(on_close, Socket *)
+    def_lua_callback(on_accept, Socket *, Socket *)
+    def_lua_callback(on_recv, Socket *, Buffer *)
+    def_lua_callback(on_recvfrom, Socket *, Buffer *, LuaSockAddr *)
+    
 protected:
     socket_t _fd;
 
@@ -108,7 +105,8 @@ protected:
     {   \
         socket_t fd = _fd;   \
         int __sock_err = get_socket_error(); \
-        on_error();     \
+        on_error(this);     \
+        close(); \
         throw_system_error(__sock_err, "fd(%d)", (int)fd); \
     } while (false)
 

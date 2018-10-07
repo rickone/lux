@@ -65,7 +65,7 @@ void TcpSocket::send_pending(const char *data, size_t len)
     if (_send_buffer.size() > config->env()->socket_send_buffer_max)
     {
         socket_t fd = _fd;
-        on_error();
+        on_error(this);
         throw_error(std::runtime_error, "fd(%d) send_pending buffer(%u Byte) overflow", fd, _send_buffer.size());
     }
 
@@ -121,8 +121,7 @@ void TcpSocket::on_read(size_t len)
 #endif
         if (ret == 0)
         {
-            invoke_delegate(on_socket_close, this);
-
+            on_close(this);
             close();
             return;
         }
@@ -137,7 +136,7 @@ void TcpSocket::on_read(size_t len)
 
         _recv_buffer.push(nullptr, ret);
 
-        invoke_delegate(on_socket_recv, this, &_recv_buffer);
+        on_recv(this, &_recv_buffer);
     }
 }
 
@@ -151,7 +150,7 @@ void TcpSocket::on_write(size_t len)
 
         if (connect_time == -1)
         {
-            on_error();
+            on_error(this);
             throw_error(std::runtime_error, "ConnectEx error: SO_CONNECT_TIME = %d", connect_time);
         }
 #endif
@@ -159,7 +158,7 @@ void TcpSocket::on_write(size_t len)
         log_info("fd(%d) connected", _fd);
         _connected = true;
 
-        invoke_delegate(on_socket_connect, this);
+        on_connect(this);
 
 #ifdef _WIN32
         on_read(0);

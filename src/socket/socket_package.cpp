@@ -23,27 +23,6 @@ std::shared_ptr<SocketPackage> SocketPackage::create()
     return std::shared_ptr<SocketPackage>(new SocketPackage());
 }
 
-int SocketPackage::lua_send(lua_State *L)
-{
-    size_t len = 0;
-    const char *data = luaL_checklstring(L, 1, &len);
-
-    if (len >= USHRT_MAX)
-        return luaL_argerror(L, 1, "too long to send");
-
-    uint16_t header = (uint16_t)len;
-
-    _socket->send((const char *)&header, sizeof(header), 0);
-    _socket->send(data, len, 0);
-    return 0;
-}
-
-void SocketPackage::start()
-{
-    _socket = std::static_pointer_cast<Socket>(_entity->find_component("socket"));
-    _socket->add_delegate(this);
-}
-
 void SocketPackage::on_socket_recv(Socket *socket, Buffer *buffer)
 {
     if (_package_len == 0)
@@ -63,7 +42,28 @@ void SocketPackage::on_socket_recv(Socket *socket, Buffer *buffer)
 
     LuaPackage package;
     package.str = str;
-    invoke_delegate(on_package_recv, this, &package);
+    _callback(this, &package);
 
     _package_len = 0;
+}
+
+int SocketPackage::lua_send(lua_State *L)
+{
+    size_t len = 0;
+    const char *data = luaL_checklstring(L, 1, &len);
+
+    if (len >= USHRT_MAX)
+        return luaL_argerror(L, 1, "too long to send");
+
+    uint16_t header = (uint16_t)len;
+
+    _socket->send((const char *)&header, sizeof(header), 0);
+    _socket->send(data, len, 0);
+    return 0;
+}
+
+void SocketPackage::start()
+{
+    _socket = std::static_pointer_cast<Socket>(_entity->find_component("socket"));
+    _socket->on_recv.set(this, &SocketPackage::on_socket_recv);
 }

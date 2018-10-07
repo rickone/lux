@@ -57,7 +57,7 @@ void UnixSocket::init_bind(const char *socket_path)
     Socket::bind((const struct sockaddr *)&addr, sizeof(addr));
     add_event(kSocketEvent_Read);
     _socket_path = addr.sun_path;
-    _on_read = &UnixSocket::on_recvfrom;
+    _on_read = &UnixSocket::do_recvfrom;
 }
 
 void UnixSocket::connect(const char *socket_path)
@@ -70,7 +70,7 @@ void UnixSocket::connect(const char *socket_path)
     addr.sun_path[sizeof(addr.sun_path) - 1] = 0;
 
     Socket::connect((const struct sockaddr *)&addr, sizeof(addr));
-    _on_read = &UnixSocket::on_recv;
+    _on_read = &UnixSocket::do_recv;
 }
 
 void UnixSocket::push_socket(Socket *socket)
@@ -249,7 +249,7 @@ void UnixSocket::on_read(size_t len)
     (this->*_on_read)(len);
 }
 
-void UnixSocket::on_recvfrom(size_t len)
+void UnixSocket::do_recvfrom(size_t len)
 {
     while (_fd >= 0)
     {
@@ -261,8 +261,7 @@ void UnixSocket::on_recvfrom(size_t len)
         int ret = recvfrom(back.first, back.second, 0, (struct sockaddr *)&remote_sockaddr, &remote_sockaddr_len);
         if (ret == 0)
         {
-            invoke_delegate(on_socket_close, this);
-
+            on_close(this);
             close();
             return;
         }
@@ -275,11 +274,11 @@ void UnixSocket::on_recvfrom(size_t len)
         LuaSockAddr sa;
         sa.addr = (const struct sockaddr *)&remote_sockaddr;
         sa.addrlen = remote_sockaddr_len;
-        invoke_delegate(on_socket_recvfrom, this, &_recv_buffer, &sa);
+        on_recvfrom(this, &_recv_buffer, &sa);
     }
 }
 
-void UnixSocket::on_recv(size_t len)
+void UnixSocket::do_recv(size_t len)
 {
     while (_fd >= 0)
     {
@@ -287,8 +286,7 @@ void UnixSocket::on_recv(size_t len)
         int ret = recvfrom(back.first, back.second, 0, nullptr, nullptr);
         if (ret == 0)
         {
-            invoke_delegate(on_socket_close, this);
-
+            on_close(this);
             close();
             return;
         }
@@ -298,7 +296,7 @@ void UnixSocket::on_recv(size_t len)
 
         _recv_buffer.push(nullptr, ret);
 
-        invoke_delegate(on_socket_recv, this, &_recv_buffer);
+        on_recv(this, &_recv_buffer);
     }
 }
 

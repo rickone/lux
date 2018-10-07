@@ -45,7 +45,7 @@ void UdpSocketListener::init_service(const char *node, const char *service)
     });
 }
 
-void UdpSocketListener::on_accept()
+void UdpSocketListener::do_accept()
 {
     std::string key = get_sockaddr_key((const struct sockaddr *)&_remote_sockaddr, _remote_sockaddr_len);
     auto it = _accepted_sockets.find(key);
@@ -63,9 +63,7 @@ void UdpSocketListener::on_accept()
     socket.connect((const struct sockaddr *)&_remote_sockaddr, _remote_sockaddr_len);
 
     auto udp_socket = UdpSocket::create(socket.detach());
-    //auto shared_socket = std::static_pointer_cast<Socket>(udp_socket);
-
-    invoke_delegate(on_socket_accept, this, udp_socket.get());
+    on_accept(this, udp_socket.get());
 
     udp_socket->on_recv_buffer(&_recv_buffer);
 }
@@ -86,7 +84,7 @@ void UdpSocketListener::on_read(size_t len)
 
         _recv_buffer.push(nullptr, ret);
 
-        on_accept();
+        do_accept();
     }
 }
 

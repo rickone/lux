@@ -105,7 +105,7 @@ void SocketAddr::on_read(size_t len)
     if (ret < (int)sizeof(siginfo))
         throw_socket_error();
 
-    invoke_delegate(on_socket_singnal, this);
+    _callback(this);
 
     close();
 }

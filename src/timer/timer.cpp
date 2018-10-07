@@ -2,7 +2,7 @@
 #include "timer_manager.h"
 #include "component.h"
 
-Timer::Timer(int interval, int counter) : _interval(interval), _counter(counter), _callback_object(), _callback_func()
+Timer::Timer(int interval, int counter) : _interval(interval), _counter(counter), _callback()
 {
 }
 
@@ -37,19 +37,14 @@ bool Timer::trigger()
     if (_counter > 0)
         _counter--;
 
-    auto object = _callback_object.lock();
-    if (!object)
-        return false;
-
     try
     {
-        _callback_func(object.get(), this);
+        _callback(this);
     }
     catch (const std::runtime_error &err)
     {
         log_error("%s", err.what());
     }
-    
     return _counter != 0;
 }
 
@@ -57,6 +52,5 @@ void Timer::stop()
 {
     _interval = 0;
     _counter = 0;
-    _callback_object.reset();
-    _callback_func = nullptr;
+    _callback.clear();
 }

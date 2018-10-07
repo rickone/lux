@@ -39,8 +39,9 @@ void Entity::clear()
 
 void Entity::add_component(const std::shared_ptr<Component> &component)
 {
-    size_t code = typeid(*component.get()).hash_code();
-    _components[code] = component;
+    auto ptr = component.get();
+    size_t code = typeid(*ptr).hash_code();
+    _components.emplace(code, component);
     component->set_entity(this);
     component->start();
 }
@@ -52,6 +53,18 @@ std::shared_ptr<Component> Entity::get_component(size_t code)
         return nullptr;
 
     return it->second;
+}
+
+int Entity::get_components(size_t code, const std::function<void(std::shared_ptr<Component> &)> &func)
+{
+    int count = 0;
+    auto range = _components.equal_range(code);
+    for (auto it = range.first; it != range.second; ++it)
+    {
+        ++count;
+        func(it->second);
+    }
+    return count;
 }
 
 std::shared_ptr<Component> Entity::find_component(const char *name)
@@ -85,7 +98,6 @@ int Entity::lua_add_component(lua_State *L)
         lua_component->init(L);
 
         add_component(lua_component);
-
         lua_push(L, lua_component);
     }
     else
@@ -108,12 +120,9 @@ int Entity::lua_get_component(lua_State *L)
     lua_getfield(L, -1, "code");
     size_t code = (size_t)luaL_checkinteger(L, -1);
 
-    auto component = get_component(code);
-    if (!component)
-        return 0;
-
-    lua_push(L, component.get());
-    return 1;
+    return get_components(code, [L](std::shared_ptr<Component> &component){
+        lua_push(L, component.get());
+    });
 }
 
 int Entity::lua_find_component(lua_State *L)

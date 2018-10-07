@@ -7,6 +7,8 @@ function client:start()
     self.entity:add_component(socket)
     self.socket = socket
     
+    socket.on_recv = {self, "on_socket_recv"}
+    
     self:set_timer("update", 100, 10)
 end
 

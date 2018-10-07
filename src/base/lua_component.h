@@ -4,6 +4,7 @@
 #include "entity.h"
 #include "lua_port.h"
 #include "log.h"
+#include "callback.h"
 
 class LuaComponent : public Component
 {
@@ -50,15 +51,29 @@ void LuaComponent::invoke(const char *name, A...args)
         log_error("[Lua] %s", lua_tostring(L, -1));
 }
 
-#define invoke_delegate(method, ...) \
-    do \
+template<typename... A>
+int lua_set_callback(Callback<A...> &cb, lua_State *L)
+{
+    lua_geti(L, 1, 1);
+    LuaComponent *object = lua_to<LuaComponent *>(L, -1);
+
+    lua_geti(L, 1, 2);
+    const char *name = luaL_checkstring(L, -1);
+
+    std::function<void (LuaComponent *, A...)> func = [name](LuaComponent *object, A...args){
+        object->invoke(name, args...);
+    };
+    cb.set(object, func);
+    return 0;
+}
+
+#define def_lua_callback(callback, ...) \
+    Callback<__VA_ARGS__> callback; \
+    int lua_set_##callback(lua_State *L) { return lua_set_callback(callback, L); }
+
+#define lua_callback(L, callback) \
+    lua_newtable(L); \
     { \
-        for (auto dlgt : _delegate) \
-            dlgt->method(__VA_ARGS__); \
-        if (_entity) \
-        { \
-            auto component = _entity->get_component<LuaComponent>(); \
-            if (component) \
-                component->invoke(#method, ## __VA_ARGS__); \
-        } \
-    } while (false)
+        lua_set_method(L, "set", lua_set_##callback); \
+    } \
+    lua_setfield(L, -2, #callback)

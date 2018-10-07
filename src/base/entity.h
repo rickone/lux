@@ -16,6 +16,7 @@ public:
     void clear();
     void add_component(const std::shared_ptr<Component> &component);
     std::shared_ptr<Component> get_component(size_t code);
+    int get_components(size_t code, const std::function<void(std::shared_ptr<Component> &)> &func);
     std::shared_ptr<Component> find_component(const char *name);
     void remove();
     int lua_add_component(lua_State *L);
@@ -31,7 +32,7 @@ public:
     std::shared_ptr<T> get_component();
 
 private:
-    std::unordered_map<size_t, std::shared_ptr<Component> > _components;
+    std::unordered_multimap<size_t, std::shared_ptr<Component> > _components;
     bool _removed;
 };
 

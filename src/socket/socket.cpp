@@ -52,6 +52,13 @@ void Socket::new_class(lua_State *L)
     lua_newtable(L);
     {
         lua_property_readonly(L, fd);
+
+        lua_callback(L, on_connect);
+        lua_callback(L, on_error);
+        lua_callback(L, on_close);
+        lua_callback(L, on_accept);
+        lua_callback(L, on_recv);
+        lua_callback(L, on_recvfrom);
     }
     lua_setfield(L, -2, "__property");
 }
@@ -186,7 +193,7 @@ bool Socket::connect(const struct sockaddr *addr, socklen_t addrlen)
 
     auto name = get_addrname(addr, addrlen);
     bool connected = (ret == 0);
-    log_info("fd(%d) connect %s ... %s", _fd, name.c_str(), (connected ? "ok." : "io-pending"));
+    log_info("fd(%d) connect %s ... %s", _fd, name.c_str(), (connected ? "OK" : "pending"));
     return connected;
 }
 
@@ -507,13 +514,6 @@ void Socket::on_read(size_t len)
 
 void Socket::on_write(size_t len)
 {
-}
-
-void Socket::on_error() noexcept
-{
-    invoke_delegate(on_socket_error, this);
-
-    close();
 }
 
 #ifdef _WIN32

@@ -22,8 +22,8 @@ public:
     virtual void on_read(size_t len) override;
 
 private:
-    void on_recvfrom(size_t len);
-    void on_recv(size_t len);
+    void do_recvfrom(size_t len);
+    void do_recv(size_t len);
 
     Buffer _recv_buffer;
     void (UdpSocket::*_on_read)(size_t len);

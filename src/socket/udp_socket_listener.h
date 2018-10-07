@@ -17,7 +17,7 @@ public:
     static std::shared_ptr<UdpSocketListener> create(const char *node, const char *service);
 
     void init_service(const char *node, const char *service);
-    void on_accept();
+    void do_accept();
 
     virtual void on_read(size_t len) override;
 

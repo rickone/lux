@@ -33,23 +33,31 @@ void LuaComponent::init(lua_State *L)
         lua_settable(L, table);
     }
 
-    lua_getfield(L, -1, "init");
+    lua_remove(L, 1);
+    lua_remove(L, -1);
+}
+
+void LuaComponent::start()
+{
+    lua_State *L = lua_state;
+    if (!L)
+        return;
+
+    int top = lua_gettop(L);
+    if (!get_luaref(L))
+        return;
+    
+    lua_getfield(L, -1, "start");
     if (!lua_isfunction(L, -1))
     {
         lua_settop(L, top);
         return;
     }
 
-    lua_remove(L, 1);
     lua_insert(L, 1);
     lua_insert(L, 2);
 
-    lua_call(L, top, 0);
-}
-
-void LuaComponent::start()
-{
-    invoke("start");
+    lua_call(L, top + 1, 0);
 }
 
 void LuaComponent::stop() noexcept

@@ -30,8 +30,8 @@ public:
     virtual void on_read(size_t len) override;
 
 protected:
-    void on_recvfrom(size_t len);
-    void on_recv(size_t len);
+    void do_recvfrom(size_t len);
+    void do_recv(size_t len);
 
     Buffer _recv_buffer;
     Buffer _send_buffer;

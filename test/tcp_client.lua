@@ -3,11 +3,14 @@ require "lux"
 local client = {}
 
 function client:start()
-    local socket = socket_core.tcp_connect("www.baidu.com", "443")
+    local socket = socket_core.tcp_connect("localhost", "8866")
     self.entity:add_component(socket)
     self.socket = socket
 
-    --self:set_timer("update", 100, 10)
+    socket.on_connect = {self, "on_socket_connect"}
+    socket.on_recv = {self, "on_socket_recv"}
+
+    self:set_timer("update", 100, 10)
 end
 
 function client:on_socket_connect(socket)

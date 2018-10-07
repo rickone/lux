@@ -61,8 +61,7 @@ void UnixSocketListener::on_read(size_t len)
             break;
 
         auto unix_socket = UnixSocketStream::create(socket.detach());
-
-        invoke_delegate(on_socket_accept, this, unix_socket.get());
+        on_accept(this, unix_socket.get());
     }
 }
 
