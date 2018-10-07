@@ -1,19 +1,10 @@
 require "lux"
 
-local function proc_func()
-    local agent = {}
-
-    function agent:start(socket)
-        self.entity:add_component(socket)
-        socket.on_recv = bind(self.on_recv, self)
-    end
-
-    function agent:on_recv(socket, buffer)
-        print("on_recv", socket, buffer)
+local function proc_func(socket)
+    function socket:on_recv(buffer)
+        print("on_recv", self, buffer)
         buffer:clear()
     end
-
-    return agent
 end
 
 local sockets = {}

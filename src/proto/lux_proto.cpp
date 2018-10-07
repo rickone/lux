@@ -240,7 +240,7 @@ int LuxProto::lua_unpack_one(lua_State *L)
             lua_createtable(L, lst_len, 0);
             for (size_t i = 0; i < lst_len; ++i)
             {
-                lua_unpack(L);
+                lua_unpack_one(L);
                 lua_rawseti(L, -2, (lua_Integer)(i + 1));
             }
             break;
@@ -255,8 +255,8 @@ int LuxProto::lua_unpack_one(lua_State *L)
             lua_newtable(L);
             for (size_t i = 0; i < dict_len; ++i)
             {
-                lua_unpack(L);
-                lua_unpack(L);
+                lua_unpack_one(L);
+                lua_unpack_one(L);
                 lua_rawset(L, -3);
             }
             break;

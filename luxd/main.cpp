@@ -81,9 +81,8 @@ void test5(const TestProto2 *info, int score)
         << score << std::endl;
 }
 
-int main(int argc, char* argv[])
+int lux_proto_test()
 {
-    //return LuxCore::main(argc, argv);
     LuxProto pt;
     pt.pack(true);
     pt.pack<unsigned char>(UCHAR_MAX);
@@ -143,4 +142,10 @@ int main(int argc, char* argv[])
     pt.invoke(test5);
 
     return 0;
+}
+
+int main(int argc, char* argv[])
+{
+    //return lux_proto_test();
+    return LuxCore::main(argc, argv);
 }

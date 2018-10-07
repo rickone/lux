@@ -103,7 +103,8 @@ int UnixSocketStream::lua_fork(lua_State *L)
 
     auto socket_out = fork(proc_title, [L](const std::shared_ptr<UnixSocketStream> &socket_in){
         lua_remove(L, 1);
-        lua_call(L, 0, 0);
+        lua_push(L, socket_in.get());
+        lua_call(L, 1, 0);
     });
     lua_push(L, socket_out);
     return 1;
