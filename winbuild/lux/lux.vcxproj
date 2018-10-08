@@ -99,7 +99,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;STREAM_EXPORTS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;STREAM_EXPORTS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>../../3rd/lua/src;../../3rd/kcp;../../src/base;../../src/misc;../../src/lua;../../src/proto;../../src/socket;../../src/timer</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -114,7 +114,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_DEBUG;_WINDOWS;_USRDLL;STREAM_EXPORTS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_WINDOWS;_USRDLL;STREAM_EXPORTS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>../../3rd/lua/src;../../3rd/kcp;../../src/base;../../src/misc;../../src/lua;../../src/proto;../../src/socket;../../src/timer</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -131,7 +131,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;STREAM_EXPORTS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;STREAM_EXPORTS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>../../3rd/lua/src;../../3rd/kcp;../../src/base;../../src/misc;../../src/lua;../../src/proto;../../src/socket;../../src/timer</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -150,7 +150,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>NDEBUG;_WINDOWS;_USRDLL;STREAM_EXPORTS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_WINDOWS;_USRDLL;STREAM_EXPORTS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>../../3rd/lua/src;../../3rd/kcp;../../src/base;../../src/misc;../../src/lua;../../src/proto;../../src/socket;../../src/timer</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -166,15 +166,14 @@
     <ClCompile Include="..\..\src\base\lux_core.cpp" />
     <ClCompile Include="..\..\src\lua\lua_object.cpp" />
     <ClCompile Include="..\..\src\lua\lua_port.cpp" />
-    <ClCompile Include="..\..\src\lua\lua_proto.cpp" />
     <ClCompile Include="..\..\src\lua\lua_state.cpp" />
     <ClCompile Include="..\..\src\misc\buffer.cpp" />
     <ClCompile Include="..\..\src\misc\config.cpp" />
     <ClCompile Include="..\..\src\misc\error.cpp" />
     <ClCompile Include="..\..\src\misc\getopt_win32.c" />
     <ClCompile Include="..\..\src\misc\log.cpp" />
-    <ClCompile Include="..\..\src\misc\variant_int.cpp" />
     <ClCompile Include="..\..\src\proto\lux_proto.cpp" />
+    <ClCompile Include="..\..\src\proto\variant_int.cpp" />
     <ClCompile Include="..\..\src\socket\socket.cpp" />
     <ClCompile Include="..\..\src\socket\socket_kcp.cpp" />
     <ClCompile Include="..\..\src\socket\socket_manager.cpp" />
@@ -202,7 +201,6 @@
     <ClInclude Include="..\..\src\lua\lua_bridge.h" />
     <ClInclude Include="..\..\src\lua\lua_object.h" />
     <ClInclude Include="..\..\src\lua\lua_port.h" />
-    <ClInclude Include="..\..\src\lua\lua_proto.h" />
     <ClInclude Include="..\..\src\lua\lua_state.h" />
     <ClInclude Include="..\..\src\misc\buffer.h" />
     <ClInclude Include="..\..\src\misc\callback.h" />
@@ -211,9 +209,9 @@
     <ClInclude Include="..\..\src\misc\getopt_win32.h" />
     <ClInclude Include="..\..\src\misc\log.h" />
     <ClInclude Include="..\..\src\misc\skip_list.h" />
-    <ClInclude Include="..\..\src\misc\variant_int.h" />
     <ClInclude Include="..\..\src\proto\lux_proto.h" />
     <ClInclude Include="..\..\src\proto\lux_proto_def.h" />
+    <ClInclude Include="..\..\src\proto\variant_int.h" />
     <ClInclude Include="..\..\src\socket\socket.h" />
     <ClInclude Include="..\..\src\socket\socket_def.h" />
     <ClInclude Include="..\..\src\socket\socket_kcp.h" />

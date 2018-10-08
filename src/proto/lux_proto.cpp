@@ -68,7 +68,7 @@ int LuxProto::lua_packlist(lua_State *L)
 {
     luaL_checktype(L, 1, LUA_TTABLE);
 
-    _str.push_back(LUX_HEADER_LIST);
+    _str.push_back((char)LUX_HEADER_LIST);
 
     int top = lua_gettop(L);
     size_t n = 0;
@@ -148,7 +148,7 @@ void LuxProto::lua_pack_one(lua_State *L, int index)
 
         case LUA_TTABLE:
         {
-            _str.push_back(LUX_HEADER_DICT);
+            _str.push_back((char)LUX_HEADER_DICT);
 
             size_t n = 0;
             lua_pushnil(L);
@@ -237,7 +237,7 @@ int LuxProto::lua_unpack_one(lua_State *L)
             size_t lst_len = varint_unpack(_str, _pos + 1, &lst_len_len);
             _pos += 1 + lst_len_len;
 
-            lua_createtable(L, lst_len, 0);
+            lua_createtable(L, (int)lst_len, 0);
             for (size_t i = 0; i < lst_len; ++i)
             {
                 lua_unpack_one(L);

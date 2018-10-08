@@ -37,7 +37,7 @@
 // basic string
 inline void lux_pack_string(std::string &str, const char *data, size_t len)
 {
-    str.push_back(LUX_HEADER_STRING);
+    str.push_back((char)LUX_HEADER_STRING);
     varint_pack(str, len);
     str.append(data, len);
     str.push_back(0);
@@ -82,7 +82,7 @@ struct LuxProtoDef<std::nullptr_t>
 {
     static void pack(std::string &str, std::nullptr_t ptr)
     {
-        str.push_back(LUX_HEADER_NULL);
+        str.push_back((char)LUX_HEADER_NULL);
     }
 
     static std::nullptr_t unpack(const std::string &str, size_t pos, size_t *used_len)
@@ -107,7 +107,7 @@ struct LuxProtoDef<std::nullptr_t>
         } \
         static c_type unpack(const std::string &str, size_t pos, size_t *used_len) \
         { \
-            return zigzag_decode##width(varint_unpack(str, pos, used_len)); \
+            return (c_type)zigzag_decode##width((uint32_t)varint_unpack(str, pos, used_len)); \
         } \
     }; \
     template<> \
@@ -119,7 +119,7 @@ struct LuxProtoDef<std::nullptr_t>
         } \
         static unsigned c_type unpack(const std::string &str, size_t pos, size_t *used_len) \
         { \
-            return varint_unpack(str, pos, used_len); \
+            return (unsigned c_type)varint_unpack(str, pos, used_len); \
         } \
     }
 
@@ -159,7 +159,7 @@ struct LuxProtoDef<float>
 {
     static void pack(std::string &str, float value)
     {
-        str.push_back(LUX_HEADER_FLOAT);
+        str.push_back((char)LUX_HEADER_FLOAT);
         str.append((const char *)&value, sizeof(value));
     }
 
@@ -182,7 +182,7 @@ struct LuxProtoDef<double>
 {
     static void pack(std::string &str, double value)
     {
-        str.push_back(LUX_HEADER_DOUBLE);
+        str.push_back((char)LUX_HEADER_DOUBLE);
         str.append((const char *)&value, sizeof(value));
     }
 
@@ -274,7 +274,7 @@ struct LuxProtoDef< std::vector<T> >
 {
     static void pack(std::string &str, const std::vector<T> &lst)
     {
-        str.push_back(LUX_HEADER_LIST);
+        str.push_back((char)LUX_HEADER_LIST);
         varint_pack(str, lst.size());
         for (const T &t : lst)
             LuxProtoDef<T>::pack(str, t);
@@ -309,7 +309,7 @@ struct LuxProtoDef< std::map<K, V> >
 {
     static void pack(std::string &str, const std::map<K, V> &dict)
     {
-        str.push_back(LUX_HEADER_DICT);
+        str.push_back((char)LUX_HEADER_DICT);
         varint_pack(str, dict.size());
         for (const typename std::map<K, V>::value_type &pair : dict)
         {
