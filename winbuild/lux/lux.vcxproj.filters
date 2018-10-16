@@ -84,6 +84,15 @@
     <ClCompile Include="..\..\src\proto\variant_int.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\task\task.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\task\task_manager.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\task\task_bucket.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\lua\lua_object.h">
@@ -168,6 +177,15 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\proto\variant_int.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\task\task.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\task\task_manager.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\task\task_bucket.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

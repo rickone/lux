@@ -1,6 +1,18 @@
 #include "lux_proto.h"
 #include <cstdio>
 
+LuxProto::LuxProto(const LuxProto &other) : _str(other._str)
+{
+}
+
+LuxProto & LuxProto::operator =(const LuxProto &other)
+{
+    _str = other._str;
+    _pos = 0;
+    _luxp_objs.clear();
+    return *this;
+}
+
 void LuxProto::new_class(lua_State *L)
 {
     lua_new_class(L, LuxProto);

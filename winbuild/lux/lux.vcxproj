@@ -100,7 +100,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;STREAM_EXPORTS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../../3rd/lua/src;../../3rd/kcp;../../src/base;../../src/misc;../../src/lua;../../src/proto;../../src/socket;../../src/timer</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../3rd/lua/src;../../3rd/kcp;../../src/base;../../src/misc;../../src/lua;../../src/proto;../../src/socket;../../src/timer;../../src/task</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -115,7 +115,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;_USRDLL;STREAM_EXPORTS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../../3rd/lua/src;../../3rd/kcp;../../src/base;../../src/misc;../../src/lua;../../src/proto;../../src/socket;../../src/timer</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../3rd/lua/src;../../3rd/kcp;../../src/base;../../src/misc;../../src/lua;../../src/proto;../../src/socket;../../src/timer;../../src/task</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -132,7 +132,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;STREAM_EXPORTS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../../3rd/lua/src;../../3rd/kcp;../../src/base;../../src/misc;../../src/lua;../../src/proto;../../src/socket;../../src/timer</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../3rd/lua/src;../../3rd/kcp;../../src/base;../../src/misc;../../src/lua;../../src/proto;../../src/socket;../../src/timer;../../src/task</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -151,7 +151,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;_USRDLL;STREAM_EXPORTS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../../3rd/lua/src;../../3rd/kcp;../../src/base;../../src/misc;../../src/lua;../../src/proto;../../src/socket;../../src/timer</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../3rd/lua/src;../../3rd/kcp;../../src/base;../../src/misc;../../src/lua;../../src/proto;../../src/socket;../../src/timer;../../src/task</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -193,6 +193,9 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="..\..\src\task\task.cpp" />
+    <ClCompile Include="..\..\src\task\task_bucket.cpp" />
+    <ClCompile Include="..\..\src\task\task_manager.cpp" />
     <ClCompile Include="..\..\src\timer\timer.cpp" />
     <ClCompile Include="..\..\src\timer\timer_manager.cpp" />
   </ItemGroup>
@@ -223,6 +226,9 @@
     <ClInclude Include="..\..\src\socket\udp_socket.h" />
     <ClInclude Include="..\..\src\socket\udp_socket_listener.h" />
     <ClInclude Include="..\..\src\socket\unix_socket.h" />
+    <ClInclude Include="..\..\src\task\task.h" />
+    <ClInclude Include="..\..\src\task\task_bucket.h" />
+    <ClInclude Include="..\..\src\task\task_manager.h" />
     <ClInclude Include="..\..\src\timer\timer.h" />
     <ClInclude Include="..\..\src\timer\timer_manager.h" />
   </ItemGroup>

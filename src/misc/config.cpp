@@ -141,6 +141,7 @@ void Config::load_env()
     _env.socket_recv_buffer_init = get_size("socket_recv_buffer_init", 2 * 1024);
     _env.socket_send_buffer_init = get_size("socket_send_buffer_init", 2 * 1024);
     _env.socket_send_buffer_max = get_size("socket_send_buffer_max", 128 * 1024);
+    _env.thread_num = get_int("thread_num", 0);
 }
 
 void Config::set_field(const std::string &field, const std::string &value)

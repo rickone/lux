@@ -6,6 +6,7 @@
 #include "timer_manager.h"
 #include "socket_manager.h"
 #include "lua_state.h"
+#include "task_manager.h"
 
 #ifdef _WIN32
 #include <io.h>
@@ -96,6 +97,7 @@ void LuxCore::init(int argc, char *argv[])
     TimerManager::inst()->init();
     SocketManager::inst()->init();
     LuaState::inst()->init();
+    TaskManager::inst()->init();
 
     auto timer = Timer::create(200);
     timer->on_timer.set(this, &LuxCore::on_gc);

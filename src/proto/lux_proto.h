@@ -18,7 +18,9 @@ class LuxProto : public LuaObject
 {
 public:
     LuxProto() = default;
+    LuxProto(const LuxProto &other);
     virtual ~LuxProto() = default;
+    LuxProto & operator =(const LuxProto &other);
 
     static void new_class(lua_State *L);
     static std::shared_ptr<LuxProto> create();
@@ -49,6 +51,12 @@ public:
     {
         static_assert(std::is_pointer<T>::value, "should be a pointer");
         t->pack(this);
+    }
+
+    template<typename...A>
+    void pack_args(A...args)
+    {
+        pack(args)...;
     }
 
     template<typename T>

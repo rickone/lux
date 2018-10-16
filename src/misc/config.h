@@ -13,6 +13,7 @@ struct ConfigEnv
     size_t  socket_recv_buffer_init;
     size_t  socket_send_buffer_init;
     size_t  socket_send_buffer_max;
+    int     thread_num;
 };
 
 class Config final
