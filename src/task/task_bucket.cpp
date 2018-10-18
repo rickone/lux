@@ -1,5 +1,5 @@
 #include "task_bucket.h"
-#include "object_manager.h"
+#include "lua_task.h"
 
 void TaskBucket::new_class(lua_State *L)
 {
@@ -19,19 +19,19 @@ void TaskBucket::new_class(lua_State *L)
 
     lua_lib(L, "lux_core");
     {
-        lua_set_method(L, "create_task_bucket", create);
+        lua_set_method(L, "create_task_bucket", lua_create);
     }
     lua_pop(L, 1);
 }
 
-std::shared_ptr<TaskBucket> TaskBucket::create(int num)
+int TaskBucket::lua_create(lua_State *L)
 {
-    auto task_bucket = ObjectManager::inst()->create<TaskBucket>();
-    task_bucket->init();
-    for (int i = 0; i < num; ++i)
-        task_bucket->add(std::make_shared<Task>());
+    const char *task_file = luaL_checkstring(L, 1);
+    int num = (int)luaL_checkinteger(L, 2);
 
-    return task_bucket;
+    auto task_bucket = TaskBucket::create<LuaTask>(num, task_file);
+    lua_push(L, task_bucket);
+    return 1;
 }
 
 void TaskBucket::init()

@@ -71,7 +71,7 @@ int LuxProto::lua_pack(lua_State *L)
     int top = lua_gettop(L);
     for (int i = 1; i <= top; ++i)
     {
-        lua_pack_one(L, i);
+        pack_lua_object(L, i);
     }
     return 0;
 }
@@ -98,7 +98,7 @@ int LuxProto::lua_packlist(lua_State *L)
     for (int i = 1; i <= (int)n; ++i)
     {
         lua_rawgeti(L, 1, i);
-        lua_pack_one(L, -1);
+        pack_lua_object(L, -1);
         lua_pop(L, 1);
     }
     return 0;
@@ -109,12 +109,12 @@ int LuxProto::lua_unpack(lua_State *L)
     int nresults = 0;
     while (_pos < _str.size())
     {
-        nresults += lua_unpack_one(L);
+        nresults += unpack_lua_object(L);
     }
     return nresults;
 }
 
-void LuxProto::lua_pack_one(lua_State *L, int index)
+void LuxProto::pack_lua_object(lua_State *L, int index)
 {
     int type = lua_type(L, index);
     if (index < 0)
@@ -174,8 +174,8 @@ void LuxProto::lua_pack_one(lua_State *L, int index)
             lua_pushnil(L);
             while (lua_next(L, index))
             {
-                lua_pack_one(L, -2);
-                lua_pack_one(L, -1);
+                pack_lua_object(L, -2);
+                pack_lua_object(L, -1);
                 lua_pop(L, 1);
             }
             break;
@@ -186,7 +186,7 @@ void LuxProto::lua_pack_one(lua_State *L, int index)
     }
 }
 
-int LuxProto::lua_unpack_one(lua_State *L)
+int LuxProto::unpack_lua_object(lua_State *L)
 {
     uint8_t header = (uint8_t)_str.at(_pos);
     if (is_varint_header(header))
@@ -252,7 +252,7 @@ int LuxProto::lua_unpack_one(lua_State *L)
             lua_createtable(L, (int)lst_len, 0);
             for (size_t i = 0; i < lst_len; ++i)
             {
-                lua_unpack_one(L);
+                unpack_lua_object(L);
                 lua_rawseti(L, -2, (lua_Integer)(i + 1));
             }
             break;
@@ -267,8 +267,8 @@ int LuxProto::lua_unpack_one(lua_State *L)
             lua_newtable(L);
             for (size_t i = 0; i < dict_len; ++i)
             {
-                lua_unpack_one(L);
-                lua_unpack_one(L);
+                unpack_lua_object(L);
+                unpack_lua_object(L);
                 lua_rawset(L, -3);
             }
             break;

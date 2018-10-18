@@ -18,17 +18,17 @@ public:
     Task() = default;
     virtual ~Task() = default;
 
-    void request(const LuxProto &pt);
+    void request(const LuxProto &req);
     void exec();
 
-    virtual void on_exec();
+    virtual void on_exec(LuxProto &req, LuxProto &rsp);
 
     TaskState state() { return _state.load(std::memory_order_acquire); }
     void set_state(TaskState state) { _state.store(state, std::memory_order_release); }
 
     const LuxProto & respond() const { return _rsp; }
 
-protected:
+private:
     std::atomic<TaskState> _state = { kTaskState_Idle };
     LuxProto _req;
     LuxProto _rsp;

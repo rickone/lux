@@ -194,6 +194,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="..\..\src\task\lua_task.cpp" />
     <ClCompile Include="..\..\src\task\task.cpp" />
     <ClCompile Include="..\..\src\task\task_bucket.cpp" />
     <ClCompile Include="..\..\src\task\task_manager.cpp" />
@@ -228,6 +229,7 @@
     <ClInclude Include="..\..\src\socket\udp_socket.h" />
     <ClInclude Include="..\..\src\socket\udp_socket_listener.h" />
     <ClInclude Include="..\..\src\socket\unix_socket.h" />
+    <ClInclude Include="..\..\src\task\lua_task.h" />
     <ClInclude Include="..\..\src\task\task.h" />
     <ClInclude Include="..\..\src\task\task_bucket.h" />
     <ClInclude Include="..\..\src\task\task_manager.h" />

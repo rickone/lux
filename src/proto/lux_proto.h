@@ -30,6 +30,8 @@ public:
     int lua_pack(lua_State *L);
     int lua_packlist(lua_State *L);
     int lua_unpack(lua_State *L);
+    void pack_lua_object(lua_State *L, int index);
+    int unpack_lua_object(lua_State *L);
 
     template<typename T>
     void pack(T t)
@@ -129,10 +131,6 @@ public:
 
     const std::string & str() const { return _str; }
     void set_str(const std::string &str) { _str = str; }
-
-private:
-    void lua_pack_one(lua_State *L, int index);
-    int lua_unpack_one(lua_State *L);
 
 private:
     std::string _str;
