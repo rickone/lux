@@ -5,7 +5,7 @@
 class LuaTask : public Task
 {
 public:
-    explicit LuaTask(const char *file_path);
+    LuaTask() = default;
     virtual ~LuaTask();
 
     virtual void on_exec(LuxProto &req, LuxProto &rsp) override;

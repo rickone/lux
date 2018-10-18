@@ -12,7 +12,7 @@ TaskManager::~TaskManager()
 
     while (!_tasks.empty())
     {
-        Task *task = _tasks.front();
+        auto &task = _tasks.front();
         task->set_state(kTaskState_Finished);
         _tasks.pop();
     }
@@ -32,7 +32,7 @@ void TaskManager::init()
         _threads.emplace_back(std::bind(&TaskManager::task_func, this));
 }
 
-void TaskManager::commit(Task *task)
+void TaskManager::commit(const std::shared_ptr<Task> &task)
 {
     {
         std::lock_guard<std::mutex> lock(_mutex);
@@ -44,11 +44,9 @@ void TaskManager::commit(Task *task)
 
 void TaskManager::task_func()
 {
-    puts("task_func start");
-
     while (_run_flag)
     {
-        Task *task = nullptr;
+        std::shared_ptr<Task> task;
         {
             std::unique_lock<std::mutex> lock(_mutex);
             _cv.wait(lock, [this] { return !_run_flag || (!_tasks.empty() && _tasks.front()->state() == kTaskState_Arranged); });
@@ -61,6 +59,4 @@ void TaskManager::task_func()
 
         task->exec();
     }
-
-    puts("task_func stop");
 }

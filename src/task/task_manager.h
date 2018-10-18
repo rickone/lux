@@ -16,12 +16,12 @@ public:
     static TaskManager * inst();
 
     void init();
-    void commit(Task *task);
+    void commit(const std::shared_ptr<Task> &task);
     void task_func();
 
 private:
     std::vector<std::thread> _threads;
-    std::queue<Task *> _tasks;
+    std::queue< std::shared_ptr<Task> > _tasks;
     std::mutex _mutex;
     std::condition_variable _cv;
     volatile bool _run_flag = false;

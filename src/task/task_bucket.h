@@ -1,6 +1,5 @@
 #pragma once
 
-#include <memory>
 #include <queue>
 #include <list>
 #include "task.h"
@@ -21,6 +20,7 @@ public:
     void clear();
     void add(const std::shared_ptr<Task> &task);
     void request(const LuxProto &pt);
+    void request_all(const LuxProto &pt);
     void on_timer();
     int lua_request(lua_State *L);
 

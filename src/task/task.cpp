@@ -7,7 +7,7 @@ void Task::request(const LuxProto &req)
 
     _req = req;
     set_state(kTaskState_Arranged);
-    TaskManager::inst()->commit(this);
+    TaskManager::inst()->commit(shared_from_this());
 }
 
 void Task::exec()
@@ -20,14 +20,4 @@ void Task::exec()
 
 void Task::on_exec(LuxProto &req, LuxProto &rsp)
 {
-    int a = req.unpack<int>();
-    int b = req.unpack<int>();
-    int r = a + b;
-    std::string str("task result: ");
-    str += std::to_string(a);
-    str.append(" + ");
-    str += std::to_string(b);
-    str.append(" = ");
-    str += std::to_string(r);
-    rsp.pack(str);
 }

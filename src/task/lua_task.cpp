@@ -1,19 +1,5 @@
 #include "lua_task.h"
 
-LuaTask::LuaTask(const char *file_path)
-{
-    lua_State *L = luaL_newstate();
-    _lua_state = L;
-
-    luaL_openlibs(L);
-
-    int ret = luaL_loadfile(L, file_path);
-    if (ret != LUA_OK)
-        luaL_error(L, "loadfile(%s) error: %s", file_path, lua_tostring(L, -1));
-
-    lua_call(L, 0, 0);
-}
-
 LuaTask::~LuaTask()
 {
     if (_lua_state)
@@ -25,7 +11,29 @@ LuaTask::~LuaTask()
 
 void LuaTask::on_exec(LuxProto &req, LuxProto &rsp)
 {
-    std::string func_name = req.unpack<std::string>();
+    std::string func_name;
+
+    if (_lua_state == nullptr)
+    {
+        std::string file_path = req.unpack<std::string>();
+
+        lua_State *L = luaL_newstate();
+        _lua_state = L;
+
+        luaL_openlibs(L);
+
+        int ret = luaL_loadfile(L, file_path.c_str());
+        if (ret != LUA_OK)
+            luaL_error(L, "loadfile(%s) error: %s", file_path.c_str(), lua_tostring(L, -1));
+
+        lua_call(L, 0, 0);
+
+        func_name = "init";
+    }
+    else
+    {
+        func_name = req.unpack<std::string>();
+    }
 
     lua_State *L = _lua_state;
     int top = lua_gettop(L);

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <atomic>
 #include "lux_proto.h"
 #include "error.h"
@@ -12,7 +13,7 @@ enum TaskState
     kTaskState_Finished,
 };
 
-class Task
+class Task : public std::enable_shared_from_this<Task>
 {
 public:
     Task() = default;

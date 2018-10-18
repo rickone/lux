@@ -26,10 +26,16 @@ void TaskBucket::new_class(lua_State *L)
 
 int TaskBucket::lua_create(lua_State *L)
 {
-    const char *task_file = luaL_checkstring(L, 1);
-    int num = (int)luaL_checkinteger(L, 2);
+    int num = (int)luaL_checkinteger(L, 1);
 
-    auto task_bucket = TaskBucket::create<LuaTask>(num, task_file);
+    LuxProto pt;
+    int top = lua_gettop(L);
+    for (int i = 2; i <= top; ++i)
+        pt.pack_lua_object(L, i);
+
+    auto task_bucket = TaskBucket::create<LuaTask>(num);
+    task_bucket->request_all(pt);
+
     lua_push(L, task_bucket);
     return 1;
 }
@@ -72,6 +78,19 @@ void TaskBucket::request(const LuxProto &pt)
 
     _busy_tasks.push_back(task);
     _idle_tasks.pop_front();
+}
+
+void TaskBucket::request_all(const LuxProto &pt)
+{
+    if (_clear_flag)
+        return;
+
+    for (auto &task : _idle_tasks)
+    {
+        task->request(pt);
+        _busy_tasks.push_back(task);
+    }
+    _idle_tasks.clear();
 }
 
 void TaskBucket::on_timer()
