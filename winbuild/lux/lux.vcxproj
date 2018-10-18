@@ -164,6 +164,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\base\lux_core.cpp" />
+    <ClCompile Include="..\..\src\base\object_manager.cpp" />
     <ClCompile Include="..\..\src\lua\lua_object.cpp" />
     <ClCompile Include="..\..\src\lua\lua_port.cpp" />
     <ClCompile Include="..\..\src\lua\lua_state.cpp" />
@@ -201,6 +202,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\base\lux_core.h" />
+    <ClInclude Include="..\..\src\base\object_manager.h" />
     <ClInclude Include="..\..\src\lua\lua_bridge.h" />
     <ClInclude Include="..\..\src\lua\lua_object.h" />
     <ClInclude Include="..\..\src\lua\lua_port.h" />

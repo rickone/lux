@@ -21,7 +21,7 @@ public:
     void request(const LuxProto &pt);
     void exec();
 
-    virtual void on_exec() {}
+    virtual void on_exec();
 
     TaskState state() { return _state.load(std::memory_order_acquire); }
     void set_state(TaskState state) { _state.store(state, std::memory_order_release); }

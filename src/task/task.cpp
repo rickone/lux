@@ -17,3 +17,17 @@ void Task::exec()
     on_exec();
     set_state(kTaskState_Finished);
 }
+
+void Task::on_exec()
+{
+    int a = _req.unpack<int>();
+    int b = _req.unpack<int>();
+    int r = a + b;
+    std::string str("task result: ");
+    str += std::to_string(a);
+    str.append(" + ");
+    str += std::to_string(b);
+    str.append(" = ");
+    str += std::to_string(r);
+    _rsp.pack(str);
+}

@@ -26,7 +26,7 @@ void UdpSocketListener::new_class(lua_State *L)
 
 std::shared_ptr<UdpSocketListener> UdpSocketListener::create(const char *node, const char *service)
 {
-    auto socket = SocketManager::inst()->create<UdpSocketListener>();
+    auto socket = ObjectManager::inst()->create<UdpSocketListener>();
     socket->init_service(node, service);
     return socket;
 }

@@ -9,6 +9,13 @@ TaskManager::~TaskManager()
 
     for (auto &thread : _threads)
         thread.join();
+
+    while (!_tasks.empty())
+    {
+        Task *task = _tasks.front();
+        task->set_state(kTaskState_Finished);
+        _tasks.pop();
+    }
 }
 
 TaskManager * TaskManager::inst()

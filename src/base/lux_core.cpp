@@ -3,6 +3,7 @@
 #include <signal.h>
 #include "config.h"
 #include "log.h"
+#include "object_manager.h"
 #include "timer_manager.h"
 #include "socket_manager.h"
 #include "lua_state.h"
@@ -169,7 +170,7 @@ void LuxCore::set_proc_title(const char *title)
 void LuxCore::on_gc()
 {
     LuaState::inst()->gc();
-    SocketManager::inst()->gc();
+    ObjectManager::inst()->gc();
 }
 
 void LuxCore::on_fork(int pid)

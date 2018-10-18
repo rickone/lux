@@ -53,10 +53,15 @@ public:
         t->pack(this);
     }
 
-    template<typename...A>
-    void pack_args(A...args)
+    template<typename T, typename...A>
+    void pack_args(T t, A...args)
     {
-        pack(args)...;
+        pack(t);
+        pack_args(args...);
+    }
+
+    void pack_args()
+    {
     }
 
     template<typename T>

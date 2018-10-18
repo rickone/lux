@@ -21,7 +21,7 @@ void TcpSocketListener::new_class(lua_State *L)
 
 std::shared_ptr<TcpSocketListener> TcpSocketListener::create(const char *node, const char *service)
 {
-    auto socket = SocketManager::inst()->create<TcpSocketListener>();
+    auto socket = ObjectManager::inst()->create<TcpSocketListener>();
     socket->init_service(node, service);
     return socket;
 }

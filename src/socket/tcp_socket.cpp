@@ -25,7 +25,7 @@ void TcpSocket::new_class(lua_State *L)
 
 std::shared_ptr<TcpSocket> TcpSocket::create(socket_t fd)
 {
-    auto socket = SocketManager::inst()->create<TcpSocket>();
+    auto socket = ObjectManager::inst()->create<TcpSocket>();
     if (fd != INVALID_SOCKET)
     {
         socket->attach(fd);
@@ -42,7 +42,7 @@ std::shared_ptr<TcpSocket> TcpSocket::create(socket_t fd)
 
 std::shared_ptr<TcpSocket> TcpSocket::connect(const char *node, const char *service)
 {
-    auto socket = SocketManager::inst()->create<TcpSocket>();
+    auto socket = ObjectManager::inst()->create<TcpSocket>();
     socket->init_connection(node, service);
     return socket;
 }

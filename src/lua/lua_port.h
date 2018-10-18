@@ -21,12 +21,6 @@ inline int lua_push_x(lua_State *L, T value, A...args)
     return first + other;
 }
 
-template<typename T>
-inline int lua_push_x(lua_State *L, T value)
-{
-    return lua_push(L, value);
-}
-
 inline int lua_push_x(lua_State *L)
 {
     return 0;

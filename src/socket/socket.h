@@ -4,6 +4,7 @@
 #include "socket_utils.h"
 #include "callback.h"
 #include "buffer.h"
+#include "object_manager.h"
 
 enum SocketEventFlag
 {
@@ -69,15 +70,12 @@ public:
     virtual void on_complete(LPWSAOVERLAPPED ovl, size_t len);
 #endif
 
-    int id() const { return _id; }
-    void set_id(int id) { _id = id; }
-
     socket_t fd() const { return _fd; }
 
 #ifdef _WIN32
-    operator bool() const { return _fd != INVALID_SOCKET || _ovl_ref > 0; }
+    virtual bool is_valid() override { return _fd != INVALID_SOCKET || _ovl_ref > 0; }
 #else
-    operator bool() const { return _fd != INVALID_SOCKET; }
+    virtual bool is_valid() override { return _fd != INVALID_SOCKET; }
 #endif
 
     def_lua_callback(on_connect, Socket *)
@@ -88,7 +86,6 @@ public:
     def_lua_callback(on_error, Socket *, int)
     
 protected:
-    int _id = 0;
     socket_t _fd = INVALID_SOCKET;
 
 #ifdef _WIN32

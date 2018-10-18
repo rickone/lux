@@ -1,8 +1,5 @@
+#include "lua_object.h"
 #include "lua_port.h"
-
-LuaObject::LuaObject() : _ref(LUA_NOREF)
-{
-}
 
 LuaObject::~LuaObject()
 {
@@ -52,4 +49,9 @@ void LuaObject::release_luaref(lua_State *L)
 int LuaObject::lua_push_self(lua_State *L)
 {
     return 0;
+}
+
+bool LuaObject::is_valid()
+{
+    return true;
 }

@@ -7,13 +7,14 @@ struct lua_State;
 
 struct ConfigEnv
 {
-    bool    daemon;
-    int     log_level;
-    int     listen_backlog;
-    size_t  socket_recv_buffer_init;
-    size_t  socket_send_buffer_init;
-    size_t  socket_send_buffer_max;
-    int     thread_num;
+    bool            daemon;
+    int             log_level;
+    int             listen_backlog;
+    size_t          socket_recv_buffer_init;
+    size_t          socket_send_buffer_init;
+    size_t          socket_send_buffer_max;
+    int             thread_num;
+    unsigned int    tick_interval;
 };
 
 class Config final
@@ -39,10 +40,8 @@ public:
     void copy_to_lua(lua_State *L);
 
 private:
-     int get_int(const char *field) const;
      int get_int(const char *field, int def_value) const;
-     size_t get_size(const char *field) const;
-     size_t get_size(const char *field, size_t def_value) const;
+     unsigned int get_uint(const char *field, unsigned int def_value) const;
      bool get_boolean(const char *field) const;
      bool get_boolean(const char *field, bool def_value) const;
 

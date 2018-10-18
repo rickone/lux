@@ -25,7 +25,7 @@ void UdpSocket::new_class(lua_State *L)
 
 std::shared_ptr<UdpSocket> UdpSocket::create(socket_t fd)
 {
-    auto socket = SocketManager::inst()->create<UdpSocket>();
+    auto socket = ObjectManager::inst()->create<UdpSocket>();
     socket->attach(fd);
     socket->add_event(kSocketEvent_Read);
     socket->_on_read = &UdpSocket::do_recv;
@@ -38,14 +38,14 @@ std::shared_ptr<UdpSocket> UdpSocket::create(socket_t fd)
 
 std::shared_ptr<UdpSocket> UdpSocket::bind(const char *node, const char *service)
 {
-    auto socket = SocketManager::inst()->create<UdpSocket>();
+    auto socket = ObjectManager::inst()->create<UdpSocket>();
     socket->init_bind(node, service);
     return socket;
 }
 
 std::shared_ptr<UdpSocket> UdpSocket::connect(const char *node, const char *service)
 {
-    auto socket = SocketManager::inst()->create<UdpSocket>();
+    auto socket = ObjectManager::inst()->create<UdpSocket>();
     socket->init_connect(node, service);
     return socket;
 }

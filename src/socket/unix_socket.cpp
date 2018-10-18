@@ -34,7 +34,7 @@ void UnixSocket::new_class(lua_State *L)
 
 std::shared_ptr<UnixSocket> UnixSocket::bind(const char *socket_path)
 {
-    auto socket = SocketManager::inst()->create<UnixSocket>();
+    auto socket = ObjectManager::inst()->create<UnixSocket>();
     socket->init_bind(socket_path);
     return socket;
 }

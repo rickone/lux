@@ -35,22 +35,6 @@ void SocketManager::on_fork(int pid)
     init();
 }
 
-void SocketManager::gc()
-{
-    for (auto it = _sockets.begin(); it != _sockets.end(); )
-    {
-        auto &socket = it->second;
-        if (socket)
-        {
-            ++it;
-            continue;
-        }
-
-        log_debug("remove socket: %p", socket.get());
-        _sockets.erase(it++);
-    }
-}
-
 #ifdef __linux__
 
 #include <sys/epoll.h>

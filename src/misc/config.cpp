@@ -138,10 +138,11 @@ void Config::load_env()
     _env.daemon = get_boolean("daemon", false);
     _env.log_level = get_int("log_level", -1);
     _env.listen_backlog = get_int("listen_backlog", 1024);
-    _env.socket_recv_buffer_init = get_size("socket_recv_buffer_init", 2 * 1024);
-    _env.socket_send_buffer_init = get_size("socket_send_buffer_init", 2 * 1024);
-    _env.socket_send_buffer_max = get_size("socket_send_buffer_max", 128 * 1024);
+    _env.socket_recv_buffer_init = get_uint("socket_recv_buffer_init", 2 * 1024);
+    _env.socket_send_buffer_init = get_uint("socket_send_buffer_init", 2 * 1024);
+    _env.socket_send_buffer_max = get_uint("socket_send_buffer_max", 128 * 1024);
     _env.thread_num = get_int("thread_num", 0);
+    _env.tick_interval = get_uint("tick_interval", 50);
 }
 
 void Config::set_field(const std::string &field, const std::string &value)
@@ -190,11 +191,6 @@ void Config::copy_to_lua(lua_State *L)
     lua_setglobal(L, "config");
 }
 
-int Config::get_int(const char *field) const
-{
-    return get_int(field, 0);
-}
-
 int Config::get_int(const char *field, int def_value) const
 {
     auto it = m_dict.find(field);
@@ -204,18 +200,13 @@ int Config::get_int(const char *field, int def_value) const
     return std::stoi(it->second);
 }
 
-size_t Config::get_size(const char *field) const
-{
-    return get_size(field, 0);
-}
-
-size_t Config::get_size(const char *field, size_t def_value) const
+unsigned int Config::get_uint(const char *field, unsigned int def_value) const
 {
     auto it = m_dict.find(field);
     if (it == m_dict.end())
         return def_value;
 
-    return (size_t)std::stoul(it->second);
+    return (unsigned int)std::stoul(it->second);
 }
 
 bool Config::get_boolean(const char *field) const

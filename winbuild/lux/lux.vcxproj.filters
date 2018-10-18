@@ -93,6 +93,9 @@
     <ClCompile Include="..\..\src\task\task_bucket.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\base\object_manager.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\lua\lua_object.h">
@@ -186,6 +189,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\task\task_bucket.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\base\object_manager.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
