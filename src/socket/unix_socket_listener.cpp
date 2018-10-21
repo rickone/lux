@@ -26,7 +26,7 @@ void UnixSocketListener::new_class(lua_State *L)
 
 std::shared_ptr<UnixSocketListener> UnixSocketListener::create(const char *socket_path)
 {
-    auto socket = SocketManager::inst()->create<UnixSocketListener>();
+    auto socket = ObjectManager::inst()->create<UnixSocketListener>();
     socket->init_service(socket_path);
     return socket;
 }

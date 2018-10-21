@@ -77,6 +77,7 @@ public:
 #else
     virtual bool is_valid() override { return _fd != INVALID_SOCKET; }
 #endif
+    operator bool() { return is_valid(); }
 
     def_lua_callback(on_connect, Socket *)
     def_lua_callback(on_close, Socket *)

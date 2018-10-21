@@ -41,7 +41,7 @@ std::pair<Socket, Socket> UnixSocketStream::create_pair()
 
 std::shared_ptr<UnixSocketStream> UnixSocketStream::create(int fd)
 {
-    auto socket = SocketManager::inst()->create<UnixSocketStream>();
+    auto socket = ObjectManager::inst()->create<UnixSocketStream>();
     socket->attach(fd);
     socket->add_event(kSocketEvent_Read);
     return socket;
@@ -49,7 +49,7 @@ std::shared_ptr<UnixSocketStream> UnixSocketStream::create(int fd)
 
 std::shared_ptr<UnixSocketStream> UnixSocketStream::connect(const char *socket_path)
 {
-    auto socket = SocketManager::inst()->create<UnixSocketStream>();
+    auto socket = ObjectManager::inst()->create<UnixSocketStream>();
     socket->init_connect(socket_path);
     return socket;
 }
