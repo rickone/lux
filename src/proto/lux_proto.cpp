@@ -3,21 +3,21 @@
 
 using namespace lux;
 
-LuxProto::LuxProto(const LuxProto &other) : _str(other._str)
+Proto::Proto(const Proto &other) : _str(other._str)
 {
 }
 
-LuxProto & LuxProto::operator =(const LuxProto &other)
+Proto &Proto::operator =(const Proto &other)
 {
     _str = other._str;
     _pos = 0;
-    _luxp_objs.clear();
+    _proto_objs.clear();
     return *this;
 }
 
-void LuxProto::new_class(lua_State *L)
+void Proto::new_class(lua_State *L)
 {
-    lua_new_class(L, LuxProto);
+    lua_new_class(L, Proto);
 
     lua_newtable(L);
     {
@@ -43,19 +43,19 @@ void LuxProto::new_class(lua_State *L)
     lua_pop(L, 1);
 }
 
-std::shared_ptr<LuxProto> LuxProto::create()
+std::shared_ptr<Proto> Proto::create()
 {
-    return std::make_shared<LuxProto>();
+    return std::make_shared<Proto>();
 }
 
-void LuxProto::clear()
+void Proto::clear()
 {
     _str.clear();
     _pos = 0;
-    _luxp_objs.clear();
+    _proto_objs.clear();
 }
 
-std::string LuxProto::dump()
+std::string Proto::dump()
 {
     std::string result = "result=(";
     for (char c : _str)
@@ -68,7 +68,7 @@ std::string LuxProto::dump()
     return result;
 }
 
-int LuxProto::lua_pack(lua_State *L)
+int Proto::lua_pack(lua_State *L)
 {
     int top = lua_gettop(L);
     for (int i = 1; i <= top; ++i)
@@ -78,7 +78,7 @@ int LuxProto::lua_pack(lua_State *L)
     return 0;
 }
 
-int LuxProto::lua_packlist(lua_State *L)
+int Proto::lua_packlist(lua_State *L)
 {
     luaL_checktype(L, 1, LUA_TTABLE);
 
@@ -106,7 +106,7 @@ int LuxProto::lua_packlist(lua_State *L)
     return 0;
 }
 
-int LuxProto::lua_unpack(lua_State *L)
+int Proto::lua_unpack(lua_State *L)
 {
     int nresults = 0;
     while (_pos < _str.size())
@@ -116,7 +116,7 @@ int LuxProto::lua_unpack(lua_State *L)
     return nresults;
 }
 
-void LuxProto::pack_lua_object(lua_State *L, int index)
+void Proto::pack_lua_object(lua_State *L, int index)
 {
     int type = lua_type(L, index);
     if (index < 0)
@@ -156,7 +156,7 @@ void LuxProto::pack_lua_object(lua_State *L, int index)
         {
             size_t len = 0;
             const char *data = lua_tolstring(L, index, &len);
-            lux_pack_string(_str, data, len);
+            pack_string(_str, data, len);
             break;
         }
 
@@ -188,7 +188,7 @@ void LuxProto::pack_lua_object(lua_State *L, int index)
     }
 }
 
-int LuxProto::unpack_lua_object(lua_State *L)
+int Proto::unpack_lua_object(lua_State *L)
 {
     uint8_t header = (uint8_t)_str.at(_pos);
     if (is_varint_header(header))
@@ -239,7 +239,7 @@ int LuxProto::unpack_lua_object(lua_State *L)
         {
             size_t used_len = 0;
             size_t len = 0;
-            const char *data = lux_unpack_string(_str, _pos, &len, &used_len);
+            const char *data = unpack_string(_str, _pos, &len, &used_len);
             lua_pushlstring(L, data, len);
             _pos += used_len;
             break;

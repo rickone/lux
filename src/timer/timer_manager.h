@@ -12,7 +12,7 @@ public:
     TimerManager();
     virtual ~TimerManager() = default;
 
-    static TimerManager * inst();
+    static TimerManager *inst();
 
     void init();
     std::shared_ptr<Timer> create(unsigned int interval, int counter, unsigned int delay);

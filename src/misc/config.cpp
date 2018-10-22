@@ -10,13 +10,13 @@
 
 using namespace lux;
 
-Config * Config::inst()
+Config *Config::inst()
 {
     static Config s_inst;
     return &s_inst;
 }
 
-ConfigEnv * Config::env()
+ConfigEnv *Config::env()
 {
     return &(inst()->_env);
 }
@@ -144,7 +144,6 @@ void Config::load_env()
     _env.socket_send_buffer_init = get_uint("socket_send_buffer_init", 2 * 1024);
     _env.socket_send_buffer_max = get_uint("socket_send_buffer_max", 128 * 1024);
     _env.thread_num = get_int("thread_num", 0);
-    _env.tick_interval = get_uint("tick_interval", 50);
 }
 
 void Config::set_field(const std::string &field, const std::string &value)
@@ -157,12 +156,12 @@ void Config::set_field(const char *field, const char *value)
     set_field(std::string(field), std::string(value));
 }
 
-const char * Config::get_string(const char *field) const
+const char *Config::get_string(const char *field) const
 {
     return get_string(field, nullptr);
 }
 
-const char * Config::get_string(const char *field, const char *def_value) const
+const char *Config::get_string(const char *field, const char *def_value) const
 {
     auto it = m_dict.find(field);
     if (it == m_dict.end())

@@ -37,7 +37,7 @@ namespace lux {
 #define LUX_HEADER_DICT     (0xC7)
 
 // basic string
-inline void lux_pack_string(std::string &str, const char *data, size_t len)
+inline void pack_string(std::string &str, const char *data, size_t len)
 {
     str.push_back((char)LUX_HEADER_STRING);
     varint_pack(str, len);
@@ -45,7 +45,7 @@ inline void lux_pack_string(std::string &str, const char *data, size_t len)
     str.push_back(0);
 }
 
-inline const char * lux_unpack_string(const std::string &str, size_t pos, size_t *str_len, size_t *used_len)
+inline const char *unpack_string(const std::string &str, size_t pos, size_t *str_len, size_t *used_len)
 {
     uint8_t header = (uint8_t)str.at(pos);
     if (header != LUX_HEADER_STRING)
@@ -66,7 +66,7 @@ struct LuxProtoDef
     static void pack(std::string &str, T t)
     {
         static_assert(std::is_pointer<T>::value, "should be a pointer");
-        lux_pack_string(str, (const char *)t, sizeof(*t));
+        pack_string(str, (const char *)t, sizeof(*t));
     }
 
     static T unpack(const std::string &str, size_t pos, size_t *used_len)
@@ -74,7 +74,7 @@ struct LuxProtoDef
         static_assert(std::is_pointer<T>::value, "should be a pointer");
 
         size_t len = 0;
-        return (T)lux_unpack_string(str, pos, &len, used_len);
+        return (T)unpack_string(str, pos, &len, used_len);
     }
 };
 
@@ -208,13 +208,13 @@ struct LuxProtoDef<const char *>
     static void pack(std::string &str, const char *value)
     {
         size_t len = strlen(value);
-        lux_pack_string(str, value, len);
+        pack_string(str, value, len);
     }
 
-    static const char * unpack(const std::string &str, size_t pos, size_t *used_len)
+    static const char *unpack(const std::string &str, size_t pos, size_t *used_len)
     {
         size_t len = 0;
-        return lux_unpack_string(str, pos, &len, used_len);
+        return unpack_string(str, pos, &len, used_len);
     }
 };
 
@@ -224,13 +224,13 @@ struct LuxProtoDef<std::string>
 {
     static void pack(std::string &str, const std::string &value)
     {
-        lux_pack_string(str, value.data(), value.size());
+        pack_string(str, value.data(), value.size());
     }
 
     static std::string unpack(const std::string &str, size_t pos, size_t *used_len)
     {
         size_t len = 0;
-        const char *data = lux_unpack_string(str, pos, &len, used_len);
+        const char *data = unpack_string(str, pos, &len, used_len);
         return std::string(data, len);
     }
 };

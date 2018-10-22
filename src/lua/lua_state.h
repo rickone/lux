@@ -10,7 +10,7 @@ public:
     LuaState() = default;
     virtual ~LuaState();
 
-    static LuaState * inst();
+    static LuaState *inst();
 
     void init();
     void gc();

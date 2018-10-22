@@ -7,25 +7,25 @@
 
 namespace lux {
 
-class LuxProto;
+class Proto;
 
-struct LuxpObject
+struct Protable
 {
-    virtual ~LuxpObject() {}
-    virtual void pack(LuxProto *proto) = 0;
-    virtual void unpack(LuxProto *proto) = 0;
+    virtual ~Protable() {}
+    virtual void pack(Proto *proto) = 0;
+    virtual void unpack(Proto *proto) = 0;
 };
 
-class LuxProto : public Object
+class Proto : public Object
 {
 public:
-    LuxProto() = default;
-    LuxProto(const LuxProto &other);
-    virtual ~LuxProto() = default;
-    LuxProto & operator =(const LuxProto &other);
+    Proto() = default;
+    Proto(const Proto &other);
+    virtual ~Proto() = default;
+    Proto & operator =(const Proto &other);
 
     static void new_class(lua_State *L);
-    static std::shared_ptr<LuxProto> create();
+    static std::shared_ptr<Proto> create();
 
     void clear();
     std::string dump();
@@ -40,7 +40,7 @@ public:
     {
         pack_impl(
             t,
-            typename std::is_base_of<LuxpObject, typename std::decay<typename std::remove_pointer<T>::type>::type>::type()
+            typename std::is_base_of<Protable, typename std::decay<typename std::remove_pointer<T>::type>::type>::type()
         );
     }
 
@@ -73,7 +73,7 @@ public:
     {
         return unpack_impl<T>(
             typename std::is_pointer<T>::type(),
-            typename std::is_base_of<LuxpObject, typename std::decay<typename std::remove_pointer<T>::type>::type>::type()
+            typename std::is_base_of<Protable, typename std::decay<typename std::remove_pointer<T>::type>::type>::type()
         );
     }
 
@@ -90,7 +90,7 @@ public:
     T unpack_impl(std::false_type &&, std::true_type &&)
     {
         auto object = std::make_shared<T>();
-        _luxp_objs.insert(object);
+        _proto_objs.insert(object);
         object->unpack(this);
         return *object;
     }
@@ -99,7 +99,7 @@ public:
     T unpack_impl(std::true_type &&, std::true_type &&)
     {
         auto object = std::make_shared<typename std::decay<typename std::remove_pointer<T>::type>::type>();
-        _luxp_objs.insert(object);
+        _proto_objs.insert(object);
         object->unpack(this);
         return object.get();
     }
@@ -137,7 +137,7 @@ public:
 private:
     std::string _str;
     size_t _pos = 0;
-    std::unordered_set< std::shared_ptr<LuxpObject> > _luxp_objs;
+    std::unordered_set< std::shared_ptr<Protable> > _proto_objs;
 };
 
 } // lux

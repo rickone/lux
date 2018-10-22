@@ -89,7 +89,7 @@ void Buffer::clear()
     _back_pos = 0;
 }
 
-const char * Buffer::data(size_t pos/* = 0*/) const
+const char *Buffer::data(size_t pos/* = 0*/) const
 {
     return _data + ((_front_pos + pos) & _mask);
 }

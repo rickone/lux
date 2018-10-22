@@ -28,8 +28,8 @@ public:
 
     static void new_class(lua_State *L);
 
-    Socket& operator =(const Socket &sock) = delete;
-    Socket& operator =(Socket &&sock);
+    Socket &operator =(const Socket &sock) = delete;
+    Socket &operator =(Socket &&sock);
 
     void init(int family, int socktype, int protocol);
     void close() noexcept;

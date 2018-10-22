@@ -30,7 +30,7 @@ int TaskMaster::lua_create(lua_State *L)
 {
     int num = (int)luaL_checkinteger(L, 1);
 
-    LuxProto pt;
+    Proto pt;
     int top = lua_gettop(L);
     for (int i = 2; i <= top; ++i)
         pt.pack_lua_object(L, i);
@@ -58,7 +58,7 @@ void TaskMaster::add(const std::shared_ptr<Task> &task)
     _idle_tasks.push_back(task);
 }
 
-void TaskMaster::request(const LuxProto &pt)
+void TaskMaster::request(const Proto &pt)
 {
     if (_clear_flag)
         return;
@@ -82,7 +82,7 @@ void TaskMaster::request(const LuxProto &pt)
     _idle_tasks.pop_front();
 }
 
-void TaskMaster::request_all(const LuxProto &pt)
+void TaskMaster::request_all(const Proto &pt)
 {
     if (_clear_flag)
         return;
@@ -108,7 +108,7 @@ void TaskMaster::on_timer()
             continue;
         }
 
-        LuxProto rsp(task->respond());
+        Proto rsp(task->respond());
         on_respond(this, &rsp);
         task->set_state(kTaskState_Idle);
 
@@ -121,7 +121,7 @@ void TaskMaster::on_timer()
 
     while (!_pending_reqs.empty() && !_idle_tasks.empty())
     {
-        LuxProto &pt = _pending_reqs.front();
+        Proto &pt = _pending_reqs.front();
         auto &task = _idle_tasks.front();
 
         task->request(pt);
@@ -134,7 +134,7 @@ void TaskMaster::on_timer()
 
 int TaskMaster::lua_request(lua_State *L)
 {
-    LuxProto pt;
+    Proto pt;
     pt.lua_pack(L);
 
     request(pt);

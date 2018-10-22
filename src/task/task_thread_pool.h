@@ -15,7 +15,7 @@ public:
     TaskThreadPool() = default;
     virtual ~TaskThreadPool();
 
-    static TaskThreadPool * inst();
+    static TaskThreadPool *inst();
 
     void init();
     void commit(const std::shared_ptr<Task> &task);

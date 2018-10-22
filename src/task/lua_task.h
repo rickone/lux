@@ -10,10 +10,10 @@ public:
     LuaTask() = default;
     virtual ~LuaTask();
 
-    virtual void on_exec(LuxProto &req, LuxProto &rsp) override;
+    virtual void on_exec(Proto &req, Proto &rsp) override;
 
 private:
-    lua_State *_lua_state = nullptr;
+    lua_State *_state = nullptr;
 };
 
 } // lux

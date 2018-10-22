@@ -21,20 +21,20 @@ public:
     void init();
     void clear();
     void add(const std::shared_ptr<Task> &task);
-    void request(const LuxProto &pt);
-    void request_all(const LuxProto &pt);
+    void request(const Proto &pt);
+    void request_all(const Proto &pt);
     void on_timer();
     int lua_request(lua_State *L);
 
     virtual bool is_valid() override { return !_clear_flag || !_busy_tasks.empty(); }
 
-    def_lua_callback(on_respond, TaskMaster *, LuxProto *)
+    def_lua_callback(on_respond, TaskMaster *, Proto *)
 
     template<typename T, typename...A>
     static std::shared_ptr<TaskMaster> create(int num, A...args);
 
 private:
-    std::list<LuxProto> _pending_reqs;
+    std::list<Proto> _pending_reqs;
     std::list< std::shared_ptr<Task> > _idle_tasks;
     std::list< std::shared_ptr<Task> > _busy_tasks;
     std::shared_ptr<Timer> _timer;

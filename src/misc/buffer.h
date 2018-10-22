@@ -19,7 +19,7 @@ public:
     static std::shared_ptr<Buffer> create();
 
     void clear();
-    const char * data(size_t pos = 0) const;
+    const char *data(size_t pos = 0) const;
     size_t size() const;
     size_t max_size() const;
     void resize(size_t len);

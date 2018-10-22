@@ -14,7 +14,7 @@ public:
     ObjectManager() = default;
     ~ObjectManager() = default;
 
-    static ObjectManager * inst();
+    static ObjectManager *inst();
 
     void add_object(const std::shared_ptr<Object> &object);
     std::shared_ptr<Object> get_object(int id);

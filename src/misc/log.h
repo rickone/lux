@@ -41,7 +41,7 @@ public:
     LogContext();
     virtual ~LogContext();
 
-    static LogContext * inst();
+    static LogContext *inst();
 
     void init();
     void log(int level, const char *str);

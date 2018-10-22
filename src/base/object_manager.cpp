@@ -3,7 +3,7 @@
 
 using namespace lux;
 
-ObjectManager * ObjectManager::inst()
+ObjectManager *ObjectManager::inst()
 {
     static ObjectManager s_inst;
     return &s_inst;

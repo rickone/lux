@@ -25,7 +25,7 @@ SocketManager::~SocketManager()
 
 }
 
-SocketManager * SocketManager::inst()
+SocketManager *SocketManager::inst()
 {
     static SocketManager s_inst;
     return &s_inst;

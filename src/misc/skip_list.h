@@ -23,7 +23,7 @@ public:
 
     ~SkipListNode() = default;
 
-    static SkipListNode * create(const KeyType &key)
+    static SkipListNode *create(const KeyType &key)
     {
         return new SkipListNode(key);
     }
@@ -33,7 +33,7 @@ public:
         delete this;
     }
 
-    const KeyType & get_key() const
+    const KeyType &get_key() const
     {
         return _key;
     }
@@ -43,12 +43,12 @@ public:
         _key = key;
     }
 
-    ValueType & get_value()
+    ValueType &get_value()
     {
         return _value;
     }
 
-    const ValueType & get_value() const
+    const ValueType &get_value() const
     {
         return _value;
     }
@@ -58,13 +58,13 @@ public:
         _value = value;
     }
 
-    SkipListNode *& forward(int level)
+    SkipListNode *&forward(int level)
     {
         assert(level >= 0 && level < I);
         return _forward_array[level];
     }
 
-    unsigned int & span(int level)
+    unsigned int &span(int level)
     {
         assert(level >= 0 && level < I);
         return _span_array[level];
@@ -135,13 +135,13 @@ public:
         }
     }
 
-    NodeType * first_node()
+    NodeType *first_node()
     {
         return _header_node->forward(0);
     }
 
     // [key
-    NodeType * lower_bound(const KeyType &key)
+    NodeType *lower_bound(const KeyType &key)
     {
         NodeType *node = _header_node;
         auto equal_to = std::equal_to<KeyType>();
@@ -166,7 +166,7 @@ public:
     }
 
     // (key
-    NodeType * upper_bound(const KeyType &key)
+    NodeType *upper_bound(const KeyType &key)
     {
         NodeType *node = _header_node;
 
@@ -240,7 +240,7 @@ public:
         return rank;
     }
 
-    NodeType * operator [](unsigned int rank)
+    NodeType *operator [](unsigned int rank)
     {
         if (rank >= _length)
             return nullptr;
@@ -272,7 +272,7 @@ public:
         return _length;
     }
 
-    NodeType * insert(NodeType *target_node, int level = -1)
+    NodeType *insert(NodeType *target_node, int level = -1)
     {
         unsigned int target_span = target_node->span(0);
         logic_assert(target_span == 0, "span(0) = %d", target_span);
@@ -341,7 +341,7 @@ public:
         return target_node;
     }
 
-    NodeType * remove(unsigned int rank, unsigned int count)
+    NodeType *remove(unsigned int rank, unsigned int count)
     {
         if (rank >= _length)
             return nullptr;
@@ -414,7 +414,7 @@ public:
         insert(NodeType::create(key), level);
     }
 
-    NodeType * create(const KeyType &key, const ValueType &value)
+    NodeType *create(const KeyType &key, const ValueType &value)
     {
         NodeType *node = NodeType::create(key);
         node->set_value(value);

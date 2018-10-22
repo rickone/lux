@@ -24,7 +24,7 @@ LuaState::~LuaState()
     }
 }
 
-LuaState * LuaState::inst()
+LuaState *LuaState::inst()
 {
     static LuaState s_inst;
     return &s_inst;
@@ -82,7 +82,7 @@ void LuaState::lua_core_openlibs(lua_State *L)
 #endif
     lua_class_define<SocketKcp>(L);
     lua_class_define<SocketPackage>(L);
-    lua_class_define<LuxProto>(L);
+    lua_class_define<Proto>(L);
     lua_class_define<TaskMaster>(L);
 
     lua_lib(L, "lux_core");

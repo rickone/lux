@@ -26,6 +26,7 @@ public:
 
     def_lua_callback(on_recv, Buffer *)
     def_lua_callback(on_send, RawBuffer *)
+    def_lua_callback(on_error, SocketKcp *, int)
 
 private:
     ikcpcb *_kcp = nullptr;

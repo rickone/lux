@@ -4,23 +4,23 @@ using namespace lux;
 
 LuaTask::~LuaTask()
 {
-    if (_lua_state)
+    if (_state)
     {
-        lua_close(_lua_state);
-        _lua_state = nullptr;
+        lua_close(_state);
+        _state = nullptr;
     }
 }
 
-void LuaTask::on_exec(LuxProto &req, LuxProto &rsp)
+void LuaTask::on_exec(Proto &req, Proto &rsp)
 {
     std::string func_name;
 
-    if (_lua_state == nullptr)
+    if (_state == nullptr)
     {
         std::string file_path = req.unpack<std::string>();
 
         lua_State *L = luaL_newstate();
-        _lua_state = L;
+        _state = L;
 
         luaL_openlibs(L);
 
@@ -37,7 +37,7 @@ void LuaTask::on_exec(LuxProto &req, LuxProto &rsp)
         func_name = req.unpack<std::string>();
     }
 
-    lua_State *L = _lua_state;
+    lua_State *L = _state;
     int top = lua_gettop(L);
 
     int ret = lua_getglobal(L, func_name.c_str());

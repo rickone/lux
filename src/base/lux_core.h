@@ -11,7 +11,7 @@ public:
     Core() = default;
     virtual ~Core() = default;
 
-    static Core * inst();
+    static Core *inst();
     static int main(int argc, char *argv[]);
 
     void init(int argc, char *argv[]);

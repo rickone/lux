@@ -49,7 +49,7 @@ void Socket::new_class(lua_State *L)
     lua_setfield(L, -2, "__property");
 }
 
-Socket& Socket::operator =(Socket &&socket)
+Socket &Socket::operator =(Socket &&socket)
 {
     socket_t fd = socket.detach();
     attach(fd);

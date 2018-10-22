@@ -21,20 +21,20 @@ public:
     Task() = default;
     virtual ~Task() = default;
 
-    void request(const LuxProto &req);
+    void request(const Proto &req);
     void exec();
 
-    virtual void on_exec(LuxProto &req, LuxProto &rsp);
+    virtual void on_exec(Proto &req, Proto &rsp);
 
     TaskState state() { return _state.load(std::memory_order_acquire); }
     void set_state(TaskState state) { _state.store(state, std::memory_order_release); }
 
-    const LuxProto & respond() const { return _rsp; }
+    const Proto &respond() const { return _rsp; }
 
 private:
     std::atomic<TaskState> _state = { kTaskState_Idle };
-    LuxProto _req;
-    LuxProto _rsp;
+    Proto _req;
+    Proto _rsp;
 };
 
 } // lux

@@ -14,7 +14,7 @@
 #error LuaPortBase not defined!
 #endif
 
-lua_State * get_lua_state();
+lua_State *get_lua_state();
 void set_lua_state(lua_State *lua);
 
 template<typename T, typename...A>
@@ -150,7 +150,7 @@ inline void lua_push_shared_ptr(lua_State *L, const std::shared_ptr<T> &object)
 }
 
 template<class T>
-inline T * lua_to_ptr(lua_State *L, int index)
+inline T *lua_to_ptr(lua_State *L, int index)
 {
     if (index < 0)
         index += lua_gettop(L) + 1;
@@ -183,7 +183,7 @@ inline T * lua_to_ptr(lua_State *L, int index)
 }
 
 template<class T>
-inline T * lua_to_ptr_safe(lua_State *L, int index)
+inline T *lua_to_ptr_safe(lua_State *L, int index)
 {
     if (index < 0)
         index += lua_gettop(L) + 1;
@@ -272,13 +272,13 @@ inline std::shared_ptr<T> lua_to_shared_ptr_safe(lua_State *L, int index)
 template<typename T>
 struct LuaBridge
 {
-    static T to(lua_State* L, int index)
+    static T to(lua_State *L, int index)
     {
         static_assert(std::is_pointer<T>::value, "lua_to failed, need a pointer");
 
         return lua_to_ptr<typename std::remove_pointer<T>::type>(L, index);
     }
-    static int push(lua_State* L, T object)
+    static int push(lua_State *L, T object)
     {
         static_assert(std::is_pointer<T>::value, "lua_push failed, need a pointer");
         static_assert(std::is_base_of<LuaPortBase, typename std::remove_pointer<T>::type>::value, "lua_push failed, need a LuaPortBase-based object");
@@ -307,11 +307,11 @@ struct LuaBridge
 template<typename T>
 struct LuaBridge< std::shared_ptr<T> >
 {
-    static std::shared_ptr<T> to(lua_State* L, int index)
+    static std::shared_ptr<T> to(lua_State *L, int index)
     {
         return lua_to_shared_ptr<T>(L, index);
     }
-    static int push(lua_State* L, const std::shared_ptr<T> &object)
+    static int push(lua_State *L, const std::shared_ptr<T> &object)
     {
         static_assert(std::is_base_of<LuaPortBase, typename std::remove_pointer<T>::type>::value, "lua_push failed, need a LuaPortBase-based object");
 

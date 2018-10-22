@@ -3,7 +3,7 @@
 
 using namespace lux;
 
-void Task::request(const LuxProto &req)
+void Task::request(const Proto &req)
 {
     runtime_assert(_state == kTaskState_Idle, "task cant invoke");
 
@@ -20,6 +20,6 @@ void Task::exec()
     set_state(kTaskState_Finished);
 }
 
-void Task::on_exec(LuxProto &req, LuxProto &rsp)
+void Task::on_exec(Proto &req, Proto &rsp)
 {
 }

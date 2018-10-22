@@ -20,7 +20,7 @@ TaskThreadPool::~TaskThreadPool()
     }
 }
 
-TaskThreadPool * TaskThreadPool::inst()
+TaskThreadPool *TaskThreadPool::inst()
 {
     static TaskThreadPool s_inst;
     return &s_inst;

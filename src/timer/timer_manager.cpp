@@ -38,7 +38,7 @@ TimerManager::TimerManager() : _skip_list(2)
 {
 }
 
-TimerManager * TimerManager::inst()
+TimerManager *TimerManager::inst()
 {
     static TimerManager s_inst;
     return &s_inst;

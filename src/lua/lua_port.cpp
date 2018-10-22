@@ -3,7 +3,7 @@
 
 static struct lua_State *s_lua_state = nullptr;
 
-lua_State * get_lua_state()
+lua_State *get_lua_state()
 {
     return s_lua_state;
 }

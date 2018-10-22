@@ -132,7 +132,7 @@ void LogContext::init()
     }
 }
 
-LogContext * LogContext::inst()
+LogContext *LogContext::inst()
 {
     static LogContext s_inst;
     return &s_inst;
@@ -174,7 +174,7 @@ void LogContext::log(int level, const char *str)
 
     log_text.append(str);
 
-    FILE* fout = stdout;
+    FILE *fout = stdout;
     _local_log_file.write_line(tm_now, log_text);
     if (level <= kLevelError)
     {

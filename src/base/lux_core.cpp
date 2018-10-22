@@ -55,7 +55,7 @@ void on_debug(int sig)
     signal(sig, nullptr);
 }
 
-Core * Core::inst()
+Core *Core::inst()
 {
     static std::shared_ptr<Core> s_inst(new Core());
     return s_inst.get();

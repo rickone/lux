@@ -43,6 +43,7 @@ void SocketKcp::new_class(lua_State *L)
     {
         lua_callback(L, on_recv);
         lua_callback(L, on_send);
+        lua_callback(L, on_error);
     }
     lua_setfield(L, -2, "__property");
 
@@ -79,7 +80,7 @@ void SocketKcp::recv(const char *data, size_t len)
     int ret = ikcp_input(_kcp, data, len);
     if (ret != 0)
     {
-        // TODO on_error
+        on_error(this, ret);
         throw_error(std::runtime_error, "ikcp_input buffer(%u) retcode(%d)", len, ret);
     }
 
@@ -103,7 +104,7 @@ void SocketKcp::send(const char *data, size_t len)
     int ret = ikcp_send(_kcp, data, len);
     if (ret < 0)
     {
-        // TODO on_error
+        on_error(this, ret);
         throw_error(std::runtime_error, "ikcp_send buffer(%u) retcode(%d)", len, ret);
     }
 }

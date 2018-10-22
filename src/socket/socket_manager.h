@@ -12,7 +12,7 @@ public:
     SocketManager();
     virtual ~SocketManager();
 
-    static SocketManager * inst();
+    static SocketManager *inst();
 
     void init();
     void clear();
