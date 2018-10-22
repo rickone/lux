@@ -1,9 +1,9 @@
-#include "task_bucket.h"
+#include "task_master.h"
 #include "lua_task.h"
 
-void TaskBucket::new_class(lua_State *L)
+void TaskMaster::new_class(lua_State *L)
 {
-    lua_new_class(L, TaskBucket);
+    lua_new_class(L, TaskMaster);
 
     lua_newtable(L);
     {
@@ -19,12 +19,12 @@ void TaskBucket::new_class(lua_State *L)
 
     lua_lib(L, "lux_core");
     {
-        lua_set_method(L, "create_task_bucket", lua_create);
+        lua_set_method(L, "create_task_master", lua_create);
     }
     lua_pop(L, 1);
 }
 
-int TaskBucket::lua_create(lua_State *L)
+int TaskMaster::lua_create(lua_State *L)
 {
     int num = (int)luaL_checkinteger(L, 1);
 
@@ -33,30 +33,30 @@ int TaskBucket::lua_create(lua_State *L)
     for (int i = 2; i <= top; ++i)
         pt.pack_lua_object(L, i);
 
-    auto task_bucket = TaskBucket::create<LuaTask>(num);
-    task_bucket->request_all(pt);
+    auto task_master = TaskMaster::create<LuaTask>(num);
+    task_master->request_all(pt);
 
-    lua_push(L, task_bucket);
+    lua_push(L, task_master);
     return 1;
 }
 
-void TaskBucket::init()
+void TaskMaster::init()
 {
     _timer = Timer::create(10);
-    _timer->on_timer.set(this, &TaskBucket::on_timer);
+    _timer->on_timer.set(this, &TaskMaster::on_timer);
 }
 
-void TaskBucket::clear()
+void TaskMaster::clear()
 {
     _clear_flag = true;
 }
 
-void TaskBucket::add(const std::shared_ptr<Task> &task)
+void TaskMaster::add(const std::shared_ptr<Task> &task)
 {
     _idle_tasks.push_back(task);
 }
 
-void TaskBucket::request(const LuxProto &pt)
+void TaskMaster::request(const LuxProto &pt)
 {
     if (_clear_flag)
         return;
@@ -80,7 +80,7 @@ void TaskBucket::request(const LuxProto &pt)
     _idle_tasks.pop_front();
 }
 
-void TaskBucket::request_all(const LuxProto &pt)
+void TaskMaster::request_all(const LuxProto &pt)
 {
     if (_clear_flag)
         return;
@@ -93,7 +93,7 @@ void TaskBucket::request_all(const LuxProto &pt)
     _idle_tasks.clear();
 }
 
-void TaskBucket::on_timer()
+void TaskMaster::on_timer()
 {
     auto it = _busy_tasks.begin();
     auto it_end = _busy_tasks.end();
@@ -130,7 +130,7 @@ void TaskBucket::on_timer()
     }
 }
 
-int TaskBucket::lua_request(lua_State *L)
+int TaskMaster::lua_request(lua_State *L)
 {
     LuxProto pt;
     pt.lua_pack(L);

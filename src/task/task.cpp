@@ -1,5 +1,5 @@
 #include "task.h"
-#include "task_manager.h"
+#include "task_thread_pool.h"
 
 void Task::request(const LuxProto &req)
 {
@@ -7,7 +7,7 @@ void Task::request(const LuxProto &req)
 
     _req = req;
     set_state(kTaskState_Arranged);
-    TaskManager::inst()->commit(shared_from_this());
+    TaskThreadPool::inst()->commit(shared_from_this());
 }
 
 void Task::exec()

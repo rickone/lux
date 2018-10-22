@@ -196,8 +196,8 @@
     </ClCompile>
     <ClCompile Include="..\..\src\task\lua_task.cpp" />
     <ClCompile Include="..\..\src\task\task.cpp" />
-    <ClCompile Include="..\..\src\task\task_bucket.cpp" />
-    <ClCompile Include="..\..\src\task\task_manager.cpp" />
+    <ClCompile Include="..\..\src\task\task_master.cpp" />
+    <ClCompile Include="..\..\src\task\task_thread_pool.cpp" />
     <ClCompile Include="..\..\src\timer\timer.cpp" />
     <ClCompile Include="..\..\src\timer\timer_manager.cpp" />
   </ItemGroup>
@@ -231,8 +231,8 @@
     <ClInclude Include="..\..\src\socket\unix_socket.h" />
     <ClInclude Include="..\..\src\task\lua_task.h" />
     <ClInclude Include="..\..\src\task\task.h" />
-    <ClInclude Include="..\..\src\task\task_bucket.h" />
-    <ClInclude Include="..\..\src\task\task_manager.h" />
+    <ClInclude Include="..\..\src\task\task_master.h" />
+    <ClInclude Include="..\..\src\task\task_thread_pool.h" />
     <ClInclude Include="..\..\src\timer\timer.h" />
     <ClInclude Include="..\..\src\timer\timer_manager.h" />
   </ItemGroup>

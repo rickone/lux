@@ -7,11 +7,11 @@
 #include "timer.h"
 #include "object_manager.h"
 
-class TaskBucket : public LuaObject
+class TaskMaster : public LuaObject
 {
 public:
-    TaskBucket() = default;
-    virtual ~TaskBucket() = default;
+    TaskMaster() = default;
+    virtual ~TaskMaster() = default;
 
     static void new_class(lua_State *L);
     static int lua_create(lua_State *L);
@@ -26,10 +26,10 @@ public:
 
     virtual bool is_valid() override { return !_clear_flag || !_busy_tasks.empty(); }
 
-    def_lua_callback(on_respond, TaskBucket *, LuxProto *)
+    def_lua_callback(on_respond, TaskMaster *, LuxProto *)
 
     template<typename T, typename...A>
-    static std::shared_ptr<TaskBucket> create(int num, A...args);
+    static std::shared_ptr<TaskMaster> create(int num, A...args);
 
 private:
     std::list<LuxProto> _pending_reqs;
@@ -40,14 +40,14 @@ private:
 };
 
 template<typename T, typename...A>
-std::shared_ptr<TaskBucket> TaskBucket::create(int num, A...args)
+std::shared_ptr<TaskMaster> TaskMaster::create(int num, A...args)
 {
     static_assert(std::is_base_of<Task, T>::value, "TaskBucket::create failed, need a Task-based type");
 
-    auto task_bucket = ObjectManager::inst()->create<TaskBucket>();
-    task_bucket->init();
+    auto task_master = ObjectManager::inst()->create<TaskMaster>();
+    task_master->init();
     for (int i = 0; i < num; ++i)
-        task_bucket->add(std::make_shared<T>(args...));
+        task_master->add(std::make_shared<T>(args...));
 
-    return task_bucket;
+    return task_master;
 }

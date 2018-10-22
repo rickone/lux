@@ -10,7 +10,7 @@
 #include "socket_kcp.h"
 #include "socket_package.h"
 #include "lux_proto.h"
-#include "task_bucket.h"
+#include "task_master.h"
 
 LuaState::~LuaState()
 {
@@ -81,7 +81,7 @@ void LuaState::lua_core_openlibs(lua_State *L)
     lua_class_define<SocketKcp>(L);
     lua_class_define<SocketPackage>(L);
     lua_class_define<LuxProto>(L);
-    lua_class_define<TaskBucket>(L);
+    lua_class_define<TaskMaster>(L);
 
     lua_lib(L, "lux_core");
     {

@@ -1,8 +1,8 @@
-#include "task_manager.h"
+#include "task_thread_pool.h"
 #include "config.h"
 #include "log.h"
 
-TaskManager::~TaskManager()
+TaskThreadPool::~TaskThreadPool()
 {
     _run_flag = false;
     _cv.notify_all();
@@ -18,21 +18,21 @@ TaskManager::~TaskManager()
     }
 }
 
-TaskManager * TaskManager::inst()
+TaskThreadPool * TaskThreadPool::inst()
 {
-    static TaskManager s_inst;
+    static TaskThreadPool s_inst;
     return &s_inst;
 }
 
-void TaskManager::init()
+void TaskThreadPool::init()
 {
     _run_flag = true;
 
     for (int i = 0; i < Config::env()->thread_num; ++i)
-        _threads.emplace_back(std::bind(&TaskManager::task_func, this));
+        _threads.emplace_back(std::bind(&TaskThreadPool::task_func, this));
 }
 
-void TaskManager::commit(const std::shared_ptr<Task> &task)
+void TaskThreadPool::commit(const std::shared_ptr<Task> &task)
 {
     {
         std::lock_guard<std::mutex> lock(_mutex);
@@ -42,7 +42,7 @@ void TaskManager::commit(const std::shared_ptr<Task> &task)
     _cv.notify_one();
 }
 
-void TaskManager::task_func()
+void TaskThreadPool::task_func()
 {
     while (_run_flag)
     {

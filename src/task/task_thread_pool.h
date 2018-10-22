@@ -7,13 +7,13 @@
 #include <atomic>
 #include "task.h"
 
-class TaskManager final
+class TaskThreadPool final
 {
 public:
-    TaskManager() = default;
-    virtual ~TaskManager();
+    TaskThreadPool() = default;
+    virtual ~TaskThreadPool();
 
-    static TaskManager * inst();
+    static TaskThreadPool * inst();
 
     void init();
     void commit(const std::shared_ptr<Task> &task);
