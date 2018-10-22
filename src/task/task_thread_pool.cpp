@@ -1,6 +1,6 @@
 #include "task_thread_pool.h"
+#include <sstream>
 #include "config.h"
-#include "log.h"
 
 using namespace lux;
 
@@ -46,6 +46,11 @@ void TaskThreadPool::commit(const std::shared_ptr<Task> &task)
 
 void TaskThreadPool::task_func()
 {
+    std::ostringstream thread_name;
+    thread_name << std::this_thread::get_id();
+
+    printf("task thread start (tid=%s)\n", thread_name.str().c_str());
+
     while (_run_flag)
     {
         std::shared_ptr<Task> task;
@@ -61,4 +66,6 @@ void TaskThreadPool::task_func()
 
         task->exec();
     }
+
+    printf("task thread exit (tid=%s)\n", thread_name.str().c_str());
 }
