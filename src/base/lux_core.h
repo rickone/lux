@@ -3,13 +3,15 @@
 #define CORE_VERSION "0.2.0"
 #include "lua_port.h"
 
-class LuxCore final : public LuaObject
+namespace lux {
+
+class Core final : public Object
 {
 public:
-    LuxCore() = default;
-    virtual ~LuxCore() = default;
+    Core() = default;
+    virtual ~Core() = default;
 
-    static LuxCore * inst();
+    static Core * inst();
     static int main(int argc, char *argv[]);
 
     void init(int argc, char *argv[]);
@@ -30,3 +32,5 @@ private:
     char **_argv;
     size_t _argv_max_len;
 };
+
+} // lux

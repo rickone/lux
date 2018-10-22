@@ -25,6 +25,8 @@
 * 0xC7 - dict/map +(n:varint) +(key,value) x n
 */
 
+namespace lux {
+
 #define LUX_HEADER_NULL     (0xC0)
 #define LUX_HEADER_FALSE    (0xC1)
 #define LUX_HEADER_TRUE     (0xC2)
@@ -342,3 +344,5 @@ struct LuxProtoDef< std::map<K, V> >
         return result;
     }
 };
+
+} // lux

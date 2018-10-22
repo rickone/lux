@@ -5,6 +5,8 @@
 #include "lux_proto.h"
 #include "error.h"
 
+namespace lux {
+
 enum TaskState
 {
     kTaskState_Idle,
@@ -34,3 +36,5 @@ private:
     LuxProto _req;
     LuxProto _rsp;
 };
+
+} // lux

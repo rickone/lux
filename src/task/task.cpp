@@ -1,6 +1,8 @@
 #include "task.h"
 #include "task_thread_pool.h"
 
+using namespace lux;
+
 void Task::request(const LuxProto &req)
 {
     runtime_assert(_state == kTaskState_Idle, "task cant invoke");

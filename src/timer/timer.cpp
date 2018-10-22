@@ -2,6 +2,8 @@
 #include "timer_manager.h"
 #include "log.h"
 
+using namespace lux;
+
 Timer::Timer(uint64_t start_time, unsigned int interval, int counter) : _start_time(start_time), _interval(interval), _counter(counter)
 {
 }

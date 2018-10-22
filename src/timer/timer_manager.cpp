@@ -1,6 +1,8 @@
 #include "timer_manager.h"
 #include <cassert>
 
+using namespace lux;
+
 #ifdef _WIN32
 #include <windows.h>
 #define lux_gettime GetTickCount64

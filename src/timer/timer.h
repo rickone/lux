@@ -3,7 +3,9 @@
 #include <memory>
 #include "callback.h"
 
-class Timer : public LuaObject
+namespace lux {
+
+class Timer : public Object
 {
 public:
     Timer(uint64_t start_time, unsigned int interval, int counter);
@@ -29,3 +31,5 @@ private:
     unsigned int _interval;
     int _counter;
 };
+
+} // lux

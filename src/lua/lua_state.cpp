@@ -12,6 +12,8 @@
 #include "lux_proto.h"
 #include "task_master.h"
 
+using namespace lux;
+
 LuaState::~LuaState()
 {
     if (_state != nullptr)

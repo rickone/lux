@@ -1,6 +1,8 @@
 #include "task_master.h"
 #include "lua_task.h"
 
+using namespace lux;
+
 void TaskMaster::new_class(lua_State *L)
 {
     lua_new_class(L, TaskMaster);

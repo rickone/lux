@@ -1,14 +1,18 @@
 #pragma once
 
+#include <cassert>
 #include <list>
 #include <typeinfo> // typeid
 #include <type_traits> // is_pointer is_base_of
 #include <memory> // shared_ptr
 #include <functional> // function
 #include "lua.hpp"
-#include "error.h"
-#include "lua_object.h"
 #include "lua_bridge.h"
+#include "lua_port_def.h"
+
+#ifndef LuaPortBase
+#error LuaPortBase not defined!
+#endif
 
 lua_State * get_lua_state();
 void set_lua_state(lua_State *lua);
@@ -45,7 +49,7 @@ int lua_gc_userdata(lua_State *L)
 template<class T>
 inline void lua_class_setup_metatable(lua_State *L)
 {
-    static_assert(std::is_base_of<LuaObject, T>::value, "lua_class_setup_metatable failed, T must based on LuaObject");
+    static_assert(std::is_base_of<LuaPortBase, T>::value, "lua_class_setup_metatable failed, T must based on LuaPortBase");
 
     int top = lua_gettop(L);
 
@@ -84,7 +88,7 @@ inline void lua_class_setup_metatable(lua_State *L)
     lua_pushcclosure(L, lua_class_newindex, 2);
     lua_setfield(L, top, "__newindex");
 
-    lua_pushcfunction(L, &lua_gc_userdata< std::shared_ptr<LuaObject> >);
+    lua_pushcfunction(L, &lua_gc_userdata< std::shared_ptr<LuaPortBase> >);
     lua_setfield(L, top, "__gc");
 
     lua_settop(L, top);
@@ -109,8 +113,8 @@ inline void lua_class_define(lua_State *L)
 
     T::new_class(L);
 
-    runtime_assert(lua_gettop(L) == top + 1, "class(%s).new_class error: top invalid", type_id_name);
-    runtime_assert(lua_istable(L, -1), "class(%s).new_class error: should return table", type_id_name);
+    assert(lua_gettop(L) == top + 1);
+    assert(lua_istable(L, -1));
 
     lua_class_setup_metatable<T>(L);
 
@@ -127,7 +131,7 @@ inline void lua_push_ptr(lua_State *L, T *object)
 {
     lua_newtable(L);
 
-    lua_pushlightuserdata(L, (LuaObject *)object);
+    lua_pushlightuserdata(L, (LuaPortBase *)object);
     lua_setfield(L, -2, "__ptr");
 
     lua_class_get_metatable(L, typeid(*object).name());
@@ -137,9 +141,9 @@ inline void lua_push_ptr(lua_State *L, T *object)
 template<class T>
 inline void lua_push_shared_ptr(lua_State *L, const std::shared_ptr<T> &object)
 {
-    void *userdata = lua_newuserdata(L, sizeof(std::shared_ptr<LuaObject>));
-    auto lua_object = new (userdata) std::shared_ptr<LuaObject>();
-    *lua_object = std::static_pointer_cast<LuaObject>(object);
+    void *userdata = lua_newuserdata(L, sizeof(std::shared_ptr<LuaPortBase>));
+    auto lua_object = new (userdata) std::shared_ptr<LuaPortBase>();
+    *lua_object = std::static_pointer_cast<LuaPortBase>(object);
 
     lua_class_get_metatable(L, typeid(*object.get()).name());
     lua_setmetatable(L, -2);
@@ -159,7 +163,7 @@ inline T * lua_to_ptr(lua_State *L, int index)
 
         case LUA_TUSERDATA:
         {
-            std::shared_ptr<LuaObject> *object = (std::shared_ptr<LuaObject> *)lua_touserdata(L, index);
+            std::shared_ptr<LuaPortBase> *object = (std::shared_ptr<LuaPortBase> *)lua_touserdata(L, index);
             return (T *)object->get();
         }
 
@@ -168,7 +172,7 @@ inline T * lua_to_ptr(lua_State *L, int index)
             lua_getfield(L, index, "__ptr");
             luaL_checktype(L, -1, LUA_TLIGHTUSERDATA);
 
-            LuaObject *object = (LuaObject *)lua_touserdata(L, -1);
+            LuaPortBase *object = (LuaPortBase *)lua_touserdata(L, -1);
             lua_pop(L, 1);
             return (T *)object;
         }
@@ -189,7 +193,7 @@ inline T * lua_to_ptr_safe(lua_State *L, int index)
     {
         case LUA_TUSERDATA:
         {
-            std::shared_ptr<LuaObject> *object = (std::shared_ptr<LuaObject> *)lua_touserdata(L, index);
+            std::shared_ptr<LuaPortBase> *object = (std::shared_ptr<LuaPortBase> *)lua_touserdata(L, index);
             return (T *)object->get();
         }
 
@@ -197,7 +201,7 @@ inline T * lua_to_ptr_safe(lua_State *L, int index)
         {
             lua_getfield(L, index, "__ptr");
             if (lua_islightuserdata(L, -1))
-                return (T *)(LuaObject *)lua_touserdata(L, -1);
+                return (T *)(LuaPortBase *)lua_touserdata(L, -1);
         }
     }
 
@@ -218,7 +222,7 @@ inline std::shared_ptr<T> lua_to_shared_ptr(lua_State *L, int index)
 
         case LUA_TUSERDATA:
         {
-            std::shared_ptr<LuaObject> *object = (std::shared_ptr<LuaObject> *)lua_touserdata(L, index);
+            std::shared_ptr<LuaPortBase> *object = (std::shared_ptr<LuaPortBase> *)lua_touserdata(L, index);
             return std::static_pointer_cast<T>(*object);
         }
 
@@ -227,7 +231,7 @@ inline std::shared_ptr<T> lua_to_shared_ptr(lua_State *L, int index)
             lua_getfield(L, index, "__ptr");
             luaL_checktype(L, -1, LUA_TLIGHTUSERDATA);
 
-            LuaObject *object = (LuaObject *)lua_touserdata(L, -1);
+            LuaPortBase *object = (LuaPortBase *)lua_touserdata(L, -1);
             return std::static_pointer_cast<T>(object->shared_from_this());
         }
     }
@@ -247,7 +251,7 @@ inline std::shared_ptr<T> lua_to_shared_ptr_safe(lua_State *L, int index)
     {
         case LUA_TUSERDATA:
         {
-            std::shared_ptr<LuaObject> *object = (std::shared_ptr<LuaObject> *)lua_touserdata(L, index);
+            std::shared_ptr<LuaPortBase> *object = (std::shared_ptr<LuaPortBase> *)lua_touserdata(L, index);
             return std::static_pointer_cast<T>(*object);
         }
 
@@ -256,7 +260,7 @@ inline std::shared_ptr<T> lua_to_shared_ptr_safe(lua_State *L, int index)
             lua_getfield(L, index, "__ptr");
             if (lua_islightuserdata(L, -1))
             {
-                LuaObject *object = (LuaObject *)lua_touserdata(L, -1);
+                LuaPortBase *object = (LuaPortBase *)lua_touserdata(L, -1);
                 return std::static_pointer_cast<T>(object->shared_from_this());
             }
         }
@@ -277,7 +281,7 @@ struct LuaBridge
     static int push(lua_State* L, T object)
     {
         static_assert(std::is_pointer<T>::value, "lua_push failed, need a pointer");
-        static_assert(std::is_base_of<LuaObject, typename std::remove_pointer<T>::type>::value, "lua_push failed, need a LuaObject-based object");
+        static_assert(std::is_base_of<LuaPortBase, typename std::remove_pointer<T>::type>::value, "lua_push failed, need a LuaPortBase-based object");
 
         if (object == nullptr)
         {
@@ -285,7 +289,7 @@ struct LuaBridge
             return 1;
         }
 
-        LuaObject *lua_object = (LuaObject *)object;
+        LuaPortBase *lua_object = (LuaPortBase *)object;
         int ret = lua_object->lua_push_self(L);
         if (ret > 0)
             return ret;
@@ -309,7 +313,7 @@ struct LuaBridge< std::shared_ptr<T> >
     }
     static int push(lua_State* L, const std::shared_ptr<T> &object)
     {
-        static_assert(std::is_base_of<LuaObject, typename std::remove_pointer<T>::type>::value, "lua_push failed, need a LuaObject-based object");
+        static_assert(std::is_base_of<LuaPortBase, typename std::remove_pointer<T>::type>::value, "lua_push failed, need a LuaPortBase-based object");
 
         if (!object)
         {

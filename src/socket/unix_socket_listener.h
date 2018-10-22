@@ -4,6 +4,8 @@
 #include <memory>
 #include "socket.h"
 
+namespace lux {
+
 class UnixSocketListener : public Socket
 {
 public:
@@ -20,5 +22,7 @@ public:
 protected:
     std::string _socket_path;
 };
+
+} // lux
 
 #endif // !_WIN32

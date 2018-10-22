@@ -5,6 +5,8 @@
 #include "tcp_socket.h"
 #include "buffer.h"
 
+namespace lux {
+
 class TcpSocketListener : public Socket
 {
 public:
@@ -35,3 +37,5 @@ private:
 #endif
     bool _package_mode = false;
 };
+
+} // lux

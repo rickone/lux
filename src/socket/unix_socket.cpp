@@ -3,6 +3,8 @@
 #include "socket_manager.h"
 #include "config.h"
 
+using namespace lux;
+
 UnixSocket::~UnixSocket()
 {
     if (!_socket_path.empty())

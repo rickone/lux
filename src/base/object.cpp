@@ -1,7 +1,9 @@
-#include "lua_object.h"
+#include "object.h"
 #include "lua_port.h"
 
-LuaObject::~LuaObject()
+using namespace lux;
+
+Object::~Object()
 {
     auto L = get_lua_state();;
     if (!L)
@@ -20,7 +22,7 @@ LuaObject::~LuaObject()
     release_luaref(L);
 }
 
-bool LuaObject::get_luaref(lua_State *L)
+bool Object::get_luaref(lua_State *L)
 {
     if (_ref == LUA_NOREF)
         return false;
@@ -29,7 +31,7 @@ bool LuaObject::get_luaref(lua_State *L)
     return true;
 }
 
-void LuaObject::retain_luaref(lua_State *L)
+void Object::retain_luaref(lua_State *L)
 {
     lua_pushvalue(L, -1);
 
@@ -37,7 +39,7 @@ void LuaObject::retain_luaref(lua_State *L)
     _ref = luaL_ref(L, LUA_REGISTRYINDEX);
 }
 
-void LuaObject::release_luaref(lua_State *L)
+void Object::release_luaref(lua_State *L)
 {
     if (_ref == LUA_NOREF)
         return;
@@ -46,12 +48,12 @@ void LuaObject::release_luaref(lua_State *L)
     _ref = LUA_NOREF;
 }
 
-int LuaObject::lua_push_self(lua_State *L)
+int Object::lua_push_self(lua_State *L)
 {
     return 0;
 }
 
-bool LuaObject::is_valid()
+bool Object::is_valid()
 {
     return true;
 }

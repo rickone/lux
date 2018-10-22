@@ -1,6 +1,8 @@
 #include "socket_utils.h"
 #include <cstring> // memset
 
+using namespace lux;
+
 class GaiCategory : public std::error_category
 {
 public:
@@ -18,7 +20,7 @@ std::string GaiCategory::message(int ev) const
     return std::string(gai_strerror(ev));
 }
 
-addrinfo_uptr query_addrinfo(const char *node, const char *service, int ai_socktype, int ai_flags)
+addrinfo_uptr lux::query_addrinfo(const char *node, const char *service, int ai_socktype, int ai_flags)
 {
     addrinfo hints;
     memset(&hints, 0, sizeof(hints));
@@ -34,7 +36,7 @@ addrinfo_uptr query_addrinfo(const char *node, const char *service, int ai_sockt
     return addrinfo_uptr(ptr, AddrInfoDeleter());
 }
 
-void any_addrinfo(const char *node, const char *service, int ai_socktype, int ai_flags, const std::function<void (const struct addrinfo *ai)> &func)
+void lux::any_addrinfo(const char *node, const char *service, int ai_socktype, int ai_flags, const std::function<void (const struct addrinfo *ai)> &func)
 {
     auto air = query_addrinfo(node, service, ai_socktype, ai_flags);
     for (const struct addrinfo *ai = air.get(); ai; ai = ai->ai_next)
@@ -55,7 +57,7 @@ void any_addrinfo(const char *node, const char *service, int ai_socktype, int ai
     throw_error(std::runtime_error, "any_addrinfo('%s', '%s') all failed", node, service);
 }
 
-std::string get_addrname(const struct sockaddr *addr, socklen_t addrlen)
+std::string lux::get_addrname(const struct sockaddr *addr, socklen_t addrlen)
 {
     char host[NI_MAXHOST];
     char serv[NI_MAXSERV];

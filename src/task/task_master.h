@@ -7,7 +7,9 @@
 #include "timer.h"
 #include "object_manager.h"
 
-class TaskMaster : public LuaObject
+namespace lux {
+
+class TaskMaster : public Object
 {
 public:
     TaskMaster() = default;
@@ -51,3 +53,5 @@ std::shared_ptr<TaskMaster> TaskMaster::create(int num, A...args)
 
     return task_master;
 }
+
+} // lux

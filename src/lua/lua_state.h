@@ -2,6 +2,8 @@
 
 #include "lua_port.h"
 
+namespace lux {
+
 class LuaState final
 {
 public:
@@ -20,3 +22,5 @@ private:
 
     lua_State *_state;
 };
+
+} // lux

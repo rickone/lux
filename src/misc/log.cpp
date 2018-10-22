@@ -12,6 +12,8 @@
 #include "error.h"
 #include "lua.hpp"
 
+using namespace lux;
+
 void LogFile::set_file_path(const char *log_file_path)
 {
     _log_file_path = log_file_path;

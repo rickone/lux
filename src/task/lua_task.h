@@ -2,6 +2,8 @@
 
 #include "task.h"
 
+namespace lux {
+
 class LuaTask : public Task
 {
 public:
@@ -13,3 +15,5 @@ public:
 private:
     lua_State *_lua_state = nullptr;
 };
+
+} // lux

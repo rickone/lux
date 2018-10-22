@@ -7,6 +7,8 @@
 #include <atomic>
 #include "task.h"
 
+namespace lux {
+
 class TaskThreadPool final
 {
 public:
@@ -26,3 +28,5 @@ private:
     std::condition_variable _cv;
     volatile bool _run_flag = false;
 };
+
+} // lux

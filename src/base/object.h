@@ -3,11 +3,13 @@
 #include <memory>
 #include "lua.hpp"
 
-class LuaObject : public std::enable_shared_from_this<LuaObject>
+namespace lux {
+
+class Object : public std::enable_shared_from_this<Object>
 {
 public:
-    LuaObject() = default;
-    virtual ~LuaObject();
+    Object() = default;
+    virtual ~Object();
 
     bool get_luaref(lua_State *L);
     void retain_luaref(lua_State *L);
@@ -23,3 +25,5 @@ private:
     int _id = 0;
     int _ref = LUA_NOREF;
 };
+
+} // lux

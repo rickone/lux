@@ -1,5 +1,7 @@
 #include "lua_task.h"
 
+using namespace lux;
+
 LuaTask::~LuaTask()
 {
     if (_lua_state)

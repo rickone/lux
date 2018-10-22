@@ -2,7 +2,9 @@
 #include <algorithm> // std::min
 #include "error.h"
 
-void varint_pack(std::string &str, uint64_t var_int)
+//using namespace lux;
+
+void lux::varint_pack(std::string &str, uint64_t var_int)
 {
     if (var_int <= 0x7f)
     {
@@ -32,7 +34,7 @@ void varint_pack(std::string &str, uint64_t var_int)
     }
 }
 
-uint64_t varint_unpack(const std::string &str, size_t pos, size_t *used_len)
+uint64_t lux::varint_unpack(const std::string &str, size_t pos, size_t *used_len)
 {
     uint8_t header = (uint8_t)str.at(pos);
     runtime_assert(is_varint_header(header), "varint header illegal");

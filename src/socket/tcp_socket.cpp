@@ -2,6 +2,8 @@
 #include "socket_manager.h"
 #include "config.h"
 
+using namespace lux;
+
 TcpSocket::TcpSocket() : _recv_buffer(Config::env()->socket_recv_buffer_init), _send_buffer(Config::env()->socket_send_buffer_init)
 {
 }

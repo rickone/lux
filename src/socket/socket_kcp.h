@@ -5,7 +5,9 @@
 #include "timer.h"
 #include "buffer.h"
 
-class SocketKcp : public LuaObject
+namespace lux {
+
+class SocketKcp : public Object
 {
 public:
     SocketKcp() = default;
@@ -30,3 +32,5 @@ private:
     std::shared_ptr<Timer> _timer;
     Buffer _recv_buffer;
 };
+
+} // lux

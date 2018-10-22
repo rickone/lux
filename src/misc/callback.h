@@ -1,6 +1,9 @@
 #pragma once
 
 #include "lua_port.h"
+#include "error.h"
+
+namespace lux {
 
 template<typename... A>
 class Callback
@@ -29,10 +32,10 @@ public:
     template<typename T>
     void set(T *object, const std::function<void (T *, A...)> &func)
     {
-        static_assert(std::is_base_of<LuaObject, T>::value, "Callback<T>.set failed, T must based on LuaObject");
+        static_assert(std::is_base_of<Object, T>::value, "Callback<T>.set failed, T must based on Object");
 
         _object = object->shared_from_this();
-        _func = [func](LuaObject *object, A...args){
+        _func = [func](Object *object, A...args){
             func((T *)object, args...);
         };
     }
@@ -101,13 +104,15 @@ public:
     }
 
 private:
-    std::weak_ptr<LuaObject> _object;
-    std::function<void (LuaObject *, A...)> _func;
+    std::weak_ptr<Object> _object;
+    std::function<void (Object *, A...)> _func;
     int _lua_ref;
 };
 
+} // lux
+
 #define def_lua_callback(callback, ...) \
-    Callback<__VA_ARGS__> callback; \
+    lux::Callback<__VA_ARGS__> callback; \
     int lua_get_##callback(lua_State *L) { return callback.get_lua_func(L); } \
     int lua_set_##callback(lua_State *L) { callback.ref_lua_func(L); return 0; }
 

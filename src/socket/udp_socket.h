@@ -4,6 +4,8 @@
 #include "socket.h"
 #include "socket_kcp.h"
 
+namespace lux {
+
 class UdpSocket : public Socket
 {
 public:
@@ -37,3 +39,5 @@ private:
 
     std::shared_ptr<SocketKcp> _kcp;
 };
+
+} // lux

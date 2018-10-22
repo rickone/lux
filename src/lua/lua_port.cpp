@@ -79,12 +79,12 @@ static void lua_copy_metatable_field(lua_State *L, const char *field)
     int top = lua_gettop(L);
 
     lua_getfield(L, top - 1, field);
-    runtime_assert(lua_istable(L, -1), "lua_copy_metatable_field(%s) error: not exists", field);
+    assert(lua_istable(L, -1));
 
     int target = top + 1;
 
     lua_getfield(L, top, field);
-    runtime_assert(lua_istable(L, -1), "lua_copy_metatable_field(%s) error: not exists", field);
+    assert(lua_istable(L, -1));
 
     lua_pushnil(L);
     while (lua_next(L, -2))

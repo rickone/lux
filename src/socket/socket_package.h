@@ -3,7 +3,9 @@
 #include "socket.h"
 #include "buffer.h"
 
-class SocketPackage : public LuaObject
+namespace lux {
+
+class SocketPackage : public Object
 {
 public:
     SocketPackage() = default;
@@ -27,3 +29,4 @@ private:
     Buffer _package_buffer;
 };
 
+} // lux

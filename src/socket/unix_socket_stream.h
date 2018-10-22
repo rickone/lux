@@ -3,6 +3,8 @@
 
 #include "unix_socket.h"
 
+namespace lux {
+
 class UnixSocketStream : public UnixSocket
 {
 public:
@@ -28,5 +30,7 @@ protected:
     Buffer _recv_buffer;
     Buffer _send_buffer;
 };
+
+} // lux
 
 #endif // !_WIN32

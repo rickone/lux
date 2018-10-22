@@ -4,6 +4,8 @@
 #include "socket_manager.h"
 #include "config.h"
 
+using namespace lux;
+
 UnixSocketListener::~UnixSocketListener()
 {
     if (!_socket_path.empty())

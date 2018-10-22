@@ -1,7 +1,9 @@
 #include "udp_socket.h"
 #include "socket_manager.h"
 
-UdpSocket::UdpSocket(socket_t fd) : Socket(fd), _recv_buffer(), _on_read()
+using namespace lux;
+
+UdpSocket::UdpSocket(socket_t fd) : Socket(fd)
 {
 }
 

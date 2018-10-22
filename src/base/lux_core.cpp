@@ -34,9 +34,11 @@ extern char **environ;
 #include <gperftools/profiler.h>
 #endif
 
+using namespace lux;
+
 void on_quit(int sig)
 {
-    LuxCore::inst()->quit();
+    Core::inst()->quit();
 }
 
 void on_debug(int sig)
@@ -53,21 +55,21 @@ void on_debug(int sig)
     signal(sig, nullptr);
 }
 
-LuxCore * LuxCore::inst()
+Core * Core::inst()
 {
-    static std::shared_ptr<LuxCore> s_inst(new LuxCore());
+    static std::shared_ptr<Core> s_inst(new Core());
     return s_inst.get();
 }
 
-int LuxCore::main(int argc, char *argv[])
+int Core::main(int argc, char *argv[])
 {
-    auto core = LuxCore::inst();
+    auto core = Core::inst();
     core->init(argc, argv);
     core->run();
     return 0;
 }
 
-void LuxCore::init(int argc, char *argv[])
+void Core::init(int argc, char *argv[])
 {
 #ifdef _WIN32
     SetConsoleOutputCP(CP_UTF8);
@@ -101,7 +103,7 @@ void LuxCore::init(int argc, char *argv[])
     LuaState::inst()->init();
 
     auto timer = Timer::create(200);
-    timer->on_timer.set(this, &LuxCore::on_gc);
+    timer->on_timer.set(this, &Core::on_gc);
 
     signal(SIGINT, on_quit); // ctrl + c
     signal(SIGTERM, on_quit); // kill
@@ -129,7 +131,7 @@ void LuxCore::init(int argc, char *argv[])
     log_info("lux start (pid=%d, version=%s, build-time='%s %s')", getpid(), CORE_VERSION, __TIME__, __DATE__);
 }
 
-void LuxCore::run()
+void Core::run()
 {
     profile_start();
 
@@ -148,7 +150,7 @@ void LuxCore::run()
     log_info("lux exit (pid=%d)", getpid());
 }
 
-void LuxCore::set_proc_title(const char *title)
+void Core::set_proc_title(const char *title)
 {
 #ifndef _WIN32
     size_t title_len = strlen(title) + 1;
@@ -167,19 +169,19 @@ void LuxCore::set_proc_title(const char *title)
 #endif
 }
 
-void LuxCore::on_gc()
+void Core::on_gc()
 {
     LuaState::inst()->gc();
     ObjectManager::inst()->gc();
 }
 
-void LuxCore::on_fork(int pid)
+void Core::on_fork(int pid)
 {
     LogContext::inst()->on_fork(pid);
     SocketManager::inst()->on_fork(pid);
 }
 
-void LuxCore::profile_start()
+void Core::profile_start()
 {
 #ifdef GPERFTOOLS
     const char *profile = Config::inst()->get_string("profile");
@@ -191,7 +193,7 @@ void LuxCore::profile_start()
 #endif
 }
 
-void LuxCore::profile_stop()
+void Core::profile_stop()
 {
 #ifdef GPERFTOOLS
     const char *profile = Config::inst()->get_string("profile");
@@ -203,7 +205,7 @@ void LuxCore::profile_stop()
 #endif
 }
 
-void LuxCore::init_set_proc_title(int argc, char *argv[])
+void Core::init_set_proc_title(int argc, char *argv[])
 {
     _argc = argc;
     _argv = argv;

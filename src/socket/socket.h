@@ -6,6 +6,8 @@
 #include "buffer.h"
 #include "object_manager.h"
 
+namespace lux {
+
 enum SocketEventFlag
 {
     kSocketEvent_None       = 0,
@@ -14,7 +16,7 @@ enum SocketEventFlag
     kSocketEvent_ReadWrite  = 3,
 };
 
-class Socket : public LuaObject
+class Socket : public Object
 {
 public:
     Socket() = default;
@@ -95,6 +97,8 @@ protected:
     int _ovl_ref = 0;
 #endif
 };
+
+} // lux
 
 #ifdef _WIN32
 #define throw_socket_error() \

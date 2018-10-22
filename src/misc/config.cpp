@@ -8,6 +8,8 @@
 #endif
 #include "lua.hpp"
 
+using namespace lux;
+
 Config * Config::inst()
 {
     static Config s_inst;

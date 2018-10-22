@@ -1,5 +1,7 @@
 #include "socket_package.h"
 
+using namespace lux;
+
 void SocketPackage::new_class(lua_State *L)
 {
     lua_new_class(L, SocketPackage);

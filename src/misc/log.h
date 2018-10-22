@@ -3,6 +3,8 @@
 #include <string>
 #include <fstream>
 
+namespace lux {
+
 enum LogLevel
 {
     kLevelEmerg,
@@ -56,7 +58,9 @@ private:
     LogFile _error_log_file;
 };
 
-#define log_line(Level, Fmt, ...) LogContext::inst()->log_format(Level, Fmt,## __VA_ARGS__)
+} // lux
+
+#define log_line(Level, Fmt, ...) lux::LogContext::inst()->log_format(Level, Fmt,## __VA_ARGS__)
 #define log_debug(Fmt, ...) log_line(kLevelDebug, Fmt,## __VA_ARGS__)
 #define log_info(Fmt, ...)  log_line(kLevelInfo, Fmt,## __VA_ARGS__)
 #define log_error(Fmt, ...) log_line(kLevelError, Fmt,## __VA_ARGS__)

@@ -3,9 +3,11 @@
 #include <string>
 #include "lua_port.h"
 
+namespace lux {
+
 #define DEFAULT_MIN_ALLOC_SIZE (512)
 
-class Buffer : public LuaObject
+class Buffer : public Object
 {
 public:
     explicit Buffer(size_t min_alloc_size = DEFAULT_MIN_ALLOC_SIZE);
@@ -56,7 +58,7 @@ protected:
     size_t _back_pos = 0;
 };
 
-struct RawBuffer : LuaObject
+struct RawBuffer : Object
 {
     const char *data;
     size_t len;
@@ -67,3 +69,5 @@ struct RawBuffer : LuaObject
         return 1;
     }
 };
+
+} // lux

@@ -4,6 +4,8 @@
 #include "socket.h"
 #include "socket_package.h"
 
+namespace lux {
+
 class TcpSocket : public Socket
 {
 public:
@@ -47,3 +49,5 @@ protected:
     char _accept_ex_buffer[ACCEPT_EX_ADDRESS_LEN * 2];
 #endif
 };
+
+} // lux

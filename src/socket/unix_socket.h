@@ -7,6 +7,8 @@
 #include "tcp_socket.h"
 #include "udp_socket.h"
 
+namespace lux {
+
 class UnixSocket : public Socket
 {
 public:
@@ -40,5 +42,7 @@ protected:
     void (UnixSocket::*_on_read)(size_t len) = nullptr;
     std::string _socket_path;
 };
+
+} // lux
 
 #endif // !_WIN32

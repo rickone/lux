@@ -2,6 +2,8 @@
 #include "config.h"
 #include "log.h"
 
+using namespace lux;
+
 TaskThreadPool::~TaskThreadPool()
 {
     _run_flag = false;

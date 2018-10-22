@@ -4,6 +4,8 @@
 #include "skip_list.h"
 #include "timer.h"
 
+namespace lux {
+
 class TimerManager final
 {
 public:
@@ -22,3 +24,5 @@ private:
     uint64_t _time_now = 0;
     uint64_t _next_tick_time = 0;
 };
+
+} // lux

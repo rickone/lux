@@ -3,6 +3,8 @@
 #include "socket_manager.h"
 #include "lux_core.h"
 
+using namespace lux;
+
 void UnixSocketStream::new_class(lua_State *L)
 {
     lua_new_class(L, UnixSocketStream);
@@ -69,10 +71,10 @@ std::shared_ptr<UnixSocketStream> UnixSocketStream::fork(const char *proc_title,
         return create(pair.first.detach());
     }
 
-    LuxCore::inst()->set_proc_title(proc_title);
+    Core::inst()->set_proc_title(proc_title);
 
     int pid = getpid();
-    LuxCore::inst()->on_fork(pid);
+    Core::inst()->on_fork(pid);
 
     log_info("fork into child-process(%s) pid(%d) socket fd(%d)", proc_title, pid, pair.second.fd());
 
@@ -81,7 +83,7 @@ std::shared_ptr<UnixSocketStream> UnixSocketStream::fork(const char *proc_title,
     auto socket = create(pair.second.detach());
     worker_proc(socket);
 
-    LuxCore::inst()->run();
+    Core::inst()->run();
     _exit(0);
 }
 

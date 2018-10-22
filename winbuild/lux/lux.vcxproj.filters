@@ -15,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\lua\lua_object.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\lua\lua_port.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -99,11 +96,17 @@
     <ClCompile Include="..\..\src\task\task_thread_pool.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\socket\unix_socket_listener.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\socket\unix_socket_stream.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\base\object.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\src\lua\lua_object.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\lua\lua_port.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -198,6 +201,18 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\task\task_thread_pool.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\socket\unix_socket_listener.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\socket\unix_socket_stream.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\base\object.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\lua\lua_port_def.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

@@ -5,6 +5,8 @@
 #include "lux_proto_def.h"
 #include "lua_port.h"
 
+namespace lux {
+
 class LuxProto;
 
 struct LuxpObject
@@ -14,7 +16,7 @@ struct LuxpObject
     virtual void unpack(LuxProto *proto) = 0;
 };
 
-class LuxProto : public LuaObject
+class LuxProto : public Object
 {
 public:
     LuxProto() = default;
@@ -137,3 +139,5 @@ private:
     size_t _pos = 0;
     std::unordered_set< std::shared_ptr<LuxpObject> > _luxp_objs;
 };
+
+} // lux

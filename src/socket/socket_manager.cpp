@@ -2,6 +2,8 @@
 #include <cassert>
 #include "error.h"
 
+using namespace lux;
+
 const static int MAX_POLL_EVENT_CNT = 1024;
 
 SocketManager::SocketManager()

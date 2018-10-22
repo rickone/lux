@@ -164,8 +164,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\base\lux_core.cpp" />
+    <ClCompile Include="..\..\src\base\object.cpp" />
     <ClCompile Include="..\..\src\base\object_manager.cpp" />
-    <ClCompile Include="..\..\src\lua\lua_object.cpp" />
     <ClCompile Include="..\..\src\lua\lua_port.cpp" />
     <ClCompile Include="..\..\src\lua\lua_state.cpp" />
     <ClCompile Include="..\..\src\misc\buffer.cpp" />
@@ -194,6 +194,8 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="..\..\src\socket\unix_socket_listener.cpp" />
+    <ClCompile Include="..\..\src\socket\unix_socket_stream.cpp" />
     <ClCompile Include="..\..\src\task\lua_task.cpp" />
     <ClCompile Include="..\..\src\task\task.cpp" />
     <ClCompile Include="..\..\src\task\task_master.cpp" />
@@ -203,10 +205,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\base\lux_core.h" />
+    <ClInclude Include="..\..\src\base\object.h" />
     <ClInclude Include="..\..\src\base\object_manager.h" />
     <ClInclude Include="..\..\src\lua\lua_bridge.h" />
-    <ClInclude Include="..\..\src\lua\lua_object.h" />
     <ClInclude Include="..\..\src\lua\lua_port.h" />
+    <ClInclude Include="..\..\src\lua\lua_port_def.h" />
     <ClInclude Include="..\..\src\lua\lua_state.h" />
     <ClInclude Include="..\..\src\misc\buffer.h" />
     <ClInclude Include="..\..\src\misc\callback.h" />
@@ -229,6 +232,8 @@
     <ClInclude Include="..\..\src\socket\udp_socket.h" />
     <ClInclude Include="..\..\src\socket\udp_socket_listener.h" />
     <ClInclude Include="..\..\src\socket\unix_socket.h" />
+    <ClInclude Include="..\..\src\socket\unix_socket_listener.h" />
+    <ClInclude Include="..\..\src\socket\unix_socket_stream.h" />
     <ClInclude Include="..\..\src\task\lua_task.h" />
     <ClInclude Include="..\..\src\task\task.h" />
     <ClInclude Include="..\..\src\task\task_master.h" />

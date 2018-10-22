@@ -6,6 +6,8 @@
 #include "udp_socket.h"
 #include "buffer.h"
 
+namespace lux {
+
 class UdpSocketListener : public Socket
 {
 public:
@@ -29,7 +31,7 @@ private:
         int family;
         int socktype;
         int protocol;
-    } _local_sockinfo;
+    } _local_sockinfo = { 0, 0, 0 };
     
     sockaddr_storage _local_sockaddr;
     socklen_t _local_sockaddr_len;
@@ -40,5 +42,7 @@ private:
     std::unordered_map< std::string, std::shared_ptr<UdpSocket> > _accepted_sockets;
     bool _reliable = false;
 };
+
+} // lux
 
 #endif // !_WIN32

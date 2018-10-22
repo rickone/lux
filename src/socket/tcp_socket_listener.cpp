@@ -2,6 +2,8 @@
 #include "socket_manager.h"
 #include "config.h"
 
+using namespace lux;
+
 void TcpSocketListener::new_class(lua_State *L)
 {
     lua_new_class(L, TcpSocketListener);

@@ -1,6 +1,8 @@
 #include "socket.h"
 #include "socket_manager.h"
 
+using namespace lux;
+
 Socket::Socket(socket_t fd) : _fd(fd)
 {
 }

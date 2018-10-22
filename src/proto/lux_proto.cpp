@@ -1,6 +1,8 @@
 #include "lux_proto.h"
 #include <cstdio>
 
+using namespace lux;
+
 LuxProto::LuxProto(const LuxProto &other) : _str(other._str)
 {
 }

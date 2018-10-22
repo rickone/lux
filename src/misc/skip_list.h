@@ -5,7 +5,8 @@
 #include <algorithm> // min
 #include <random>
 #include "error.h"
-#include "log.h"
+
+namespace lux {
 
 template<typename KeyType, typename ValueType, int I>
 class SkipListNode
@@ -422,6 +423,7 @@ public:
 
     void dump()
     {
+        /*
         log_info("%s\n", "<< SkipList dump Info >> ");
         log_info("Level = %d, Length = %u\n\n", _level, _length);
 
@@ -430,6 +432,7 @@ public:
         {
             node->dump(false);
         }
+        */
     }
 
 
@@ -441,3 +444,5 @@ private:
     std::default_random_engine _random_engine;
     std::uniform_int_distribution<int> _random_dis;
 };
+
+} // lux

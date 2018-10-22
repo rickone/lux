@@ -3,6 +3,8 @@
 #include <cstddef> // size_t
 #include <string>
 
+namespace lux {
+
 inline bool is_varint_header(uint8_t header)
 {
     return (header & 0xC0) != 0xC0;
@@ -30,3 +32,5 @@ inline int64_t zigzag_decode64(uint64_t value)
 
 void varint_pack(std::string &str, uint64_t value);
 uint64_t varint_unpack(const std::string &str, size_t pos, size_t *used_len);
+
+} // lux

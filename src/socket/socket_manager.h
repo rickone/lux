@@ -4,6 +4,8 @@
 #include <unordered_map>
 #include "socket.h"
 
+namespace lux {
+
 class SocketManager final
 {
 public:
@@ -39,3 +41,5 @@ private:
     int _fd = -1;
 #endif
 };
+
+} // lux

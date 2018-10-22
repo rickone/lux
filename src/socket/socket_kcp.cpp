@@ -2,6 +2,8 @@
 #include "timer_manager.h"
 #include "log.h"
 
+using namespace lux;
+
 static int kcp_output(const char *buf, int len, struct IKCPCB *kcp, void *user)
 {
     SocketKcp *sr = (SocketKcp *)user;

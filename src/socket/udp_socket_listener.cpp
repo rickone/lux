@@ -3,7 +3,9 @@
 #include <cstring> // memcpy
 #include "socket_manager.h"
 
-UdpSocketListener::UdpSocketListener(socket_t fd) : Socket(fd), _local_sockinfo(), _recv_buffer()
+using namespace lux;
+
+UdpSocketListener::UdpSocketListener(socket_t fd) : Socket(fd)
 {
 }
 
