@@ -3,6 +3,14 @@
 
 using namespace lux;
 
+Proto::Proto(const char *data, size_t len) : _str(data, len)
+{
+}
+
+Proto::Proto(const std::string &str) : _str(str)
+{
+}
+
 Proto::Proto(const Proto &other) : _str(other._str)
 {
 }
@@ -31,8 +39,8 @@ void Proto::new_class(lua_State *L)
 
     lua_newtable(L);
     {
-        lua_property(L, pos);
         lua_property(L, str);
+        lua_property(L, pos);
     }
     lua_setfield(L, -2, "__property");
 
@@ -118,10 +126,10 @@ int Proto::lua_unpack(lua_State *L)
 
 void Proto::pack_lua_object(lua_State *L, int index)
 {
-    int type = lua_type(L, index);
     if (index < 0)
         index = lua_gettop(L) + index + 1;
 
+    int type = lua_type(L, index);
     switch (type)
     {
         case LUA_TNIL:

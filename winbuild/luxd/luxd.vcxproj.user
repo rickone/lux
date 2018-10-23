@@ -1,22 +1,22 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>--config=default.conf --start=task.lua --local_log=../logs/debug.log --extra=</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>--config=default.conf --start=resp.lua --local_log=../logs/debug.log --extra=</LocalDebuggerCommandArguments>
     <LocalDebuggerWorkingDirectory>..\..\test</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LocalDebuggerCommandArguments>--config=default.conf --start=task.lua --local_log=../logs/debug.log --extra=</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>--config=default.conf --start=resp.lua --local_log=../logs/debug.log --extra=</LocalDebuggerCommandArguments>
     <LocalDebuggerWorkingDirectory>..\..\test</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LocalDebuggerCommandArguments>--config=default.conf --start=task.lua --local_log=../logs/debug.log --extra=</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>--config=default.conf --start=resp.lua --local_log=../logs/debug.log --extra=</LocalDebuggerCommandArguments>
     <LocalDebuggerWorkingDirectory>..\..\test</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LocalDebuggerCommandArguments>--config=default.conf --start=task.lua --local_log=../logs/debug.log --extra=</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>--config=default.conf --start=resp.lua --local_log=../logs/debug.log --extra=</LocalDebuggerCommandArguments>
     <LocalDebuggerWorkingDirectory>..\..\test</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>

@@ -20,6 +20,8 @@ class Proto : public Object
 {
 public:
     Proto() = default;
+    Proto(const char *data, size_t len);
+    explicit Proto(const std::string &str);
     Proto(const Proto &other);
     virtual ~Proto() = default;
     Proto & operator =(const Proto &other);
@@ -128,11 +130,11 @@ public:
         return func(unpack<typename std::decay<A>::type>()...);
     }
 
-    size_t pos() const { return _pos; }
-    void set_pos(size_t pos) { _pos = pos; }
-
     const std::string & str() const { return _str; }
     void set_str(const std::string &str) { _str = str; }
+
+    size_t pos() const { return _pos; }
+    void set_pos(size_t pos) { _pos = pos; }
 
 private:
     std::string _str;
