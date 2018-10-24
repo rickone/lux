@@ -4,6 +4,8 @@
 #include <sys/signalfd.h>
 #endif
 
+using namespace lux;
+
 SocketAddr::SocketAddr()
 {
 #ifdef __linux__

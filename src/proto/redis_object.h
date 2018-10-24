@@ -3,6 +3,7 @@
 #include <memory> // shared_ptr
 #include <string>
 #include <vector>
+#include "redis_proto_def.h"
 
 class RedisObject
 {
@@ -62,7 +63,7 @@ public:
 
     virtual void serialize(std::string &str) const override
     {
-        redis_pack_integer(str, _val);
+        lux::redis_pack_integer(str, _val);
     }
 
 private:

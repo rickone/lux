@@ -3,6 +3,8 @@
 #include <memory>
 #include "socket.h"
 
+namespace lux {
+
 class SocketAddr : public Socket
 {
 public:
@@ -25,3 +27,6 @@ private:
     struct addrinfo *_ai_result = nullptr;
 #endif
 };
+
+} // lux
+
