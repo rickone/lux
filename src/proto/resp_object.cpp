@@ -1,5 +1,6 @@
 #include "resp_object.h"
 #include <cassert>
+#include <cstring>
 
 RespObject::RespObject(RespType type) : _type(type)
 {
@@ -81,7 +82,7 @@ void RespObject::serialize(std::string& str)
     }
 }
 
-bool RespObject::parse(const char *data, size_t len)
+bool RespObject::parse_line(const char *data, size_t len)
 {
     if (_parse_pending)
     {
@@ -189,6 +190,29 @@ bool RespObject::parse(const char *data, size_t len)
             throw std::runtime_error(std::string("Unknown RESP header: ") + *data);
     }
 
+    return false;
+}
+
+bool RespObject::deserialize(const char *data, size_t len, size_t *used_len)
+{
+    const char *offset = data;
+    for (;;)
+    {
+        const char *tail = strstr(offset, "\r\n");
+        if (tail == nullptr)
+            break;
+
+        bool ret = parse_line(offset, tail - offset + 2);
+        if (ret)
+        {
+            *used_len = tail - data + 2;
+            return true;
+        }
+
+        offset = tail + 2;
+    }
+
+    *used_len = offset - data;
     return false;
 }
 

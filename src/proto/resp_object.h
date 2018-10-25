@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <stdexcept>
 
 enum class RespType
 {
@@ -71,11 +72,20 @@ public:
     }
 
     void serialize(std::string &str);
-    bool parse(const char *data, size_t len);
 
-    bool parse(const std::string &str)
+    bool parse_line(const char *data, size_t len);
+    bool parse_line(const std::string &str)
     {
-        return parse(str.data(), str.size());
+        return parse_line(str.data(), str.size());
+    }
+
+    bool deserialize(const char *data, size_t len, size_t *used_len);
+    bool deserialize(const std::string &str, size_t pos, size_t *used_len)
+    {
+        if (pos >= str.size())
+            throw std::out_of_range("deserialize pos out of range");
+
+        return deserialize(str.data() + pos, str.size() - pos, used_len);
     }
 
     operator std::string() const;
