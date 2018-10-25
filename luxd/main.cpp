@@ -14,17 +14,20 @@ int main(int argc, char* argv[])
 
     RespObject obj2;
     std::string str2 = "*2\r\n$5\r\nhello\r\n$5\r\nworld\r\n";
-    std::string::size_type pos = 0;
+    //std::string::size_type pos = 0;
+    size_t pos = 0;
     for (;;)
     {
-        std::string::size_type tail = str2.find("\r\n", pos, 2);
-        if (tail == std::string::npos)
-            break;
+        //std::string::size_type tail = str2.find("\r\n", pos, 2);
+        //if (tail == std::string::npos)
+            //break;
 
-        if (obj2.parse(str2.data() + pos, tail - pos + 2))
-            break;
+        size_t used_len = 0;
+        bool ret = obj2.deserialize(str2, pos, &used_len);
+        pos += used_len;
 
-        pos = tail + 2;
+        if (ret)
+            break;
     }
 
     std::cout << obj2 << std::endl;

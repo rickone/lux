@@ -107,7 +107,7 @@ bool RespObject::parse_line(const char *data, size_t len)
 
             case RespType::RESP_ARRAY:
             {
-                if (!_array.back().parse(data, len))
+                if (!_array.back().parse_line(data, len))
                     return false;
 
                 --_unparsed_length;
