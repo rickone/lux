@@ -111,6 +111,9 @@
     <ClCompile Include="..\..\src\proto\redis_object.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\proto\resp_object.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\lua\lua_port.h">
@@ -228,6 +231,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\proto\redis_object.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\proto\resp_object.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

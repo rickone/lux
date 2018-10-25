@@ -176,6 +176,7 @@
     <ClCompile Include="..\..\src\proto\lux_proto.cpp" />
     <ClCompile Include="..\..\src\proto\redis_object.cpp" />
     <ClCompile Include="..\..\src\proto\redis_proto.cpp" />
+    <ClCompile Include="..\..\src\proto\resp_object.cpp" />
     <ClCompile Include="..\..\src\proto\variant_int.cpp" />
     <ClCompile Include="..\..\src\socket\socket.cpp" />
     <ClCompile Include="..\..\src\socket\socket_kcp.cpp" />
@@ -225,6 +226,7 @@
     <ClInclude Include="..\..\src\proto\redis_object.h" />
     <ClInclude Include="..\..\src\proto\redis_proto.h" />
     <ClInclude Include="..\..\src\proto\redis_proto_def.h" />
+    <ClInclude Include="..\..\src\proto\resp_object.h" />
     <ClInclude Include="..\..\src\proto\variant_int.h" />
     <ClInclude Include="..\..\src\socket\socket.h" />
     <ClInclude Include="..\..\src\socket\socket_def.h" />
