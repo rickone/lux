@@ -21,6 +21,8 @@ public:
     explicit RespObject(RespType type);
     virtual ~RespObject() = default;
 
+    void clear();
+
     RespType type() const { return _type; }
     void set_type(RespType type) { _type = type; }
 
@@ -33,6 +35,7 @@ public:
 
     auto begin() const { return _array.begin(); }
     auto end() const { return _array.end(); }
+    size_t array_size() const { return _array.size(); }
 
     template<typename T>
     void set(T t)
@@ -52,12 +55,17 @@ public:
         return *this;
     }
 
+    void push(const RespObject &obj)
+    {
+        _array.push_back(obj);
+    }
+
     template<typename T>
     void push(RespType type, T t)
     {
         RespObject obj(type);
         obj.set(t);
-        _array.push_back(obj);
+        push(obj);
     }
 
     template<typename T, typename...A>

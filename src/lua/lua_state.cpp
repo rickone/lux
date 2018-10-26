@@ -10,8 +10,8 @@
 #include "socket_kcp.h"
 #include "socket_package.h"
 #include "lux_proto.h"
-#include "redis_proto.h"
 #include "task_master.h"
+#include "redis_socket.h"
 
 using namespace lux;
 
@@ -84,8 +84,8 @@ void LuaState::lua_core_openlibs(lua_State *L)
     lua_class_define<SocketKcp>(L);
     lua_class_define<SocketPackage>(L);
     lua_class_define<Proto>(L);
-    lua_class_define<RedisProto>(L);
     lua_class_define<TaskMaster>(L);
+    lua_class_define<RedisSocket>(L);
 
     lua_lib(L, "lux_core");
     {

@@ -6,6 +6,15 @@ RespObject::RespObject(RespType type) : _type(type)
 {
 }
 
+void RespObject::clear()
+{
+    _type = RespType::RESP_NULL;
+    _value.clear();
+    _array.clear();
+    _parse_pending = false;
+    _unparsed_length = 0;
+}
+
 void RespObject::set(const std::string &str)
 {
     set_value(str);
