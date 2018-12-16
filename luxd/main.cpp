@@ -1,36 +1,52 @@
 #include "lux_core.h"
-#include "resp_object.h"
+#include "channel.h"
 #include <iostream>
+#include <thread>
+#include <vector>
 
-int main(int argc, char* argv[])
-{
-    RespObject obj(RespType::RESP_ARRAY);
-    obj.set_array("SET", "age", 33);
-    std::cout << obj << std::endl;
-
-    std::string str;
-    obj.serialize(str);
-    std::cout << str << std::endl;
-
-    RespObject obj2;
-    std::string str2 = "*2\r\n$5\r\nhello\r\n$5\r\nworld\r\n";
-    //std::string::size_type pos = 0;
-    size_t pos = 0;
-    for (;;)
-    {
-        //std::string::size_type tail = str2.find("\r\n", pos, 2);
-        //if (tail == std::string::npos)
-            //break;
-
-        size_t used_len = 0;
-        bool ret = obj2.deserialize(str2, pos, &used_len);
-        pos += used_len;
-
-        if (ret)
-            break;
+void producer(Channel* chan, int start, int num) {
+    for (int i = 0; i < num; ++i) {
+        int n = start + i;
+        auto node = ChanNode::create(sizeof(n));
+        memcpy(node->data, &n, sizeof(n));
+        chan->push(node);
     }
+}
 
-    std::cout << obj2 << std::endl;
+void consumer(Channel* chan, std::atomic<bool>* notify_stop) {
+    while (!notify_stop->load(std::memory_order_acquire)) {
+        auto node = chan->pop();
+        if (node == nullptr)
+            continue;
+
+        printf("consume: %d\n", *(int*)node->data);
+        free(node);
+    }
+}
+
+int main(int argc, char* argv[]) {
+    const int producer_num = 10;
+    const int consumer_num = 4;
+
+    Channel chan;
+    std::atomic<bool> notify_stop(false);
+
+    std::vector<std::thread> t1;
+    for (int i = 0; i < producer_num; ++i)
+        t1.emplace_back(producer, &chan, i * 100, 100);
+
+    std::vector<std::thread> t2;
+    for (int i = 0; i < consumer_num; ++i)
+        t2.emplace_back(consumer, &chan, &notify_stop);
+
+    for (int i = 0; i < producer_num; ++i)
+        t1[i].join();
+
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+    notify_stop.store(true, std::memory_order_release);
+
+    for (int i = 0; i < consumer_num; ++i)
+        t2[i].join();
 
     //return lux::Core::main(argc, argv);
     return 0;
