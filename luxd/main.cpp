@@ -25,6 +25,7 @@ void consumer(Channel* chan, std::atomic<bool>* notify_stop) {
 }
 
 int main(int argc, char* argv[]) {
+    /*
     const int producer_num = 10;
     const int consumer_num = 4;
 
@@ -47,7 +48,7 @@ int main(int argc, char* argv[]) {
 
     for (int i = 0; i < consumer_num; ++i)
         t2[i].join();
-
-    //return lux::Core::main(argc, argv);
-    return 0;
+    */
+    return lux::Core::main(argc, argv);
+    //return 0;
 }
