@@ -1,33 +1,38 @@
 #pragma once
 
-#include <memory>
 #include "lua_port.h"
+#include "queue.h"
 
 namespace lux {
 
-enum RoutineStatus {
-    kRoutineStatus_Suspended,
-    kRoutineStatus_DataReady,
-    kRoutineStatus_Finished,
-};
-
 class Routine : public Object {
 public:
-    Routine() = default;
+    enum Status {
+        kStatus_Idle,
+        kStatus_Running,
+        kStatus_Finished,
+    };
+
+    Routine();
     virtual ~Routine();
 
     static void new_class(lua_State *L);
     static int create(lua_State* L);
 
-    int init(lua_State* L);
-    int load(lua_State* L);
-    int run(lua_State* L);
-    int resume(lua_State* L);
+    bool init(lua_State* L);
+    int activate();
+    void resume_data(const char* data, size_t len);
+
+    void push(const char* data, size_t len) { _queue.push(data, len); }
+    int status() const { return _status; }
 
 private:
     lua_State* _co = nullptr;
     int _co_ref = LUA_NOREF;
     int _func_ref = LUA_NOREF;
+
+    int _status;
+    Queue _queue;
 };
 
 } // lux

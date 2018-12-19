@@ -1,13 +1,8 @@
 require "lux"
 
-local r = lux_core.create_routine()
-print("->", r:run(function(a, b)
-    print(":", a, b)
-    print(":", coroutine.yield(1, 2, 3))
-    print(":", coroutine.yield("Hello", "World"))
-    return "done" + 3.14
-end, 100, "Lux"
-))
-
-print("->", r:resume(3, 2, 1))
-print("->", r:resume("World", "Hello"))
+for i = 1, 100 do
+    lux_core.create_routine(function()
+        --lux_core.create_routine(print, i, "Hello Lux", lux_core.self_name())
+        print(i, "Hello Lux", lux_core.self_name())
+    end)
+end

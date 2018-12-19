@@ -174,16 +174,18 @@ void LogContext::log(int level, const char *str)
 
     log_text.append(str);
 
-    FILE *fout = stdout;
+    int fd = STDOUT_FILENO;
     _local_log_file.write_line(tm_now, log_text);
     if (level <= kLevelError)
     {
         _error_log_file.write_line(tm_now, log_text);
-        fout = stderr;
+        fd = STDERR_FILENO;
     }
 
-    fprintf(fout, "%s\n", str);
-    fflush(fout);
+    size_t len = strlen(str);
+
+    write(fd, str, len);
+    write(fd, "\n", 1);
 }
 
 void LogContext::log_format(int level, const char *fmt, ...)

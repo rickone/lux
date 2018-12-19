@@ -6,8 +6,6 @@
 #include <random>
 #include "error.h"
 
-namespace lux {
-
 template<typename KeyType, typename ValueType, int I>
 class SkipListNode
 {
@@ -444,5 +442,3 @@ private:
     std::default_random_engine _random_engine;
     std::uniform_int_distribution<int> _random_dis;
 };
-
-} // lux

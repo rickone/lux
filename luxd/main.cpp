@@ -1,44 +1,43 @@
 #include "lux_core.h"
-#include "channel.h"
+#include "queue.h"
 #include <iostream>
 #include <thread>
 #include <vector>
 
-void producer(Channel* chan, int start, int num) {
+using namespace lux;
+
+void producer(Queue* q, int start, int num) {
     for (int i = 0; i < num; ++i) {
         int n = start + i;
-        auto node = ChanNode::create(sizeof(n));
-        memcpy(node->data, &n, sizeof(n));
-        chan->push(node);
+        q->push((const char*)&n, sizeof(n));
     }
 }
 
-void consumer(Channel* chan, std::atomic<bool>* notify_stop) {
+void consumer(Queue* q, std::atomic<bool>* notify_stop) {
     while (!notify_stop->load(std::memory_order_acquire)) {
-        auto node = chan->pop();
+        auto node = q->pop();
         if (node == nullptr)
             continue;
 
-        printf("consume: %d\n", *(int*)node->data);
-        free(node);
+        printf("consume: %06d\n", *(int*)node->data);
     }
 }
 
 int main(int argc, char* argv[]) {
     /*
-    const int producer_num = 10;
-    const int consumer_num = 4;
+    const int producer_num = 20;
+    const int consumer_num = 20;
 
-    Channel chan;
+    Queue q;
     std::atomic<bool> notify_stop(false);
 
     std::vector<std::thread> t1;
     for (int i = 0; i < producer_num; ++i)
-        t1.emplace_back(producer, &chan, i * 100, 100);
+        t1.emplace_back(producer, &q, 1 + i * 10000, 10000);
 
     std::vector<std::thread> t2;
     for (int i = 0; i < consumer_num; ++i)
-        t2.emplace_back(consumer, &chan, &notify_stop);
+        t2.emplace_back(consumer, &q, &notify_stop);
 
     for (int i = 0; i < producer_num; ++i)
         t1[i].join();
@@ -48,7 +47,8 @@ int main(int argc, char* argv[]) {
 
     for (int i = 0; i < consumer_num; ++i)
         t2[i].join();
+
+    return 0;
     */
     return lux::Core::main(argc, argv);
-    //return 0;
 }

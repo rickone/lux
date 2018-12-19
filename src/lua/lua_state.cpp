@@ -13,6 +13,7 @@
 #include "task_master.h"
 #include "redis_socket.h"
 #include "routine.h"
+#include "channel.h"
 
 using namespace lux;
 
@@ -88,6 +89,7 @@ void LuaState::lua_core_openlibs(lua_State *L)
     lua_class_define<TaskMaster>(L);
     lua_class_define<RedisSocket>(L);
     lua_class_define<Routine>(L);
+    lua_class_define<Channel>(L);
 
     lua_lib(L, "lux_core");
     {
