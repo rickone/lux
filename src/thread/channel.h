@@ -1,24 +1,24 @@
 #pragma once
 
 #include <atomic>
+#include "lua_port.h"
+#include "queue.h"
 
-struct ChanNode {
-    std::atomic<ChanNode*> next;
-    size_t len;
-    char data[0];
+namespace lux {
 
-    static ChanNode* create(size_t len);
-};
-
-class Channel {
+class Channel : public Object {
 public:
-    Channel();
-    virtual ~Channel();
+    Channel() = default;
+    virtual ~Channel() = default;
 
-    void push(ChanNode* node);
-    ChanNode* pop();
+    static void new_class(lua_State *L);
+    static std::shared_ptr<Channel> create();
+
+    int lua_push_(lua_State* L);
+    int lua_pop_(lua_State* L);
 
 private:
-    ChanNode* _head;
-    std::atomic<ChanNode*> _tail;
+    lux::Queue _queue;
 };
+
+} // lux

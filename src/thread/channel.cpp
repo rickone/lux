@@ -1,41 +1,39 @@
 #include "channel.h"
 #include <cstdlib> // malloc
+#include "lux_proto.h"
 
-ChanNode* ChanNode::create(size_t len) {
-    ChanNode* node = (ChanNode*)malloc(sizeof(ChanNode) + len);
-    node->next = nullptr;
-    node->len = len;
-    return node;
+using namespace lux;
+
+void Channel::new_class(lua_State *L) {
+    lua_new_class(L, Channel);
+
+    lua_newtable(L); {
+        lua_set_method(L, "push", lua_push_);
+        lua_set_method(L, "pop", lua_pop_);
+    } lua_setfield(L, -2, "__method");
+
+    lua_lib(L, "lux_core"); {
+        lua_set_method(L, "create_channel", create);
+    } lua_pop(L, 1);
 }
 
-Channel::Channel() {
-    _head = ChanNode::create(0);
-    _tail = _head;
+std::shared_ptr<Channel> Channel::create() {
+    return std::make_shared<Channel>();
 }
 
-Channel::~Channel() {
-    for (ChanNode* node = _head; node != nullptr; ) {
-        ChanNode* next = node->next;
-        free(node);
-        node = next;
-    }
-    _head = nullptr;
-    _tail = nullptr;
+int Channel::lua_push_(lua_State* L) {
+    Proto pt;
+    pt.lua_pack(L);
+
+    _queue.push(pt.str().data(), pt.str().size());
+    return 0;
 }
 
-void Channel::push(ChanNode* new_node) {
-    new_node->next = nullptr;
-    ChanNode* old_node = nullptr;
-    ChanNode* node = _tail.load();
-    while (!node->next.compare_exchange_weak(old_node, new_node)) {
-        node = old_node;
-        old_node = nullptr;
-    }
-    _tail = new_node;
-}
+int Channel::lua_pop_(lua_State* L) {
+    auto node = _queue.pop();
+    if (node == nullptr)
+        return 0;
 
-ChanNode* Channel::pop() {
-    ChanNode* node = _head->next.load();
-    while (node && !_head->next.compare_exchange_weak(node, node->next));
-    return node;
+    Proto pt(node->data, node->len);
+    return pt.lua_unpack(L);
 }
