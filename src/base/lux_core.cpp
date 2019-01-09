@@ -7,7 +7,7 @@
 #include "timer_manager.h"
 #include "socket_manager.h"
 #include "lua_state.h"
-#include "routine_manager.h"
+#include "task_thread_pool.h"
 
 #ifdef _WIN32
 #include <io.h>
@@ -100,7 +100,7 @@ void Core::init(int argc, char *argv[])
     TimerManager::inst()->init();
     SocketManager::inst()->init();
     LuaState::inst()->init();
-    RoutineManager::inst()->init();
+    TaskThreadPool::inst()->init();
 
     auto timer = Timer::create(200);
     timer->on_timer.set(this, &Core::on_gc);
@@ -112,9 +112,9 @@ void Core::init(int argc, char *argv[])
     signal(SIGCHLD, SIG_IGN);
 #endif
 #ifdef _DEBUG
-    //signal(SIGABRT, on_debug);
-    //signal(SIGFPE, on_debug);
-    //signal(SIGSEGV, on_debug);
+    signal(SIGABRT, on_debug);
+    signal(SIGFPE, on_debug);
+    signal(SIGSEGV, on_debug);
 #endif
 
 #if !defined(_WIN32)
@@ -172,7 +172,6 @@ void Core::on_gc()
 {
     LuaState::inst()->gc();
     ObjectManager::inst()->gc();
-    RoutineManager::inst()->gc();
 }
 
 void Core::on_fork(int pid)
