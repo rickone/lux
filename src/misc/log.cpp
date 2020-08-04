@@ -8,6 +8,7 @@
 #else
 #include <syslog.h>
 #endif
+#include <unistd.h>
 #include "config.h"
 #include "error.h"
 #include "lua.hpp"
